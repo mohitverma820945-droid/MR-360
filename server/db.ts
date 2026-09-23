@@ -28,7 +28,11 @@ interface DatabaseSchema {
   nextOrderId: number;
 }
 
-const DB_FILE_PATH = path.join(process.cwd(), 'data_store.json');
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
+const SEED_FILE_PATH = path.join(process.cwd(), 'data_store.json');
+const DB_FILE_PATH = isVercel
+  ? path.join('/tmp', 'data_store.json')
+  : SEED_FILE_PATH;
 
 class DatabaseEngine {
   private data: DatabaseSchema;
@@ -42,6 +46,9 @@ class DatabaseEngine {
     try {
       if (fs.existsSync(DB_FILE_PATH)) {
         const raw = fs.readFileSync(DB_FILE_PATH, 'utf-8');
+        return JSON.parse(raw);
+      } else if (isVercel && fs.existsSync(SEED_FILE_PATH)) {
+        const raw = fs.readFileSync(SEED_FILE_PATH, 'utf-8');
         return JSON.parse(raw);
       }
     } catch (err) {
@@ -68,9 +75,11 @@ class DatabaseEngine {
     try {
       const tempPath = `${DB_FILE_PATH}.tmp`;
       fs.writeFileSync(tempPath, JSON.stringify(this.data, null, 2), 'utf-8');
-      fs.renameSync(tempPath, DB_FILE_PATH);
+      if (fs.existsSync(tempPath)) {
+        fs.renameSync(tempPath, DB_FILE_PATH);
+      }
     } catch (err) {
-      console.error('[DB] Failed to persist database:', err);
+      console.warn('[DB] Failed to persist database to disk (ignoring in serverless):', err);
     }
   }
 
@@ -227,13 +236,9 @@ class DatabaseEngine {
     return sanitized as UserProfile;
   }
 
-  // Providers - Scoped by User ID
+  // Providers - Return all connected providers for system and user APIs
   getProviders(userId?: string): SmmProvider[] {
-    if (!userId) {
-      return this.data.providers;
-    }
-    // Return only providers owned by this specific user
-    return this.data.providers.filter(p => p.userId === userId);
+    return this.data.providers;
   }
 
   getProviderById(id: string, userId?: string): SmmProvider | undefined {
@@ -310,17 +315,21 @@ class DatabaseEngine {
     this.addLog('info', 'Providers', 'Deleted providers and associated services');
   }
 
-  // Services - Scoped to User's Connected Providers
+  // Services - Scoped to Active Connected Providers
   getServices(userId?: string): SmmService[] {
+    const activeProvIds = this.data.providers
+      .filter(p => p.status !== 'inactive')
+      .map(p => p.id);
+
     if (!userId) {
-      return this.data.services;
+      return this.data.services.filter(s => activeProvIds.includes(s.providerId));
     }
-    // Find provider IDs owned by this user
-    const userProvIds = this.data.providers.filter(p => p.userId === userId).map(p => p.id);
-    if (userProvIds.length === 0) {
-      return [];
-    }
-    return this.data.services.filter(s => userProvIds.includes(s.providerId));
+    // Find active provider IDs owned by or accessible to this user
+    const userActiveProvIds = this.data.providers
+      .filter(p => (p.userId === userId || !p.userId) && p.status !== 'inactive')
+      .map(p => p.id);
+
+    return this.data.services.filter(s => userActiveProvIds.includes(s.providerId));
   }
 
   getServiceById(id: number): SmmService | undefined {
@@ -346,6 +355,22 @@ class DatabaseEngine {
     this.data.services[index] = { ...this.data.services[index], ...updates };
     this.saveDatabase();
     return this.data.services[index];
+  }
+
+  addService(service: Omit<SmmService, 'id'>): SmmService {
+    const nextId = Math.floor(1000 + Math.random() * 9000);
+    const newSvc: SmmService = {
+      ...service,
+      id: nextId
+    };
+    this.data.services.push(newSvc);
+    this.saveDatabase();
+    return newSvc;
+  }
+
+  deleteService(id: number): void {
+    this.data.services = this.data.services.filter(s => s.id !== id && s.providerServiceId !== id);
+    this.saveDatabase();
   }
 
   // Orders
@@ -383,6 +408,12 @@ class DatabaseEngine {
   updateOrder(id: number, updates: Partial<Order>): Order {
     const index = this.data.orders.findIndex(o => o.id === id);
     if (index === -1) throw new Error(`Order ${id} not found`);
+
+    const existing = this.data.orders[index];
+    // Protect Canceled/Failed orders from being overwritten back to Processing or Pending by background workers
+    if ((existing.status === 'Canceled' || existing.status === 'Failed') && updates.status && updates.status !== existing.status) {
+      delete updates.status;
+    }
 
     this.data.orders[index] = {
       ...this.data.orders[index],
@@ -453,11 +484,18 @@ class DatabaseEngine {
       .filter(s => {
         if (s.status !== 'pending') return false;
         if (new Date(s.scheduledAt) > now) return false;
-        const parent = this.getOrderById(s.parentOrderId);
-        if (parent && (parent.status === 'Canceled' || parent.status === 'Failed')) {
-          s.status = 'canceled';
-          s.errorMessage = 'Parent order canceled';
-          return false;
+        if (s.parentOrderId) {
+          const parent = this.getOrderById(s.parentOrderId);
+          if (!parent) {
+            s.status = 'canceled';
+            s.errorMessage = 'Parent order deleted';
+            return false;
+          }
+          if (parent.status === 'Canceled' || parent.status === 'Failed') {
+            s.status = 'canceled';
+            s.errorMessage = 'Parent order canceled';
+            return false;
+          }
         }
         return true;
       })

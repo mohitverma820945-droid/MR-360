@@ -11,7 +11,8 @@ import {
   ShieldCheck, 
   Zap,
   Lock,
-  Layers
+  Layers,
+  Power
 } from 'lucide-react';
 import { SmmProvider } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -30,6 +31,7 @@ export const CustomerProviderManager: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const fetchProviders = async () => {
@@ -130,7 +132,7 @@ export const CustomerProviderManager: React.FC = () => {
   };
 
   const handleDeleteProvider = async (id: string) => {
-    if (!window.confirm('Are you sure you want to disconnect this SMM provider node?')) return;
+    if (!window.confirm('Are you sure you want to disconnect & permanently delete this SMM provider node?')) return;
     try {
       const res = await fetch(`/api/providers/${id}`, {
         method: 'DELETE',
@@ -143,6 +145,36 @@ export const CustomerProviderManager: React.FC = () => {
       }
     } catch (err: any) {
       setStatusMessage({ type: 'error', text: err.message });
+    }
+  };
+
+  const handleToggleProviderStatus = async (provider: SmmProvider) => {
+    const isCurrentlyActive = provider.status !== 'inactive';
+    const nextStatus = isCurrentlyActive ? 'inactive' : 'active';
+    setTogglingId(provider.id);
+    try {
+      const res = await fetch(`/api/providers/${provider.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaderObj()
+        },
+        body: JSON.stringify({ status: nextStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatusMessage({ 
+          type: 'success', 
+          text: `Provider "${provider.name}" turned ${nextStatus === 'active' ? 'ON (Services active)' : 'OFF (Services hidden)'}.` 
+        });
+        fetchProviders();
+      } else {
+        setStatusMessage({ type: 'error', text: data.error || 'Failed to update provider status' });
+      }
+    } catch (err: any) {
+      setStatusMessage({ type: 'error', text: err.message });
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -323,12 +355,13 @@ export const CustomerProviderManager: React.FC = () => {
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2">
                     <span className="font-black text-sm text-slate-900 dark:text-white">{p.name}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                      p.status === 'active' 
-                        ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' 
-                        : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center space-x-1 ${
+                      p.status !== 'inactive' 
+                        ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800' 
+                        : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
                     }`}>
-                      {p.status}
+                      <span className={`w-1.5 h-1.5 rounded-full ${p.status !== 'inactive' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                      <span>{p.status !== 'inactive' ? 'ON (Active)' : 'OFF (Hidden)'}</span>
                     </span>
                   </div>
                   <div className="flex items-center space-x-2 text-[11px] font-mono text-slate-400">
@@ -337,7 +370,24 @@ export const CustomerProviderManager: React.FC = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* ON / OFF Toggle Switch */}
+                  <button
+                    type="button"
+                    onClick={() => handleToggleProviderStatus(p)}
+                    disabled={togglingId === p.id}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black flex items-center space-x-1.5 transition-all cursor-pointer ${
+                      p.status !== 'inactive'
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/20'
+                        : 'bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+                    }`}
+                    title={p.status !== 'inactive' ? 'Click to turn OFF this provider' : 'Click to turn ON this provider'}
+                  >
+                    <Power className={`w-3.5 h-3.5 ${togglingId === p.id ? 'animate-spin' : ''}`} />
+                    <span>{p.status !== 'inactive' ? 'ON' : 'OFF'}</span>
+                  </button>
+
+                  {/* Test Balance */}
                   <button
                     type="button"
                     onClick={() => handleTestConnection(p.id)}
@@ -348,6 +398,7 @@ export const CustomerProviderManager: React.FC = () => {
                     <span>Test Balance</span>
                   </button>
 
+                  {/* Sync Services */}
                   <button
                     type="button"
                     onClick={() => handleSyncServices(p.id)}
@@ -358,13 +409,15 @@ export const CustomerProviderManager: React.FC = () => {
                     <span>Sync 1:1 Services</span>
                   </button>
 
+                  {/* Delete Provider Button */}
                   <button
                     type="button"
                     onClick={() => handleDeleteProvider(p.id)}
-                    className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                    title="Delete Provider"
+                    className="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900 text-rose-600 dark:text-rose-400 font-black text-xs flex items-center space-x-1 transition-all cursor-pointer border border-rose-200 dark:border-rose-900"
+                    title="Permanently Delete SMM Panel Node"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Delete Panel</span>
                   </button>
                 </div>
               </div>

@@ -307,7 +307,7 @@ export const SingleOrderForm: React.FC = () => {
           >
             {services
               .filter(s => s.platform.toLowerCase() === selectedPlatform.toLowerCase() && s.category.toLowerCase() === selectedCategory.toLowerCase())
-              .filter(s => !serviceSearch || s.name.toLowerCase().includes(serviceSearch.toLowerCase()) || s.id.toString().includes(serviceSearch))
+              .filter(s => !serviceSearch || s.name.toLowerCase().includes(serviceSearch.toLowerCase()) || s.id.toString().includes(serviceSearch) || (s.providerServiceId && s.providerServiceId.toString().includes(serviceSearch)))
               .map(s => (
                 <option key={s.id} value={s.id}>
                   #{s.id} - {s.name} ({formatPrice(s.rate)}/1k)
@@ -380,6 +380,23 @@ export const SingleOrderForm: React.FC = () => {
                 onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 0)}
                 className="w-full px-4 py-2.5 rounded-xl bg-pink-50/30 dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
+              {/* Preset Buttons */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {[1000, 2000, 5000, 10000, 15000].map(val => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setQuantity(val)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer transition-all ${
+                      quantity === val
+                        ? 'bg-pink-600 text-white shadow-sm'
+                        : 'bg-pink-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-pink-100 border border-pink-100 dark:border-slate-700'
+                    }`}
+                  >
+                    {val >= 1000 ? `${val / 1000}k` : val}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {orderMode === 'drip_feed' ? (

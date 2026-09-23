@@ -133,7 +133,7 @@ export class SchedulerWorker {
 
           // Update parent order progress
           const parentOrder = db.getOrderById(item.parentOrderId);
-          if (parentOrder) {
+          if (parentOrder && parentOrder.status !== 'Canceled' && parentOrder.status !== 'Failed') {
             const completedBundles = (parentOrder.completedBundles || 0) + 1;
             const isFullyDone = completedBundles >= (parentOrder.totalBundles || 1);
 

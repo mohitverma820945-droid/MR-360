@@ -44,12 +44,12 @@ export const Navigation: React.FC<NavigationProps> = ({
   const { user, isAuthenticated, logout, setShowAuthModal, setAuthMode } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [providerBalance, setProviderBalance] = useState<{
-    balance: number | null;
+  const [providerList, setProviderList] = useState<Array<{
+    id: string;
+    name: string;
+    balanceInr: number | null;
     balanceUsd?: number | null;
-    currency: string;
-    providerName: string;
-  }>({ balance: null, balanceUsd: null, currency: 'INR', providerName: 'Loading...' });
+  }>>([]);
 
   const [loadingBalance, setLoadingBalance] = useState(false);
 
@@ -60,23 +60,13 @@ export const Navigation: React.FC<NavigationProps> = ({
         headers: getAuthHeaderObj()
       });
       const data = await res.json();
-      if (data.success && data.balance !== undefined) {
-        setProviderBalance({
-          balance: data.balance,
-          balanceUsd: data.balanceUsd,
-          currency: 'INR',
-          providerName: data.providerName || 'Primary Provider'
-        });
+      if (data.success && Array.isArray(data.providers)) {
+        setProviderList(data.providers);
       } else {
-        setProviderBalance({
-          balance: null,
-          balanceUsd: null,
-          currency: 'INR',
-          providerName: data.providerName || 'Provider'
-        });
+        setProviderList([]);
       }
     } catch {
-      setProviderBalance({ balance: null, balanceUsd: null, currency: 'INR', providerName: 'Provider' });
+      setProviderList([]);
     } finally {
       setLoadingBalance(false);
     }
@@ -216,9 +206,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                 <Wallet className="w-4 h-4 text-pink-500 shrink-0" />
                 <span 
                   className="text-slate-900 dark:text-white font-extrabold cursor-help font-mono"
-                  title={providerBalance.balanceUsd ? `USD Balance: $${providerBalance.balanceUsd.toFixed(2)} USD` : 'INR Balance'}
+                  title="Live Connected SMM Panels Balance"
                 >
-                  {providerBalance.balance !== null ? `₹${providerBalance.balance.toFixed(2)}` : '₹0.00'}
+                  ₹{providerList.length > 0 ? (providerList.reduce((acc, p) => acc + (p.balanceInr || 0), 0)).toFixed(2) : '0.00'}
                 </span>
                 <button 
                   onClick={fetchBalance}
@@ -423,28 +413,51 @@ export const Navigation: React.FC<NavigationProps> = ({
               )}
             </div>
 
-            {/* Live SMM Provider API Balance Box */}
-            <div className="p-5 border-b border-pink-100 dark:border-slate-800 bg-gradient-to-b from-pink-50/30 to-white dark:from-slate-900/50 dark:to-slate-950 space-y-3">
+            {/* Live Connected SMM Providers Balance Box */}
+            <div className="p-4 border-b border-pink-100 dark:border-slate-800 bg-gradient-to-b from-pink-50/30 to-white dark:from-slate-900/50 dark:to-slate-950 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                  Provider SMM Balance
+                  Connected SMM Panels
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950 text-pink-600 dark:text-pink-400 font-extrabold flex items-center space-x-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span>Live API</span>
                 </span>
               </div>
-              <div className="text-2xl font-black text-slate-900 dark:text-white font-mono flex items-baseline space-x-1">
-                <span className="text-pink-600 dark:text-pink-400 font-bold">₹</span>
-                <span>{providerBalance.balance !== null ? providerBalance.balance.toFixed(2) : '0.00'}</span>
-                {providerBalance.balanceUsd != null && (
-                  <span className="text-xs font-normal text-slate-400 pl-1">
-                    (${providerBalance.balanceUsd.toFixed(2)})
-                  </span>
-                )}
-              </div>
+
+              {providerList.length === 0 ? (
+                <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-center space-y-1">
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300 block">No SMM Panel Connected</span>
+                  <span className="text-[10px] text-slate-400 block">Connect your SMM provider API key to view live panel balance</span>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {providerList.map(p => (
+                    <div key={p.id} className="p-3 bg-pink-50/40 dark:bg-slate-900 rounded-xl border border-pink-100 dark:border-slate-800 flex items-center justify-between">
+                      <div>
+                        <span className="font-extrabold text-xs text-slate-900 dark:text-white block">{p.name}</span>
+                        <span className="text-[10px] text-slate-400 block font-mono">
+                          {p.balanceUsd != null ? `$${p.balanceUsd.toFixed(2)} USD` : 'Live API'}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-mono font-black text-sm text-pink-600 dark:text-pink-400 block">
+                          ₹{p.balanceInr !== null && p.balanceInr !== undefined ? p.balanceInr.toFixed(2) : '0.00'}
+                        </span>
+                        <span className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase block">
+                          INR Balance
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <button 
-                onClick={() => handleTabClick('customer-providers')}
+                onClick={() => {
+                  setDrawerOpen(false);
+                  handleTabClick('customer-providers');
+                }}
                 className="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-rose-600 to-fuchsia-600 hover:from-pink-500 hover:to-rose-500 text-white font-black text-xs shadow-md shadow-pink-600/25 flex items-center justify-center space-x-1.5 cursor-pointer transition-all"
               >
                 <Plus className="w-4 h-4" />

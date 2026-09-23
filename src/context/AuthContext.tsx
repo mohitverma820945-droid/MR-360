@@ -63,6 +63,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ email: email.trim(), password })
       });
 
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return { success: false, error: 'Authentication service temporarily unavailable. Please try again.' };
+      }
+
       const data = await res.json();
       if (data.success && data.user) {
         setUser(data.user);
@@ -72,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return { success: false, error: data.error || 'Invalid email or password' };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Login failed. Please try again.' };
+      return { success: false, error: 'Connection failed. Please check network and try again.' };
     }
   };
 
@@ -84,6 +89,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ email: email.trim(), password, username, name })
       });
 
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return { success: false, error: 'Registration service temporarily unavailable. Please try again.' };
+      }
+
       const data = await res.json();
       if (data.success && data.user) {
         setUser(data.user);
@@ -93,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return { success: false, error: data.error || 'Registration failed' };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Registration failed. Please try again.' };
+      return { success: false, error: 'Connection failed. Please check network and try again.' };
     }
   };
 

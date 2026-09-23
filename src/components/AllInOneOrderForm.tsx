@@ -194,6 +194,9 @@ export const AllInOneOrderForm: React.FC = () => {
     saves: { serviceId: null, totalQuantity: 317, runCount: 10, providerId: 'all' }
   });
 
+  // Per-metric Service ID / Keyword search query
+  const [serviceSearchQueries, setServiceSearchQueries] = useState<Record<string, string>>({});
+
   // Schedule Preview State
   const [previewing, setPreviewing] = useState(false);
   const [schedulePreviewData, setSchedulePreviewData] = useState<{
@@ -1040,7 +1043,7 @@ export const AllInOneOrderForm: React.FC = () => {
 
         {/* Preset Pill Buttons */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-          {[10000, 50000, 100000, 250000, 500000, 600000].map(val => (
+          {[1000, 2000, 5000, 10000, 15000].map(val => (
             <button
               key={val}
               type="button"
@@ -1058,9 +1061,20 @@ export const AllInOneOrderForm: React.FC = () => {
                   : 'bg-pink-50/50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-100 dark:border-slate-700'
               }`}
             >
-              {val >= 1000 ? `${val / 1000}K` : val}
+              {val >= 1000 ? `${val / 1000}k` : val}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => setCustomViewsMode(true)}
+            className={`py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+              customViewsMode
+                ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-md shadow-pink-500/25 ring-2 ring-pink-400'
+                : 'bg-pink-50/50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-100 dark:border-slate-700'
+            }`}
+          >
+            Custom
+          </button>
         </div>
 
         {/* Custom Views Option */}
@@ -1128,9 +1142,23 @@ export const AllInOneOrderForm: React.FC = () => {
 
           // Provider filtering for this metric
           const selectedProviderId = config.providerId || 'all';
-          const availableServices = selectedProviderId === 'all'
+          const providerFilteredServices = selectedProviderId === 'all'
             ? allMetricServices
             : allMetricServices.filter(s => s.providerId === selectedProviderId);
+
+          // Search query filtering (by Service ID or Name)
+          const searchQuery = (serviceSearchQueries[key] || '').toLowerCase().trim();
+          const cleanQuery = searchQuery.replace('#', '').trim();
+
+          const availableServices = providerFilteredServices.filter(s => {
+            if (!searchQuery) return true;
+            if (cleanQuery && (s.id.toString() === cleanQuery || s.providerServiceId?.toString() === cleanQuery)) {
+              return true;
+            }
+            const matchId = s.id.toString().includes(searchQuery) || (s.providerServiceId && s.providerServiceId.toString().includes(searchQuery));
+            const matchName = s.name.toLowerCase().includes(searchQuery);
+            return matchId || matchName;
+          });
 
           const svc = platformServices.find(s => s.id === config.serviceId);
           const effectiveRate = getEffectiveRate(key, config.serviceId);
@@ -1281,13 +1309,56 @@ export const AllInOneOrderForm: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* 2. Assigned Provider Service Dropdown */}
-                    <div className="space-y-1">
+                    {/* 2. Assigned Provider Service Dropdown & Search Bar */}
+                    <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-400">
                         <span>Assigned Provider SMM Service:</span>
                         <span className="font-mono text-emerald-600 dark:text-emerald-400 font-extrabold">
                           ₹{formatRatePrecision(effectiveRate)} / 1,000
                         </span>
+                      </div>
+
+                      {/* Service Search Bar */}
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="text"
+                          placeholder="Search Service ID (#13264) or Name..."
+                          value={serviceSearchQueries[key] || ''}
+                          onChange={(e) => {
+                            const queryVal = e.target.value;
+                            setServiceSearchQueries(prev => ({ ...prev, [key]: queryVal }));
+
+                            // Auto-select if exact numeric service ID matches
+                            const cleanId = queryVal.replace('#', '').trim();
+                            if (cleanId && !isNaN(Number(cleanId))) {
+                              const exactMatch = providerFilteredServices.find(s => 
+                                s.id === Number(cleanId) || s.providerServiceId === Number(cleanId)
+                              );
+                              if (exactMatch) {
+                                setMetricConfigs(prev => ({
+                                  ...prev,
+                                  [mKey]: {
+                                    ...prev[mKey],
+                                    serviceId: exactMatch.id,
+                                    providerId: exactMatch.providerId || prev[mKey].providerId
+                                  }
+                                }));
+                              }
+                            }
+                          }}
+                          className={`w-full pl-8 pr-8 py-2 ${theme.inputBg} border ${theme.inputBorder} rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${theme.inputRing}`}
+                        />
+                        {serviceSearchQueries[key] && (
+                          <button
+                            type="button"
+                            onClick={() => setServiceSearchQueries(prev => ({ ...prev, [key]: '' }))}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                            title="Clear Search"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
 
                       <select
@@ -1307,7 +1378,7 @@ export const AllInOneOrderForm: React.FC = () => {
                         className={`w-full px-3 py-2.5 ${theme.dropdownBg} border ${theme.dropdownBorder} rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${theme.inputRing} truncate cursor-pointer`}
                       >
                         {availableServices.length === 0 ? (
-                          <option value="">No services available for this panel selection</option>
+                          <option value="">No services match current provider filter or search query</option>
                         ) : (
                           groupedServices.map(group => (
                             <optgroup 
