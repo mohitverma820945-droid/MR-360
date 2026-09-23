@@ -1,0 +1,6 @@
+{
+  "name": "ZYNYX / YOYO ORGANIC - SMM Platform",
+  "description": "Production-ready SMM platform with real provider API integration, dynamic bundle generation, and reliable background order execution.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
