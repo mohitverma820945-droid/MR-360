@@ -46,13 +46,13 @@
       "apiUrl": "https://yoyomedia.in/api/v2",
       "apiKey": "525619d4ba8f4be4535ef52ad4e8fef9ba5dc9e411cc43d61ad42de5f3985556",
       "status": "active",
-      "balance": 44.31,
+      "balance": 40.34,
       "balanceCurrency": "USD",
-      "lastBalanceCheck": "2026-09-22T20:22:49.005Z",
+      "lastBalanceCheck": "2026-09-23T18:19:41.265Z",
       "id": "prov_mud0eaxk",
       "createdAt": "2026-09-22T18:30:07.832Z",
-      "balanceInr": 44.31,
-      "balanceUsd": 0.51,
+      "balanceInr": 40.34,
+      "balanceUsd": 0.46,
       "userId": "usr_mud2y46zkisk"
     }
   ],
@@ -66851,6 +66851,506 @@
   ],
   "orders": [
     {
+      "providerOrderId": "141174689",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 101,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10035,
+      "createdAt": "2026-09-23T18:05:43.029Z",
+      "updatedAt": "2026-09-23T18:05:43.029Z"
+    },
+    {
+      "providerOrderId": "141174687",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 101,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10034,
+      "createdAt": "2026-09-23T18:05:42.460Z",
+      "updatedAt": "2026-09-23T18:05:42.460Z"
+    },
+    {
+      "providerOrderId": "141174686",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 102,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10033,
+      "createdAt": "2026-09-23T18:05:42.331Z",
+      "updatedAt": "2026-09-23T18:05:42.331Z"
+    },
+    {
+      "providerOrderId": "141174685",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 105,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10032,
+      "createdAt": "2026-09-23T18:05:41.652Z",
+      "updatedAt": "2026-09-23T18:05:41.652Z"
+    },
+    {
+      "providerOrderId": "141174684",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 104,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10031,
+      "createdAt": "2026-09-23T18:05:41.395Z",
+      "updatedAt": "2026-09-23T18:05:41.395Z"
+    },
+    {
+      "providerOrderId": "141174682",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 107,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10030,
+      "createdAt": "2026-09-23T18:05:40.948Z",
+      "updatedAt": "2026-09-23T18:05:40.948Z"
+    },
+    {
+      "providerOrderId": "141174680",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 106,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10029,
+      "createdAt": "2026-09-23T18:05:40.747Z",
+      "updatedAt": "2026-09-23T18:05:40.747Z"
+    },
+    {
+      "providerOrderId": "141174678",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 109,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10028,
+      "createdAt": "2026-09-23T18:05:40.617Z",
+      "updatedAt": "2026-09-23T18:05:40.617Z"
+    },
+    {
+      "providerOrderId": "141174676",
+      "parentOrderId": 10008,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 109,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10027,
+      "createdAt": "2026-09-23T18:05:39.898Z",
+      "updatedAt": "2026-09-23T18:05:39.898Z"
+    },
+    {
+      "providerOrderId": "141174674",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 104,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10026,
+      "createdAt": "2026-09-23T18:05:39.767Z",
+      "updatedAt": "2026-09-23T18:05:39.767Z"
+    },
+    {
+      "providerOrderId": "141174673",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 100,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10025,
+      "createdAt": "2026-09-23T18:05:39.497Z",
+      "updatedAt": "2026-09-23T18:05:39.497Z"
+    },
+    {
+      "providerOrderId": "141174672",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 106,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10024,
+      "createdAt": "2026-09-23T18:05:39.366Z",
+      "updatedAt": "2026-09-23T18:20:28.852Z"
+    },
+    {
+      "providerOrderId": "141174671",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 100,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10023,
+      "createdAt": "2026-09-23T18:05:38.657Z",
+      "updatedAt": "2026-09-23T18:20:28.606Z"
+    },
+    {
+      "providerOrderId": "141174670",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 105,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10022,
+      "createdAt": "2026-09-23T18:05:38.257Z",
+      "updatedAt": "2026-09-23T18:20:28.373Z"
+    },
+    {
+      "providerOrderId": "141174669",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 106,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10021,
+      "createdAt": "2026-09-23T18:05:37.361Z",
+      "updatedAt": "2026-09-23T18:20:28.149Z"
+    },
+    {
+      "providerOrderId": "141174668",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 107,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10020,
+      "createdAt": "2026-09-23T18:05:36.650Z",
+      "updatedAt": "2026-09-23T18:20:27.890Z"
+    },
+    {
+      "providerOrderId": "141174667",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 108,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10019,
+      "createdAt": "2026-09-23T18:05:35.734Z",
+      "updatedAt": "2026-09-23T18:20:27.669Z"
+    },
+    {
+      "providerOrderId": "141174665",
+      "parentOrderId": 10005,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://instagram.com/reel/C1234567890/",
+      "quantity": 105,
+      "price": 0.0001,
+      "status": "Completed",
+      "providerStatus": "Completed",
+      "id": 10018,
+      "createdAt": "2026-09-23T18:05:35.030Z",
+      "updatedAt": "2026-09-23T18:16:14.730Z"
+    },
+    {
+      "providerOrderId": "141174664",
+      "parentOrderId": 10002,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
+      "quantity": 115,
+      "price": 0.0002,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10017,
+      "createdAt": "2026-09-23T18:05:34.699Z",
+      "updatedAt": "2026-09-23T18:20:27.452Z"
+    },
+    {
+      "providerOrderId": "141174663",
+      "parentOrderId": 10002,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
+      "quantity": 104,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10016,
+      "createdAt": "2026-09-23T18:05:33.747Z",
+      "updatedAt": "2026-09-23T18:20:27.222Z"
+    },
+    {
+      "providerOrderId": "141174662",
+      "parentOrderId": 10002,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
+      "quantity": 110,
+      "price": 0.0001,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10015,
+      "createdAt": "2026-09-23T18:05:33.077Z",
+      "updatedAt": "2026-09-23T18:20:26.988Z"
+    },
+    {
+      "providerOrderId": "141174660",
+      "parentOrderId": 10002,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
+      "quantity": 134,
+      "price": 0.0002,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10014,
+      "createdAt": "2026-09-23T18:05:32.356Z",
+      "updatedAt": "2026-09-23T18:20:26.761Z"
+    },
+    {
+      "providerOrderId": "141174659",
+      "parentOrderId": 10002,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
+      "quantity": 153,
+      "price": 0.0002,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10013,
+      "createdAt": "2026-09-23T18:05:31.399Z",
+      "updatedAt": "2026-09-23T18:20:26.543Z"
+    },
+    {
+      "providerOrderId": "141174657",
+      "parentOrderId": 10002,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
+      "quantity": 161,
+      "price": 0.0002,
+      "status": "Processing",
+      "providerStatus": "Pending",
+      "id": 10012,
+      "createdAt": "2026-09-23T18:05:30.668Z",
+      "updatedAt": "2026-09-23T18:20:26.315Z"
+    },
+    {
+      "providerOrderId": "141174656",
+      "parentOrderId": 10002,
+      "userId": "usr_admin_1",
+      "orderType": "all_in_one_child",
+      "platform": "Instagram",
+      "category": "Instagram Reel/IGTV/Normal Video Views",
+      "serviceId": 14218,
+      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
+      "providerId": "prov_mud0eaxk",
+      "providerName": "Yo ",
+      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
+      "quantity": 145,
+      "price": 0.0002,
+      "status": "Processing",
+      "providerStatus": "In progress",
+      "id": 10011,
+      "createdAt": "2026-09-23T18:05:29.960Z",
+      "updatedAt": "2026-09-23T18:20:25.752Z"
+    },
+    {
       "providerOrderId": "141128033",
       "parentOrderId": 10008,
       "userId": "usr_mohit_owner",
@@ -66867,7 +67367,8 @@
       "status": "Processing",
       "id": 10010,
       "createdAt": "2026-09-22T20:22:49.898Z",
-      "updatedAt": "2026-09-22T20:22:49.898Z"
+      "updatedAt": "2026-09-23T18:20:25.501Z",
+      "providerStatus": "Refunded"
     },
     {
       "providerOrderId": "141128032",
@@ -66883,10 +67384,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 101,
       "price": 0.0001,
-      "status": "Processing",
+      "status": "Completed",
       "id": 10009,
       "createdAt": "2026-09-22T20:22:49.618Z",
-      "updatedAt": "2026-09-22T20:22:49.618Z"
+      "updatedAt": "2026-09-23T18:07:20.134Z",
+      "providerStatus": "Completed"
     },
     {
       "providerOrderId": null,
@@ -66901,13 +67403,13 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 1057,
       "price": 0.0016,
-      "status": "Processing",
+      "status": "Completed",
       "totalBundles": 11,
-      "completedBundles": 2,
+      "completedBundles": 11,
       "durationHours": 6,
       "id": 10008,
       "createdAt": "2026-09-22T20:22:48.916Z",
-      "updatedAt": "2026-09-22T20:22:49.932Z"
+      "updatedAt": "2026-09-23T18:05:43.064Z"
     },
     {
       "providerOrderId": "141128009",
@@ -66926,7 +67428,8 @@
       "status": "Processing",
       "id": 10007,
       "createdAt": "2026-09-22T20:22:06.292Z",
-      "updatedAt": "2026-09-22T20:22:06.292Z"
+      "updatedAt": "2026-09-23T18:20:25.279Z",
+      "providerStatus": "Refunded"
     },
     {
       "providerOrderId": "141128007",
@@ -66942,10 +67445,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 104,
       "price": 0.0001,
-      "status": "Processing",
+      "status": "Completed",
       "id": 10006,
       "createdAt": "2026-09-22T20:22:06.003Z",
-      "updatedAt": "2026-09-22T20:22:06.003Z"
+      "updatedAt": "2026-09-23T18:07:19.345Z",
+      "providerStatus": "Completed"
     },
     {
       "providerOrderId": null,
@@ -66960,13 +67464,13 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 1057,
       "price": 0.0016,
-      "status": "Processing",
+      "status": "Completed",
       "totalBundles": 11,
-      "completedBundles": 2,
+      "completedBundles": 11,
       "durationHours": 6,
       "id": 10005,
       "createdAt": "2026-09-22T20:22:05.258Z",
-      "updatedAt": "2026-09-22T20:22:06.332Z"
+      "updatedAt": "2026-09-23T18:05:39.804Z"
     },
     {
       "providerOrderId": "141127147",
@@ -67021,13 +67525,13 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 1054,
       "price": 0.0019,
-      "status": "Processing",
+      "status": "Completed",
       "totalBundles": 9,
-      "completedBundles": 2,
+      "completedBundles": 9,
       "durationHours": 6,
       "id": 10002,
       "createdAt": "2026-09-22T19:54:29.999Z",
-      "updatedAt": "2026-09-22T19:57:45.786Z"
+      "updatedAt": "2026-09-23T18:05:34.736Z"
     },
     {
       "providerOrderId": null,
@@ -67152,12 +67656,13 @@
       "link": "https://instagram.com",
       "quantity": 337,
       "scheduledAt": "2026-09-22T20:43:32.383Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 6,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_7_muczzjri",
@@ -67169,12 +67674,13 @@
       "link": "https://instagram.com",
       "quantity": 394,
       "scheduledAt": "2026-09-22T21:14:27.739Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 7,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_8_muczzjri",
@@ -67186,12 +67692,13 @@
       "link": "https://instagram.com",
       "quantity": 500,
       "scheduledAt": "2026-09-22T21:39:13.520Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 8,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_9_muczzjri",
@@ -67203,12 +67710,13 @@
       "link": "https://instagram.com",
       "quantity": 451,
       "scheduledAt": "2026-09-22T22:07:23.003Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 9,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_10_muczzjri",
@@ -67220,12 +67728,13 @@
       "link": "https://instagram.com",
       "quantity": 507,
       "scheduledAt": "2026-09-22T22:38:32.075Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 10,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_11_muczzjri",
@@ -67237,12 +67746,13 @@
       "link": "https://instagram.com",
       "quantity": 367,
       "scheduledAt": "2026-09-22T23:07:27.803Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 11,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_12_muczzjri",
@@ -67254,12 +67764,13 @@
       "link": "https://instagram.com",
       "quantity": 507,
       "scheduledAt": "2026-09-22T23:33:56.179Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 12,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_13_muczzjri",
@@ -67271,12 +67782,13 @@
       "link": "https://instagram.com",
       "quantity": 370,
       "scheduledAt": "2026-09-23T00:02:51.805Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 13,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_14_muczzjri",
@@ -67288,12 +67800,13 @@
       "link": "https://instagram.com",
       "quantity": 396,
       "scheduledAt": "2026-09-23T00:34:07.417Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 14,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_15_muczzjri",
@@ -67305,12 +67818,13 @@
       "link": "https://instagram.com",
       "quantity": 408,
       "scheduledAt": "2026-09-23T00:59:39.477Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 15,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_16_muczzjri",
@@ -67322,12 +67836,13 @@
       "link": "https://instagram.com",
       "quantity": 519,
       "scheduledAt": "2026-09-23T01:32:31.155Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 16,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_17_muczzjri",
@@ -67339,12 +67854,13 @@
       "link": "https://instagram.com",
       "quantity": 415,
       "scheduledAt": "2026-09-23T02:00:06.774Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 17,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_18_muczzjri",
@@ -67356,12 +67872,13 @@
       "link": "https://instagram.com",
       "quantity": 524,
       "scheduledAt": "2026-09-23T02:27:22.493Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 18,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_19_muczzjri",
@@ -67373,12 +67890,13 @@
       "link": "https://instagram.com",
       "quantity": 436,
       "scheduledAt": "2026-09-23T03:00:24.502Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 19,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_20_muczzjri",
@@ -67390,12 +67908,13 @@
       "link": "https://instagram.com",
       "quantity": 495,
       "scheduledAt": "2026-09-23T03:27:00.780Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 20,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_21_muczzjri",
@@ -67407,12 +67926,13 @@
       "link": "https://instagram.com",
       "quantity": 336,
       "scheduledAt": "2026-09-23T03:56:53.044Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 21,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_22_muczzjri",
@@ -67424,12 +67944,13 @@
       "link": "https://instagram.com",
       "quantity": 438,
       "scheduledAt": "2026-09-23T04:22:44.189Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 22,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_23_muczzjri",
@@ -67441,12 +67962,13 @@
       "link": "https://instagram.com",
       "quantity": 464,
       "scheduledAt": "2026-09-23T04:49:18.166Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 23,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_24_muczzjri",
@@ -67458,12 +67980,13 @@
       "link": "https://instagram.com",
       "quantity": 490,
       "scheduledAt": "2026-09-23T05:22:49.737Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 24,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_25_muczzjri",
@@ -67475,12 +67998,13 @@
       "link": "https://instagram.com",
       "quantity": 419,
       "scheduledAt": "2026-09-23T05:50:48.342Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 25,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_26_muczzjri",
@@ -67492,12 +68016,13 @@
       "link": "https://instagram.com",
       "quantity": 318,
       "scheduledAt": "2026-09-23T06:16:29.222Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 26,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_27_muczzjri",
@@ -67509,12 +68034,13 @@
       "link": "https://instagram.com",
       "quantity": 330,
       "scheduledAt": "2026-09-23T06:49:22.781Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 27,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_28_muczzjri",
@@ -67526,12 +68052,13 @@
       "link": "https://instagram.com",
       "quantity": 420,
       "scheduledAt": "2026-09-23T07:19:18.906Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 28,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_29_muczzjri",
@@ -67543,12 +68070,13 @@
       "link": "https://instagram.com",
       "quantity": 407,
       "scheduledAt": "2026-09-23T07:41:28.923Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 29,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_30_muczzjri",
@@ -67560,12 +68088,13 @@
       "link": "https://instagram.com",
       "quantity": 445,
       "scheduledAt": "2026-09-23T08:16:11.763Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 30,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_31_muczzjri",
@@ -67577,12 +68106,13 @@
       "link": "https://instagram.com",
       "quantity": 306,
       "scheduledAt": "2026-09-23T08:42:57.321Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 31,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_32_muczzjri",
@@ -67594,12 +68124,13 @@
       "link": "https://instagram.com",
       "quantity": 449,
       "scheduledAt": "2026-09-23T09:14:53.468Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 32,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_33_muczzjri",
@@ -67611,12 +68142,13 @@
       "link": "https://instagram.com",
       "quantity": 396,
       "scheduledAt": "2026-09-23T09:43:51.359Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 33,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_34_muczzjri",
@@ -67628,12 +68160,13 @@
       "link": "https://instagram.com",
       "quantity": 440,
       "scheduledAt": "2026-09-23T10:08:52.241Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 34,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_35_muczzjri",
@@ -67645,12 +68178,13 @@
       "link": "https://instagram.com",
       "quantity": 383,
       "scheduledAt": "2026-09-23T10:38:58.650Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 35,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_36_muczzjri",
@@ -67662,12 +68196,13 @@
       "link": "https://instagram.com",
       "quantity": 292,
       "scheduledAt": "2026-09-23T11:04:17.602Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 36,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_37_muczzjri",
@@ -67679,12 +68214,13 @@
       "link": "https://instagram.com",
       "quantity": 317,
       "scheduledAt": "2026-09-23T11:37:21.472Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 37,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_38_muczzjri",
@@ -67696,12 +68232,13 @@
       "link": "https://instagram.com",
       "quantity": 403,
       "scheduledAt": "2026-09-23T12:07:26.457Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 38,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_39_muczzjri",
@@ -67713,12 +68250,13 @@
       "link": "https://instagram.com",
       "quantity": 354,
       "scheduledAt": "2026-09-23T12:33:21.373Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 39,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_40_muczzjri",
@@ -67730,12 +68268,13 @@
       "link": "https://instagram.com",
       "quantity": 346,
       "scheduledAt": "2026-09-23T13:03:23.341Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 40,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_41_muczzjri",
@@ -67747,12 +68286,13 @@
       "link": "https://instagram.com",
       "quantity": 289,
       "scheduledAt": "2026-09-23T13:28:19.984Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 41,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_42_muczzjri",
@@ -67764,12 +68304,13 @@
       "link": "https://instagram.com",
       "quantity": 411,
       "scheduledAt": "2026-09-23T14:01:38.692Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 42,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_43_muczzjri",
@@ -67781,12 +68322,13 @@
       "link": "https://instagram.com",
       "quantity": 318,
       "scheduledAt": "2026-09-23T14:27:35.020Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 43,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_44_muczzjri",
@@ -67798,12 +68340,13 @@
       "link": "https://instagram.com",
       "quantity": 431,
       "scheduledAt": "2026-09-23T14:59:22.493Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 44,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_45_muczzjri",
@@ -67815,12 +68358,13 @@
       "link": "https://instagram.com",
       "quantity": 415,
       "scheduledAt": "2026-09-23T15:28:51.340Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 45,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_46_muczzjri",
@@ -67832,12 +68376,13 @@
       "link": "https://instagram.com",
       "quantity": 406,
       "scheduledAt": "2026-09-23T15:57:30.121Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 46,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_47_muczzjri",
@@ -67849,12 +68394,13 @@
       "link": "https://instagram.com",
       "quantity": 370,
       "scheduledAt": "2026-09-23T16:20:35.235Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 47,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_48_muczzjri",
@@ -67866,12 +68412,13 @@
       "link": "https://instagram.com",
       "quantity": 402,
       "scheduledAt": "2026-09-23T16:52:16.967Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 48,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_49_muczzjri",
@@ -67883,12 +68430,13 @@
       "link": "https://instagram.com",
       "quantity": 280,
       "scheduledAt": "2026-09-23T17:21:46.805Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 49,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Views_50_muczzjri",
@@ -67900,12 +68448,13 @@
       "link": "https://instagram.com",
       "quantity": 288,
       "scheduledAt": "2026-09-23T17:49:07.182Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 50,
       "totalRuns": 50,
       "metric": "Views",
-      "createdAt": "2026-09-22T18:18:39.438Z"
+      "createdAt": "2026-09-22T18:18:39.438Z",
+      "errorMessage": "Service #101 not found in database"
     },
     {
       "id": "sch_10001_Likes_1_muczzjri",
@@ -67971,12 +68520,13 @@
       "link": "https://instagram.com",
       "quantity": 18,
       "scheduledAt": "2026-09-22T20:46:08.748Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 4,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_5_muczzjrj",
@@ -67988,12 +68538,13 @@
       "link": "https://instagram.com",
       "quantity": 15,
       "scheduledAt": "2026-09-22T21:35:09.861Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 5,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_6_muczzjrj",
@@ -68005,12 +68556,13 @@
       "link": "https://instagram.com",
       "quantity": 20,
       "scheduledAt": "2026-09-22T22:20:23.384Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 6,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_7_muczzjrj",
@@ -68022,12 +68574,13 @@
       "link": "https://instagram.com",
       "quantity": 23,
       "scheduledAt": "2026-09-22T23:08:54.987Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 7,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_8_muczzjrj",
@@ -68039,12 +68592,13 @@
       "link": "https://instagram.com",
       "quantity": 22,
       "scheduledAt": "2026-09-22T23:52:42.796Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 8,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_9_muczzjrj",
@@ -68056,12 +68610,13 @@
       "link": "https://instagram.com",
       "quantity": 23,
       "scheduledAt": "2026-09-23T00:43:12.856Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 9,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_10_muczzjrj",
@@ -68073,12 +68628,13 @@
       "link": "https://instagram.com",
       "quantity": 16,
       "scheduledAt": "2026-09-23T01:24:54.622Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 10,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_11_muczzjrj",
@@ -68090,12 +68646,13 @@
       "link": "https://instagram.com",
       "quantity": 16,
       "scheduledAt": "2026-09-23T02:14:21.225Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 11,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_12_muczzjrj",
@@ -68107,12 +68664,13 @@
       "link": "https://instagram.com",
       "quantity": 17,
       "scheduledAt": "2026-09-23T03:04:45.018Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 12,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_13_muczzjrj",
@@ -68124,12 +68682,13 @@
       "link": "https://instagram.com",
       "quantity": 19,
       "scheduledAt": "2026-09-23T03:51:05.761Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 13,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_14_muczzjrj",
@@ -68141,12 +68700,13 @@
       "link": "https://instagram.com",
       "quantity": 20,
       "scheduledAt": "2026-09-23T04:46:37.344Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 14,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_15_muczzjrj",
@@ -68158,12 +68718,13 @@
       "link": "https://instagram.com",
       "quantity": 21,
       "scheduledAt": "2026-09-23T05:35:44.447Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 15,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_16_muczzjrj",
@@ -68175,12 +68736,13 @@
       "link": "https://instagram.com",
       "quantity": 15,
       "scheduledAt": "2026-09-23T06:20:04.908Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 16,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_17_muczzjrj",
@@ -68192,12 +68754,13 @@
       "link": "https://instagram.com",
       "quantity": 13,
       "scheduledAt": "2026-09-23T07:12:34.900Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 17,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_18_muczzjrj",
@@ -68209,12 +68772,13 @@
       "link": "https://instagram.com",
       "quantity": 12,
       "scheduledAt": "2026-09-23T07:50:48.337Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 18,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_19_muczzjrj",
@@ -68226,12 +68790,13 @@
       "link": "https://instagram.com",
       "quantity": 14,
       "scheduledAt": "2026-09-23T08:45:59.806Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 19,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_20_muczzjrj",
@@ -68243,12 +68808,13 @@
       "link": "https://instagram.com",
       "quantity": 15,
       "scheduledAt": "2026-09-23T09:33:01.947Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 20,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_21_muczzjrj",
@@ -68260,12 +68826,13 @@
       "link": "https://instagram.com",
       "quantity": 10,
       "scheduledAt": "2026-09-23T10:20:18.531Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 21,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_22_muczzjrj",
@@ -68277,12 +68844,13 @@
       "link": "https://instagram.com",
       "quantity": 13,
       "scheduledAt": "2026-09-23T11:03:22.277Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 22,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_23_muczzjrj",
@@ -68294,12 +68862,13 @@
       "link": "https://instagram.com",
       "quantity": 16,
       "scheduledAt": "2026-09-23T11:53:51.804Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 23,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_24_muczzjrj",
@@ -68311,12 +68880,13 @@
       "link": "https://instagram.com",
       "quantity": 18,
       "scheduledAt": "2026-09-23T12:43:48.042Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 24,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_25_muczzjrj",
@@ -68328,12 +68898,13 @@
       "link": "https://instagram.com",
       "quantity": 17,
       "scheduledAt": "2026-09-23T13:35:00.161Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 25,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_26_muczzjrj",
@@ -68345,12 +68916,13 @@
       "link": "https://instagram.com",
       "quantity": 12,
       "scheduledAt": "2026-09-23T14:24:16.581Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 26,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_27_muczzjrj",
@@ -68362,12 +68934,13 @@
       "link": "https://instagram.com",
       "quantity": 19,
       "scheduledAt": "2026-09-23T15:02:42.367Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 27,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_28_muczzjrj",
@@ -68379,12 +68952,13 @@
       "link": "https://instagram.com",
       "quantity": 13,
       "scheduledAt": "2026-09-23T15:52:44.358Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 28,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_29_muczzjrj",
@@ -68396,12 +68970,13 @@
       "link": "https://instagram.com",
       "quantity": 20,
       "scheduledAt": "2026-09-23T16:46:21.080Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 29,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_10001_Likes_30_muczzjrj",
@@ -68413,12 +68988,13 @@
       "link": "https://instagram.com",
       "quantity": 15,
       "scheduledAt": "2026-09-23T17:24:43.021Z",
-      "status": "pending",
+      "status": "failed",
       "providerOrderId": null,
       "runNumber": 30,
       "totalRuns": 30,
       "metric": "Likes",
-      "createdAt": "2026-09-22T18:18:39.439Z"
+      "createdAt": "2026-09-22T18:18:39.439Z",
+      "errorMessage": "Service #102 not found in database"
     },
     {
       "id": "sch_1790106870036_0_skq9",
@@ -68448,8 +69024,8 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 145,
       "scheduledAt": "2026-09-22T20:44:07.307Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174656",
       "runNumber": 2,
       "totalRuns": 8,
       "metric": "Views",
@@ -68466,8 +69042,8 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 161,
       "scheduledAt": "2026-09-22T21:20:57.977Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174657",
       "runNumber": 3,
       "totalRuns": 8,
       "metric": "Views",
@@ -68484,8 +69060,8 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 153,
       "scheduledAt": "2026-09-22T22:07:31.321Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174659",
       "runNumber": 4,
       "totalRuns": 8,
       "metric": "Views",
@@ -68502,8 +69078,8 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 134,
       "scheduledAt": "2026-09-22T22:55:19.133Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174660",
       "runNumber": 5,
       "totalRuns": 8,
       "metric": "Views",
@@ -68520,8 +69096,8 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 110,
       "scheduledAt": "2026-09-22T23:41:57.458Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174662",
       "runNumber": 6,
       "totalRuns": 8,
       "metric": "Views",
@@ -68538,8 +69114,8 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 104,
       "scheduledAt": "2026-09-23T00:25:43.724Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174663",
       "runNumber": 7,
       "totalRuns": 8,
       "metric": "Views",
@@ -68556,8 +69132,8 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 115,
       "scheduledAt": "2026-09-23T01:05:08.643Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174664",
       "runNumber": 8,
       "totalRuns": 8,
       "metric": "Views",
@@ -68609,8 +69185,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 105,
       "scheduledAt": "2026-09-22T20:58:41.247Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174665",
       "runNumber": 2,
       "totalRuns": 10,
       "metric": "Views",
@@ -68626,8 +69202,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 108,
       "scheduledAt": "2026-09-22T21:31:12.217Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174667",
       "runNumber": 3,
       "totalRuns": 10,
       "metric": "Views",
@@ -68643,8 +69219,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 107,
       "scheduledAt": "2026-09-22T22:05:50.175Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174668",
       "runNumber": 4,
       "totalRuns": 10,
       "metric": "Views",
@@ -68660,8 +69236,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 106,
       "scheduledAt": "2026-09-22T22:46:29.148Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174669",
       "runNumber": 5,
       "totalRuns": 10,
       "metric": "Views",
@@ -68677,8 +69253,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 105,
       "scheduledAt": "2026-09-22T23:21:04.601Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174670",
       "runNumber": 6,
       "totalRuns": 10,
       "metric": "Views",
@@ -68694,8 +69270,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 100,
       "scheduledAt": "2026-09-23T00:00:17.372Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174671",
       "runNumber": 7,
       "totalRuns": 10,
       "metric": "Views",
@@ -68711,8 +69287,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 106,
       "scheduledAt": "2026-09-23T00:31:14.975Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174672",
       "runNumber": 8,
       "totalRuns": 10,
       "metric": "Views",
@@ -68728,8 +69304,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 100,
       "scheduledAt": "2026-09-23T01:06:19.299Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174673",
       "runNumber": 9,
       "totalRuns": 10,
       "metric": "Views",
@@ -68745,8 +69321,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 104,
       "scheduledAt": "2026-09-23T01:44:24.484Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174674",
       "runNumber": 10,
       "totalRuns": 10,
       "metric": "Views",
@@ -68796,8 +69372,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 109,
       "scheduledAt": "2026-09-22T20:59:21.413Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174676",
       "runNumber": 2,
       "totalRuns": 10,
       "metric": "Views",
@@ -68813,8 +69389,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 106,
       "scheduledAt": "2026-09-22T21:38:38.272Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174680",
       "runNumber": 3,
       "totalRuns": 10,
       "metric": "Views",
@@ -68830,8 +69406,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 109,
       "scheduledAt": "2026-09-22T22:08:24.028Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174678",
       "runNumber": 4,
       "totalRuns": 10,
       "metric": "Views",
@@ -68847,8 +69423,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 107,
       "scheduledAt": "2026-09-22T22:46:56.755Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174682",
       "runNumber": 5,
       "totalRuns": 10,
       "metric": "Views",
@@ -68864,8 +69440,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 105,
       "scheduledAt": "2026-09-22T23:19:38.741Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174685",
       "runNumber": 6,
       "totalRuns": 10,
       "metric": "Views",
@@ -68881,8 +69457,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 104,
       "scheduledAt": "2026-09-22T23:56:24.595Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174684",
       "runNumber": 7,
       "totalRuns": 10,
       "metric": "Views",
@@ -68898,8 +69474,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 101,
       "scheduledAt": "2026-09-23T00:35:39.352Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174687",
       "runNumber": 8,
       "totalRuns": 10,
       "metric": "Views",
@@ -68915,8 +69491,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 102,
       "scheduledAt": "2026-09-23T01:07:02.427Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174686",
       "runNumber": 9,
       "totalRuns": 10,
       "metric": "Views",
@@ -68932,8 +69508,8 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 101,
       "scheduledAt": "2026-09-23T01:44:36.496Z",
-      "status": "pending",
-      "providerOrderId": null,
+      "status": "submitted",
+      "providerOrderId": "141174689",
       "runNumber": 10,
       "totalRuns": 10,
       "metric": "Views",
@@ -69344,7 +69920,417 @@
       "source": "Orders",
       "message": "Created Order #10010 (all_in_one_child)",
       "details": "{\"serviceId\":4803,\"quantity\":12,\"price\":0.0006}"
+    },
+    {
+      "id": "log_1790186718477_52kw",
+      "createdAt": "2026-09-23T18:05:18.477Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790186729978_21ci",
+      "createdAt": "2026-09-23T18:05:29.978Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10011 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":145,\"price\":0.0002}"
+    },
+    {
+      "id": "log_1790186730014_f0v7",
+      "createdAt": "2026-09-23T18:05:30.014Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174656 for Schedule #sch_1790106870036_1_sg6c (Qty: 145)"
+    },
+    {
+      "id": "log_1790186730686_keq5",
+      "createdAt": "2026-09-23T18:05:30.686Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10012 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":161,\"price\":0.0002}"
+    },
+    {
+      "id": "log_1790186730725_e1kq",
+      "createdAt": "2026-09-23T18:05:30.725Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174657 for Schedule #sch_1790106870036_2_gbhv (Qty: 161)"
+    },
+    {
+      "id": "log_1790186731417_5fmk",
+      "createdAt": "2026-09-23T18:05:31.417Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10013 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":153,\"price\":0.0002}"
+    },
+    {
+      "id": "log_1790186731455_c3so",
+      "createdAt": "2026-09-23T18:05:31.455Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174659 for Schedule #sch_1790106870036_3_dry5 (Qty: 153)"
+    },
+    {
+      "id": "log_1790186732374_2h4n",
+      "createdAt": "2026-09-23T18:05:32.374Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10014 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":134,\"price\":0.0002}"
+    },
+    {
+      "id": "log_1790186732413_5iwr",
+      "createdAt": "2026-09-23T18:05:32.413Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174660 for Schedule #sch_1790106870036_4_tmaz (Qty: 134)"
+    },
+    {
+      "id": "log_1790186733094_xjez",
+      "createdAt": "2026-09-23T18:05:33.094Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10015 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":110,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186733132_nppo",
+      "createdAt": "2026-09-23T18:05:33.132Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174662 for Schedule #sch_1790106870036_5_5gr8 (Qty: 110)"
+    },
+    {
+      "id": "log_1790186733765_pt03",
+      "createdAt": "2026-09-23T18:05:33.765Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10016 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":104,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186733801_70nj",
+      "createdAt": "2026-09-23T18:05:33.801Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174663 for Schedule #sch_1790106870036_6_my1f (Qty: 104)"
+    },
+    {
+      "id": "log_1790186734717_d60s",
+      "createdAt": "2026-09-23T18:05:34.717Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10017 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":115,\"price\":0.0002}"
+    },
+    {
+      "id": "log_1790186734753_o534",
+      "createdAt": "2026-09-23T18:05:34.754Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174664 for Schedule #sch_1790106870036_7_zagt (Qty: 115)"
+    },
+    {
+      "id": "log_1790186735048_m1wb",
+      "createdAt": "2026-09-23T18:05:35.048Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10018 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":105,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186735089_lxip",
+      "createdAt": "2026-09-23T18:05:35.089Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174665 for Schedule #sch_1790108525291_1_s6ly (Qty: 105)"
+    },
+    {
+      "id": "log_1790186735752_os3m",
+      "createdAt": "2026-09-23T18:05:35.752Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10019 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":108,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186735789_df2f",
+      "createdAt": "2026-09-23T18:05:35.789Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174667 for Schedule #sch_1790108525291_2_6vyt (Qty: 108)"
+    },
+    {
+      "id": "log_1790186736667_fo9p",
+      "createdAt": "2026-09-23T18:05:36.667Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10020 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":107,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186736704_c4x3",
+      "createdAt": "2026-09-23T18:05:36.704Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174668 for Schedule #sch_1790108525291_3_s58h (Qty: 107)"
+    },
+    {
+      "id": "log_1790186737378_9j23",
+      "createdAt": "2026-09-23T18:05:37.379Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10021 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":106,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186737416_9f9o",
+      "createdAt": "2026-09-23T18:05:37.416Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174669 for Schedule #sch_1790108525291_4_e1iz (Qty: 106)"
+    },
+    {
+      "id": "log_1790186738275_lwa6",
+      "createdAt": "2026-09-23T18:05:38.275Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10022 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":105,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186738311_1pgb",
+      "createdAt": "2026-09-23T18:05:38.311Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174670 for Schedule #sch_1790108525291_5_cjb1 (Qty: 105)"
+    },
+    {
+      "id": "log_1790186738675_gt3z",
+      "createdAt": "2026-09-23T18:05:38.675Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10023 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":100,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186738713_ogmj",
+      "createdAt": "2026-09-23T18:05:38.713Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174671 for Schedule #sch_1790108525291_6_njqa (Qty: 100)"
+    },
+    {
+      "id": "log_1790186739385_x9ap",
+      "createdAt": "2026-09-23T18:05:39.385Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10024 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":106,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186739419_4bxa",
+      "createdAt": "2026-09-23T18:05:39.419Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174672 for Schedule #sch_1790108525291_7_efmu (Qty: 106)"
+    },
+    {
+      "id": "log_1790186739516_tw2k",
+      "createdAt": "2026-09-23T18:05:39.516Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10025 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":100,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186739556_emd0",
+      "createdAt": "2026-09-23T18:05:39.556Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174673 for Schedule #sch_1790108525291_8_0z31 (Qty: 100)"
+    },
+    {
+      "id": "log_1790186739784_cya2",
+      "createdAt": "2026-09-23T18:05:39.784Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10026 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":104,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186739822_sm8a",
+      "createdAt": "2026-09-23T18:05:39.822Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174674 for Schedule #sch_1790108525291_9_y0y4 (Qty: 104)"
+    },
+    {
+      "id": "log_1790186739915_rgf3",
+      "createdAt": "2026-09-23T18:05:39.915Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10027 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":109,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186739951_057r",
+      "createdAt": "2026-09-23T18:05:39.951Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174676 for Schedule #sch_1790108568953_1_l6yu (Qty: 109)"
+    },
+    {
+      "id": "log_1790186740635_17bs",
+      "createdAt": "2026-09-23T18:05:40.635Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10028 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":109,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186740673_94qv",
+      "createdAt": "2026-09-23T18:05:40.673Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174678 for Schedule #sch_1790108568953_3_t24o (Qty: 109)"
+    },
+    {
+      "id": "log_1790186740765_d1cw",
+      "createdAt": "2026-09-23T18:05:40.765Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10029 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":106,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186740801_qua2",
+      "createdAt": "2026-09-23T18:05:40.801Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174680 for Schedule #sch_1790108568953_2_aa4d (Qty: 106)"
+    },
+    {
+      "id": "log_1790186740966_vo78",
+      "createdAt": "2026-09-23T18:05:40.966Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10030 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":107,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186741005_swj4",
+      "createdAt": "2026-09-23T18:05:41.005Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174682 for Schedule #sch_1790108568953_4_jfvi (Qty: 107)"
+    },
+    {
+      "id": "log_1790186741416_lhom",
+      "createdAt": "2026-09-23T18:05:41.416Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10031 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":104,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186741464_6o9t",
+      "createdAt": "2026-09-23T18:05:41.464Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174684 for Schedule #sch_1790108568953_6_c670 (Qty: 104)"
+    },
+    {
+      "id": "log_1790186741669_9yln",
+      "createdAt": "2026-09-23T18:05:41.669Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10032 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":105,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186741706_xhg3",
+      "createdAt": "2026-09-23T18:05:41.706Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174685 for Schedule #sch_1790108568953_5_gb3w (Qty: 105)"
+    },
+    {
+      "id": "log_1790186742348_sxod",
+      "createdAt": "2026-09-23T18:05:42.348Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10033 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":102,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186742386_nttu",
+      "createdAt": "2026-09-23T18:05:42.386Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174686 for Schedule #sch_1790108568953_8_i7qf (Qty: 102)"
+    },
+    {
+      "id": "log_1790186742477_n4y8",
+      "createdAt": "2026-09-23T18:05:42.477Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10034 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":101,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186742514_j3f5",
+      "createdAt": "2026-09-23T18:05:42.514Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174687 for Schedule #sch_1790108568953_7_bmn0 (Qty: 101)"
+    },
+    {
+      "id": "log_1790186743047_0x5n",
+      "createdAt": "2026-09-23T18:05:43.047Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10035 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":101,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790186743084_spqd",
+      "createdAt": "2026-09-23T18:05:43.084Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141174689 for Schedule #sch_1790108568953_9_kom0 (Qty: 101)"
+    },
+    {
+      "id": "log_1790186953536_jrsg",
+      "createdAt": "2026-09-23T18:09:13.536Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790186957665_n43c",
+      "createdAt": "2026-09-23T18:09:17.665Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790187250403_3nwd",
+      "createdAt": "2026-09-23T18:14:10.403Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790187384679_gd2w",
+      "createdAt": "2026-09-23T18:16:24.679Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
     }
   ],
-  "nextOrderId": 10011
+  "nextOrderId": 10036
 }
