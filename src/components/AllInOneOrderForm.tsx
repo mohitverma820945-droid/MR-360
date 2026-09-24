@@ -57,16 +57,30 @@ export const formatRatePrecision = (val: number): string => {
 export const getServicesForMetric = (metricKey: string, platformServices: SmmService[]): SmmService[] => {
   const m = metricKey.toLowerCase();
   let keywords: string[] = [m];
-  if (m === 'views') keywords = ['view', 'reel view', 'video view', 'views'];
-  if (m === 'likes') keywords = ['like', 'likes'];
-  if (m === 'comments') keywords = ['comment', 'comments'];
-  if (m === 'shares') keywords = ['share', 'shares', 'reaction'];
-  if (m === 'saves') keywords = ['save', 'saves', 'bookmark'];
+  if (m === 'views') keywords = ['view', 'reel view', 'video view', 'views', 'impression', 'play', 'plays', 'reach'];
+  if (m === 'likes') keywords = ['like', 'likes', 'favorite', 'heart', '❤️'];
+  if (m === 'comments') keywords = ['comment', 'comments', 'reply'];
+  if (m === 'shares') keywords = ['share', 'shares', 'reaction', 'retweet', 'repost'];
+  if (m === 'saves') keywords = ['save', 'saves', 'bookmark', 'collection'];
 
   const excludeWords = [
     'combo', 'follower', 'followers', '+ 1000', '+ 2000', 
-    'linkedin', 'snapchat', 'twitter', 'maroof', 'kwai', 'trovo', 'twitch', 'rumble', 'tiktok', 'youtube', 'facebook'
+    'maroof', 'kwai', 'trovo', 'twitch', 'rumble'
   ];
+
+  // Only exclude other platform names, not the one we are looking for
+  const otherPlatforms = [
+    'linkedin', 'snapchat', 'twitter', 'tiktok', 'youtube', 'facebook', 'instagram', 'telegram', 'spotify', 'twitch', 'discord'
+  ];
+
+  // Detect current platform from the passed services
+  const currentPlatformLower = (platformServices[0]?.platform || '').toLowerCase();
+  otherPlatforms.forEach(p => {
+    if (p && currentPlatformLower && p !== currentPlatformLower && !currentPlatformLower.includes(p) && !p.includes(currentPlatformLower)) {
+      excludeWords.push(p);
+    }
+  });
+
   if (m === 'likes') {
     excludeWords.push('comment');
   }
@@ -80,25 +94,15 @@ export const getServicesForMetric = (metricKey: string, platformServices: SmmSer
     return true;
   });
 
+  // If strict keyword + exclude failed, try keyword only
   if (matched.length === 0) {
     matched = platformServices.filter(s => {
       const text = (s.name + ' ' + s.category).toLowerCase();
-      return keywords.some(k => text.includes(k)) && !text.includes('combo') && !text.includes('follower');
+      return keywords.some(k => text.includes(k));
     });
   }
 
-  // Prioritize services that explicitly match platform name if available
-  const platformName = platformServices[0]?.platform?.toLowerCase() || '';
-  if (platformName) {
-    const specific = matched.filter(s => {
-      const text = (s.name + ' ' + s.category).toLowerCase();
-      return text.includes(platformName) || (platformName === 'instagram' && (text.includes('ig') || text.includes('reel')));
-    });
-    if (specific.length > 0) {
-      matched = specific;
-    }
-  }
-
+  // Final fallback: just return platform services if nothing else matches
   if (matched.length === 0) {
     matched = platformServices;
   }
