@@ -46,13 +46,13 @@
       "apiUrl": "https://yoyomedia.in/api/v2",
       "apiKey": "525619d4ba8f4be4535ef52ad4e8fef9ba5dc9e411cc43d61ad42de5f3985556",
       "status": "active",
-      "balance": 40.34,
+      "balance": 34.16,
       "balanceCurrency": "USD",
-      "lastBalanceCheck": "2026-09-23T18:19:41.265Z",
+      "lastBalanceCheck": "2026-09-25T19:27:11.989Z",
       "id": "prov_mud0eaxk",
       "createdAt": "2026-09-22T18:30:07.832Z",
-      "balanceInr": 40.34,
-      "balanceUsd": 0.46,
+      "balanceInr": 34.16,
+      "balanceUsd": 0.39,
       "userId": "usr_mud2y46zkisk"
     }
   ],
@@ -66864,11 +66864,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 101,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10035,
       "createdAt": "2026-09-23T18:05:43.029Z",
-      "updatedAt": "2026-09-23T18:05:43.029Z"
+      "updatedAt": "2026-09-25T19:25:08.136Z"
     },
     {
       "providerOrderId": "141174687",
@@ -66884,11 +66884,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 101,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10034,
       "createdAt": "2026-09-23T18:05:42.460Z",
-      "updatedAt": "2026-09-23T18:05:42.460Z"
+      "updatedAt": "2026-09-25T19:25:07.336Z"
     },
     {
       "providerOrderId": "141174686",
@@ -66904,11 +66904,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 102,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10033,
       "createdAt": "2026-09-23T18:05:42.331Z",
-      "updatedAt": "2026-09-23T18:05:42.331Z"
+      "updatedAt": "2026-09-25T19:25:07.121Z"
     },
     {
       "providerOrderId": "141174685",
@@ -66924,11 +66924,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 105,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10032,
       "createdAt": "2026-09-23T18:05:41.652Z",
-      "updatedAt": "2026-09-23T18:05:41.652Z"
+      "updatedAt": "2026-09-25T19:25:06.555Z"
     },
     {
       "providerOrderId": "141174684",
@@ -66944,11 +66944,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 104,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10031,
       "createdAt": "2026-09-23T18:05:41.395Z",
-      "updatedAt": "2026-09-23T18:05:41.395Z"
+      "updatedAt": "2026-09-25T19:25:05.707Z"
     },
     {
       "providerOrderId": "141174682",
@@ -66964,11 +66964,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 107,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10030,
       "createdAt": "2026-09-23T18:05:40.948Z",
-      "updatedAt": "2026-09-23T18:05:40.948Z"
+      "updatedAt": "2026-09-25T19:25:04.881Z"
     },
     {
       "providerOrderId": "141174680",
@@ -66984,11 +66984,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 106,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10029,
       "createdAt": "2026-09-23T18:05:40.747Z",
-      "updatedAt": "2026-09-23T18:05:40.747Z"
+      "updatedAt": "2026-09-25T19:25:04.657Z"
     },
     {
       "providerOrderId": "141174678",
@@ -67004,11 +67004,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 109,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10028,
       "createdAt": "2026-09-23T18:05:40.617Z",
-      "updatedAt": "2026-09-23T18:05:40.617Z"
+      "updatedAt": "2026-09-25T19:25:04.068Z"
     },
     {
       "providerOrderId": "141174676",
@@ -67024,11 +67024,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 109,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10027,
       "createdAt": "2026-09-23T18:05:39.898Z",
-      "updatedAt": "2026-09-23T18:05:39.898Z"
+      "updatedAt": "2026-09-25T19:25:03.847Z"
     },
     {
       "providerOrderId": "141174674",
@@ -67044,11 +67044,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 104,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10026,
       "createdAt": "2026-09-23T18:05:39.767Z",
-      "updatedAt": "2026-09-23T18:05:39.767Z"
+      "updatedAt": "2026-09-25T19:25:03.624Z"
     },
     {
       "providerOrderId": "141174673",
@@ -67064,11 +67064,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 100,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10025,
       "createdAt": "2026-09-23T18:05:39.497Z",
-      "updatedAt": "2026-09-23T18:05:39.497Z"
+      "updatedAt": "2026-09-25T19:25:03.387Z"
     },
     {
       "providerOrderId": "141174672",
@@ -67084,11 +67084,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 106,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10024,
       "createdAt": "2026-09-23T18:05:39.366Z",
-      "updatedAt": "2026-09-23T18:20:28.852Z"
+      "updatedAt": "2026-09-25T19:23:06.453Z"
     },
     {
       "providerOrderId": "141174671",
@@ -67104,11 +67104,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 100,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10023,
       "createdAt": "2026-09-23T18:05:38.657Z",
-      "updatedAt": "2026-09-23T18:20:28.606Z"
+      "updatedAt": "2026-09-25T19:23:06.233Z"
     },
     {
       "providerOrderId": "141174670",
@@ -67124,11 +67124,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 105,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10022,
       "createdAt": "2026-09-23T18:05:38.257Z",
-      "updatedAt": "2026-09-23T18:20:28.373Z"
+      "updatedAt": "2026-09-25T19:23:06.013Z"
     },
     {
       "providerOrderId": "141174669",
@@ -67144,11 +67144,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 106,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10021,
       "createdAt": "2026-09-23T18:05:37.361Z",
-      "updatedAt": "2026-09-23T18:20:28.149Z"
+      "updatedAt": "2026-09-25T19:23:05.792Z"
     },
     {
       "providerOrderId": "141174668",
@@ -67164,11 +67164,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 107,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10020,
       "createdAt": "2026-09-23T18:05:36.650Z",
-      "updatedAt": "2026-09-23T18:20:27.890Z"
+      "updatedAt": "2026-09-25T19:23:05.571Z"
     },
     {
       "providerOrderId": "141174667",
@@ -67184,11 +67184,11 @@
       "link": "https://instagram.com/reel/C1234567890/",
       "quantity": 108,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10019,
       "createdAt": "2026-09-23T18:05:35.734Z",
-      "updatedAt": "2026-09-23T18:20:27.669Z"
+      "updatedAt": "2026-09-25T19:23:05.352Z"
     },
     {
       "providerOrderId": "141174665",
@@ -67224,11 +67224,11 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 115,
       "price": 0.0002,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10017,
       "createdAt": "2026-09-23T18:05:34.699Z",
-      "updatedAt": "2026-09-23T18:20:27.452Z"
+      "updatedAt": "2026-09-25T19:23:05.130Z"
     },
     {
       "providerOrderId": "141174663",
@@ -67244,11 +67244,11 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 104,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10016,
       "createdAt": "2026-09-23T18:05:33.747Z",
-      "updatedAt": "2026-09-23T18:20:27.222Z"
+      "updatedAt": "2026-09-25T19:23:04.911Z"
     },
     {
       "providerOrderId": "141174662",
@@ -67264,11 +67264,11 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 110,
       "price": 0.0001,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10015,
       "createdAt": "2026-09-23T18:05:33.077Z",
-      "updatedAt": "2026-09-23T18:20:26.988Z"
+      "updatedAt": "2026-09-25T19:23:04.694Z"
     },
     {
       "providerOrderId": "141174660",
@@ -67284,11 +67284,11 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 134,
       "price": 0.0002,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10014,
       "createdAt": "2026-09-23T18:05:32.356Z",
-      "updatedAt": "2026-09-23T18:20:26.761Z"
+      "updatedAt": "2026-09-25T19:23:04.476Z"
     },
     {
       "providerOrderId": "141174659",
@@ -67304,11 +67304,11 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 153,
       "price": 0.0002,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10013,
       "createdAt": "2026-09-23T18:05:31.399Z",
-      "updatedAt": "2026-09-23T18:20:26.543Z"
+      "updatedAt": "2026-09-25T19:23:03.904Z"
     },
     {
       "providerOrderId": "141174657",
@@ -67324,11 +67324,11 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 161,
       "price": 0.0002,
-      "status": "Processing",
-      "providerStatus": "Pending",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10012,
       "createdAt": "2026-09-23T18:05:30.668Z",
-      "updatedAt": "2026-09-23T18:20:26.315Z"
+      "updatedAt": "2026-09-25T19:23:03.676Z"
     },
     {
       "providerOrderId": "141174656",
@@ -67344,11 +67344,11 @@
       "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
       "quantity": 145,
       "price": 0.0002,
-      "status": "Processing",
-      "providerStatus": "In progress",
+      "status": "Completed",
+      "providerStatus": "Completed",
       "id": 10011,
       "createdAt": "2026-09-23T18:05:29.960Z",
-      "updatedAt": "2026-09-23T18:20:25.752Z"
+      "updatedAt": "2026-09-25T19:23:03.445Z"
     },
     {
       "providerOrderId": "141128033",
@@ -67367,7 +67367,7 @@
       "status": "Processing",
       "id": 10010,
       "createdAt": "2026-09-22T20:22:49.898Z",
-      "updatedAt": "2026-09-23T18:20:25.501Z",
+      "updatedAt": "2026-09-25T19:27:03.216Z",
       "providerStatus": "Refunded"
     },
     {
@@ -67428,7 +67428,7 @@
       "status": "Processing",
       "id": 10007,
       "createdAt": "2026-09-22T20:22:06.292Z",
-      "updatedAt": "2026-09-23T18:20:25.279Z",
+      "updatedAt": "2026-09-25T19:27:02.906Z",
       "providerStatus": "Refunded"
     },
     {
@@ -70327,6 +70327,20 @@
     {
       "id": "log_1790187384679_gd2w",
       "createdAt": "2026-09-23T18:16:24.679Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790364062004_ygyc",
+      "createdAt": "2026-09-25T19:21:02.004Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790364428722_2gnh",
+      "createdAt": "2026-09-25T19:27:08.722Z",
       "level": "info",
       "source": "Scheduler",
       "message": "Background Scheduler Worker started"

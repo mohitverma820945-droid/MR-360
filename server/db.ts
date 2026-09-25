@@ -88,11 +88,13 @@ class DatabaseEngine {
     const mohitEmail = 'mohitverma820925@gmail.com';
     const mohitAltEmail = 'mohitverma820945@gmail.com';
     const mohitMetadataEmail = 'mohitkumar820945@gmail.com';
+    const mohitUserEmail = 'mohitverma912022@gmail.com';
 
     let mohitUser = this.data.users.find(u => 
       u.email.toLowerCase() === mohitEmail.toLowerCase() ||
       u.email.toLowerCase() === mohitAltEmail.toLowerCase() ||
-      u.email.toLowerCase() === mohitMetadataEmail.toLowerCase()
+      u.email.toLowerCase() === mohitMetadataEmail.toLowerCase() ||
+      u.email.toLowerCase() === mohitUserEmail.toLowerCase()
     );
 
     if (!mohitUser) {
@@ -317,19 +319,20 @@ class DatabaseEngine {
 
   // Services - Scoped to Active Connected Providers
   getServices(userId?: string): SmmService[] {
-    const activeProvIds = this.data.providers
-      .filter(p => p.status !== 'inactive')
-      .map(p => p.id);
+    const activeProvIds = new Set(
+      this.data.providers
+        .filter(p => p.status !== 'inactive')
+        .map(p => p.id)
+    );
 
-    if (!userId) {
-      return this.data.services.filter(s => activeProvIds.includes(s.providerId));
-    }
-    // Find active provider IDs owned by or accessible to this user
-    const userActiveProvIds = this.data.providers
-      .filter(p => (p.userId === userId || !p.userId) && p.status !== 'inactive')
-      .map(p => p.id);
-
-    return this.data.services.filter(s => userActiveProvIds.includes(s.providerId));
+    return this.data.services.filter(s => {
+      if (s.status === 'inactive') return false;
+      // If the service has a providerId, it must belong to an active provider
+      if (s.providerId && !activeProvIds.has(s.providerId)) {
+        return false;
+      }
+      return true;
+    });
   }
 
   getServiceById(id: number): SmmService | undefined {

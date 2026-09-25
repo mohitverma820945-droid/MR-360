@@ -9,7 +9,8 @@ import {
   CheckCircle2, 
   AlertCircle, 
   Layers, 
-  Wallet 
+  Wallet,
+  Power
 } from 'lucide-react';
 import { SmmProvider } from '../../types';
 
@@ -113,6 +114,30 @@ export const AdminProviders: React.FC = () => {
         fetchProviders();
       } else {
         setActionMessage({ type: 'error', text: data.error || 'Failed to delete provider' });
+      }
+    } catch (err: any) {
+      setActionMessage({ type: 'error', text: err.message });
+    }
+  };
+
+  const handleToggleProviderStatus = async (provider: SmmProvider) => {
+    const isCurrentlyActive = provider.status !== 'inactive';
+    const nextStatus = isCurrentlyActive ? 'inactive' : 'active';
+    try {
+      const res = await fetch(`/api/providers/${provider.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActionMessage({ 
+          type: 'success', 
+          text: `Provider "${provider.name}" turned ${nextStatus === 'active' ? 'ON (Active & Visible)' : 'OFF (Services Hidden)'}.` 
+        });
+        fetchProviders();
+      } else {
+        setActionMessage({ type: 'error', text: data.error || 'Failed to toggle provider status' });
       }
     } catch (err: any) {
       setActionMessage({ type: 'error', text: err.message });
@@ -273,6 +298,20 @@ export const AdminProviders: React.FC = () => {
 
             {/* Provider Actions */}
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              {/* ON/OFF Toggle Switch */}
+              <button
+                onClick={() => handleToggleProviderStatus(p)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-black flex items-center space-x-1.5 transition-all cursor-pointer ${
+                  p.status !== 'inactive'
+                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+                    : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200'
+                }`}
+                title={p.status !== 'inactive' ? 'Click to turn OFF (Hide services)' : 'Click to turn ON (Activate services)'}
+              >
+                <Power className="w-3.5 h-3.5" />
+                <span>{p.status !== 'inactive' ? 'ON (Active)' : 'OFF (Hidden)'}</span>
+              </button>
+
               <button
                 onClick={() => handleTestConnection(p.id)}
                 disabled={testingId === p.id}

@@ -55,64 +55,90 @@ export const formatRatePrecision = (val: number): string => {
 
 // Specialized helper to find and prioritize genuine SMM services for each metric
 export const getServicesForMetric = (metricKey: string, platformServices: SmmService[]): SmmService[] => {
+  if (!platformServices || platformServices.length === 0) return [];
   const m = metricKey.toLowerCase();
-  let keywords: string[] = [m];
-  if (m === 'views') keywords = ['view', 'reel view', 'video view', 'views', 'impression', 'play', 'plays', 'reach'];
-  if (m === 'likes') keywords = ['like', 'likes', 'favorite', 'heart', '❤️'];
-  if (m === 'comments') keywords = ['comment', 'comments', 'reply'];
-  if (m === 'shares') keywords = ['share', 'shares', 'reaction', 'retweet', 'repost'];
-  if (m === 'saves') keywords = ['save', 'saves', 'bookmark', 'collection'];
-
-  const excludeWords = [
-    'combo', 'follower', 'followers', '+ 1000', '+ 2000', 
-    'maroof', 'kwai', 'trovo', 'twitch', 'rumble'
-  ];
-
-  // Only exclude other platform names, not the one we are looking for
-  const otherPlatforms = [
-    'linkedin', 'snapchat', 'twitter', 'tiktok', 'youtube', 'facebook', 'instagram', 'telegram', 'spotify', 'twitch', 'discord'
-  ];
-
-  // Detect current platform from the passed services
   const currentPlatformLower = (platformServices[0]?.platform || '').toLowerCase();
-  otherPlatforms.forEach(p => {
-    if (p && currentPlatformLower && p !== currentPlatformLower && !currentPlatformLower.includes(p) && !p.includes(currentPlatformLower)) {
-      excludeWords.push(p);
+
+  let keywords: string[] = [m];
+  if (m === 'views') {
+    keywords = ['view', 'views', 'reel view', 'video view', 'impression', 'impressions', 'reach', 'play', 'plays', 'viewer', 'viewers', 'watch time'];
+  } else if (m === 'likes') {
+    keywords = ['like', 'likes', 'favorite', 'heart', '❤️', 'thumbs up'];
+  } else if (m === 'comments') {
+    keywords = ['comment', 'comments', 'reply', 'replies', 'custom comment'];
+  } else if (m === 'shares') {
+    keywords = ['share', 'shares', 'repost', 'reposts', 'reaction', 'retweet', 'retweets', 'broadcast'];
+  } else if (m === 'saves') {
+    keywords = ['save', 'saves', 'bookmark', 'bookmarks', 'collection'];
+  }
+
+  // Priority 1: Service Name directly contains target keyword
+  const nameMatched = platformServices.filter(s => {
+    const nameLower = (s.name || '').toLowerCase();
+    if (m === 'views') {
+      const cleanName = nameLower.replace(/review/g, '');
+      return keywords.some(k => cleanName.includes(k));
+    }
+    if (m === 'likes') {
+      if (nameLower.includes('comment') && !nameLower.includes('like') && !nameLower.includes('heart')) {
+        return false;
+      }
+    }
+    return keywords.some(k => nameLower.includes(k));
+  });
+
+  // Priority 2: Service Category contains target keyword
+  const catMatched = platformServices.filter(s => {
+    const catLower = (s.category || '').toLowerCase();
+    if (m === 'views') {
+      const cleanCat = catLower.replace(/review/g, '');
+      return keywords.some(k => cleanCat.includes(k));
+    }
+    return keywords.some(k => catLower.includes(k));
+  });
+
+  // Merge unique
+  const mergedMap = new Map<number, SmmService>();
+  nameMatched.forEach(s => mergedMap.set(s.id, s));
+  catMatched.forEach(s => {
+    if (!mergedMap.has(s.id)) {
+      mergedMap.set(s.id, s);
     }
   });
 
-  if (m === 'likes') {
-    excludeWords.push('comment');
-  }
+  let matched = Array.from(mergedMap.values());
 
-  let matched = platformServices.filter(s => {
-    const text = (s.name + ' ' + s.category).toLowerCase();
-    const hasKeyword = keywords.some(k => text.includes(k));
-    if (!hasKeyword) return false;
-    const hasExclude = excludeWords.some(e => text.includes(e));
-    if (hasExclude) return false;
-    return true;
-  });
-
-  // If strict keyword + exclude failed, try keyword only
-  if (matched.length === 0) {
-    matched = platformServices.filter(s => {
-      const text = (s.name + ' ' + s.category).toLowerCase();
-      return keywords.some(k => text.includes(k));
-    });
-  }
-
-  // Final fallback: just return platform services if nothing else matches
+  // Fallback: If no metric-specific service found, provide platform services
   if (matched.length === 0) {
     matched = platformServices;
   }
 
   const minThreshold = m === 'views' ? 100 : 10;
-  return [...matched].sort((a, b) => {
-    const aValid = a.min <= minThreshold ? 0 : 1;
-    const bValid = b.min <= minThreshold ? 0 : 1;
+  return matched.sort((a, b) => {
+    const aText = (a.name + ' ' + a.category).toLowerCase();
+    const bText = (b.name + ' ' + b.category).toLowerCase();
+
+    // 1. Prioritize platform name matching (e.g. "Instagram" inside Instagram platform)
+    if (currentPlatformLower) {
+      const aPlatMatch = aText.includes(currentPlatformLower) ? 0 : 1;
+      const bPlatMatch = bText.includes(currentPlatformLower) ? 0 : 1;
+      if (aPlatMatch !== bPlatMatch) return aPlatMatch - bPlatMatch;
+    }
+
+    // 2. Pure single service preferred over combo / packages
+    const aIsPure = !a.name.toLowerCase().includes('+') && !a.name.toLowerCase().includes('combo') && !a.name.toLowerCase().includes('package') ? 0 : 1;
+    const bIsPure = !b.name.toLowerCase().includes('+') && !b.name.toLowerCase().includes('combo') && !b.name.toLowerCase().includes('package') ? 0 : 1;
+    if (aIsPure !== bIsPure) return aIsPure - bIsPure;
+
+    // 3. Realistic minimum order requirement
+    const aValid = (a.min || 0) <= minThreshold ? 0 : 1;
+    const bValid = (b.min || 0) <= minThreshold ? 0 : 1;
     if (aValid !== bValid) return aValid - bValid;
-    if (a.min !== b.min) return a.min - b.min;
+
+    // 4. Lowest minimum
+    if ((a.min || 0) !== (b.min || 0)) return (a.min || 0) - (b.min || 0);
+
+    // 5. Lowest rate
     return (a.rate || 0) - (b.rate || 0);
   });
 };
@@ -298,14 +324,22 @@ export const AllInOneOrderForm: React.FC = () => {
       .catch(() => {});
   }, []);
 
+  const [loadingServices, setLoadingServices] = useState<boolean>(true);
+
   // Fetch Services & Auto-select matching platform services
-  useEffect(() => {
+  const fetchServicesCatalog = () => {
+    setLoadingServices(true);
     fetch('/api/services', {
       headers: getAuthHeaderObj()
     })
       .then(res => res.json())
       .then((data: SmmService[]) => {
+        if (!Array.isArray(data)) {
+          setLoadingServices(false);
+          return;
+        }
         setServices(data);
+        setLoadingServices(false);
 
         const platformSvcs = data.filter(s => s.platform.toLowerCase() === platform.toLowerCase());
 
@@ -319,30 +353,37 @@ export const AllInOneOrderForm: React.FC = () => {
           views: { 
             ...prev.views, 
             serviceId: viewsSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: viewsSvcs[0]?.providerId || prev.views.providerId || 'all'
+            providerId: prev.views.providerId || 'all'
           },
           likes: { 
             ...prev.likes, 
             serviceId: likesSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: likesSvcs[0]?.providerId || prev.likes.providerId || 'all'
+            providerId: prev.likes.providerId || 'all'
           },
           comments: { 
             ...prev.comments, 
             serviceId: commentsSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: commentsSvcs[0]?.providerId || prev.comments.providerId || 'all'
+            providerId: prev.comments.providerId || 'all'
           },
           shares: { 
             ...prev.shares, 
             serviceId: sharesSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: sharesSvcs[0]?.providerId || prev.shares.providerId || 'all'
+            providerId: prev.shares.providerId || 'all'
           },
           saves: { 
             ...prev.saves, 
             serviceId: savesSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: savesSvcs[0]?.providerId || prev.saves.providerId || 'all'
+            providerId: prev.saves.providerId || 'all'
           }
         }));
+      })
+      .catch(() => {
+        setLoadingServices(false);
       });
+  };
+
+  useEffect(() => {
+    fetchServicesCatalog();
   }, [platform]);
 
   // Active pattern details
@@ -921,15 +962,45 @@ export const AllInOneOrderForm: React.FC = () => {
         </div>
       )}
 
+      {/* SMM Service Status & Refresh Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 text-xs">
+        <div className="flex items-center space-x-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="font-extrabold text-slate-700 dark:text-slate-300">
+            {loadingServices ? (
+              <span className="flex items-center space-x-1.5 text-pink-600 dark:text-pink-400">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>Loading real SMM Provider services...</span>
+              </span>
+            ) : (
+              <span>
+                <strong className="text-pink-600 dark:text-pink-400 font-black">{services.length.toLocaleString()}</strong> Live Services Connected &bull; <strong className="text-emerald-600 dark:text-emerald-400 font-black">{services.filter(s => s.platform.toLowerCase() === platform.toLowerCase()).length}</strong> available for {platform}
+              </span>
+            )}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={fetchServicesCatalog}
+          disabled={loadingServices}
+          className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-pink-50 dark:bg-pink-950/80 text-pink-600 dark:text-pink-400 hover:bg-pink-100 font-bold text-[11px] flex items-center space-x-1 cursor-pointer transition-colors border border-pink-200/60 dark:border-pink-900/60 disabled:opacity-50"
+          title="Reload Live SMM Services"
+        >
+          <RefreshCw className={`w-3 h-3 ${loadingServices ? 'animate-spin' : ''}`} />
+          <span>Reload Services</span>
+        </button>
+      </div>
+
       {/* 2. PLATFORM TABS */}
-      <div className="flex space-x-2 p-1 bg-slate-200/70 dark:bg-slate-800 rounded-2xl">
-        {(['Instagram', 'TikTok', 'YouTube'] as PlatformCategory[]).map(p => (
+      <div className="flex flex-wrap gap-1.5 p-1 bg-slate-200/70 dark:bg-slate-800 rounded-2xl">
+        {(['Instagram', 'TikTok', 'YouTube', 'Facebook', 'Twitter/X', 'Telegram'] as PlatformCategory[]).map(p => (
           <button
             key={p}
             type="button"
             onClick={() => setPlatform(p)}
-            className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
-              platform === p
+            className={`flex-1 min-w-[90px] py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
+              platform.toLowerCase() === p.toLowerCase()
                 ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-white'
             }`}
@@ -1154,15 +1225,24 @@ export const AllInOneOrderForm: React.FC = () => {
           const searchQuery = (serviceSearchQueries[key] || '').toLowerCase().trim();
           const cleanQuery = searchQuery.replace('#', '').trim();
 
-          const availableServices = providerFilteredServices.filter(s => {
+          let availableServices = providerFilteredServices.filter(s => {
             if (!searchQuery) return true;
             if (cleanQuery && (s.id.toString() === cleanQuery || s.providerServiceId?.toString() === cleanQuery)) {
               return true;
             }
             const matchId = s.id.toString().includes(searchQuery) || (s.providerServiceId && s.providerServiceId.toString().includes(searchQuery));
             const matchName = s.name.toLowerCase().includes(searchQuery);
-            return matchId || matchName;
+            const matchCat = s.category.toLowerCase().includes(searchQuery);
+            return matchId || matchName || matchCat;
           });
+
+          // Safeguards so services NEVER show as empty if there are services in platform
+          if (availableServices.length === 0 && selectedProviderId !== 'all' && !searchQuery) {
+            availableServices = allMetricServices;
+          }
+          if (availableServices.length === 0 && !searchQuery) {
+            availableServices = platformServices;
+          }
 
           const svc = platformServices.find(s => s.id === config.serviceId);
           const effectiveRate = getEffectiveRate(key, config.serviceId);
@@ -1366,7 +1446,7 @@ export const AllInOneOrderForm: React.FC = () => {
                       </div>
 
                       <select
-                        value={config.serviceId || ''}
+                        value={config.serviceId || (availableServices[0]?.id ? availableServices[0].id : '')}
                         onChange={(e) => {
                           const sId = parseInt(e.target.value, 10) || null;
                           const selectedSvc = services.find(s => s.id === sId);
