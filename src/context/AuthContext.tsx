@@ -18,7 +18,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    try {
+      const stored = localStorage.getItem('zynyx_current_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -26,8 +33,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshUser = async () => {
     try {
       const stored = localStorage.getItem('zynyx_current_user');
-      const userId = stored ? JSON.parse(stored).id : undefined;
+      let storedUser: UserProfile | null = null;
+      if (stored) {
+        try {
+          storedUser = JSON.parse(stored);
+        } catch {
+          storedUser = null;
+        }
+      }
 
+      if (storedUser) {
+        setUser(storedUser);
+      }
+
+      const userId = storedUser ? storedUser.id : undefined;
       const res = await fetch('/api/auth/me', {
         headers: userId ? { 'x-user-id': userId } : {}
       });
@@ -39,10 +58,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('zynyx_current_user', JSON.stringify(data.user));
           return;
         }
-      }
-
-      if (stored) {
-        setUser(JSON.parse(stored));
       }
     } catch (err) {
       console.error('[Auth] Error fetching user profile:', err);

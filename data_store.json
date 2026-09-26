@@ -38,6 +38,28 @@
       "apiKey": "smm_ak_mohit_alt_771822",
       "passwordHash": "d71b3d731d16d27d8aa2f5844b3083858fe5d1cef625f5e1799cf8a6528ca623",
       "createdAt": "2026-09-22T19:52:35.635Z"
+    },
+    {
+      "id": "usr_mohit_owner",
+      "username": "mohitverma912022",
+      "name": "Mohit Verma",
+      "email": "mohitverma912022@gmail.com",
+      "role": "admin",
+      "balance": 100000,
+      "apiKey": "smm_ak_mohitverma912022",
+      "passwordHash": "d71b3d731d16d27d8aa2f5844b3083858fe5d1cef625f5e1799cf8a6528ca623",
+      "createdAt": "2026-09-26T17:18:37.592Z"
+    },
+    {
+      "id": "usr_mohit_mohitkumar820945",
+      "username": "mohitkumar820945",
+      "name": "Mohit Verma",
+      "email": "mohitkumar820945@gmail.com",
+      "role": "admin",
+      "balance": 100000,
+      "apiKey": "smm_ak_mohitkumar820945",
+      "passwordHash": "d71b3d731d16d27d8aa2f5844b3083858fe5d1cef625f5e1799cf8a6528ca623",
+      "createdAt": "2026-09-26T17:18:37.593Z"
     }
   ],
   "providers": [
@@ -46,13 +68,13 @@
       "apiUrl": "https://yoyomedia.in/api/v2",
       "apiKey": "525619d4ba8f4be4535ef52ad4e8fef9ba5dc9e411cc43d61ad42de5f3985556",
       "status": "active",
-      "balance": 28.11,
+      "balance": 26.73,
       "balanceCurrency": "USD",
-      "lastBalanceCheck": "2026-09-26T08:36:58.825Z",
+      "lastBalanceCheck": "2026-09-26T17:18:41.286Z",
       "id": "prov_mud0eaxk",
       "createdAt": "2026-09-22T18:30:07.832Z",
-      "balanceInr": 28.11,
-      "balanceUsd": 0.32,
+      "balanceInr": 26.73,
+      "balanceUsd": 0.31,
       "userId": "usr_mud2y46zkisk"
     }
   ],
@@ -67367,7 +67389,7 @@
       "status": "Processing",
       "id": 10010,
       "createdAt": "2026-09-22T20:22:49.898Z",
-      "updatedAt": "2026-09-26T08:35:18.661Z",
+      "updatedAt": "2026-09-26T17:18:25.349Z",
       "providerStatus": "Refunded"
     },
     {
@@ -67428,7 +67450,7 @@
       "status": "Processing",
       "id": 10007,
       "createdAt": "2026-09-22T20:22:06.292Z",
-      "updatedAt": "2026-09-26T08:35:18.072Z",
+      "updatedAt": "2026-09-26T17:18:25.126Z",
       "providerStatus": "Refunded"
     },
     {
@@ -70358,6 +70380,27 @@
       "level": "info",
       "source": "Scheduler",
       "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790442864479_b39s",
+      "createdAt": "2026-09-26T17:14:24.479Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790443117632_9ohh",
+      "createdAt": "2026-09-26T17:18:37.632Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790443121061_enmj",
+      "createdAt": "2026-09-26T17:18:41.061Z",
+      "level": "info",
+      "source": "Auth",
+      "message": "User logged in successfully: mohitverma912022@gmail.com"
     }
   ],
   "nextOrderId": 10036
