@@ -17,7 +17,8 @@ import {
   Sparkles,
   Timer,
   Check,
-  AlertCircle
+  AlertCircle,
+  Edit3
 } from 'lucide-react';
 import { Order, OrderStatus, ScheduleItem } from '../types';
 import { getAuthHeaderObj } from '../utils/apiAuth';
@@ -35,6 +36,38 @@ export const OrderHistoryView: React.FC = () => {
   const [actionLoadingId, setActionLoadingId] = useState<{ id: number; action: 'cancel' | 'delete' } | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [actionNotice, setActionNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [editingQuantityId, setEditingQuantityId] = useState<number | null>(null);
+  const [editingQtyVal, setEditingQtyVal] = useState<string>('');
+
+  const handleSaveQuantity = async (orderId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const parsed = parseInt(editingQtyVal, 10);
+    if (isNaN(parsed) || parsed <= 0) {
+      setActionNotice({ type: 'error', message: 'Please enter a valid positive quantity.' });
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaderObj()
+        },
+        body: JSON.stringify({ quantity: parsed })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, quantity: parsed } : o));
+        setActionNotice({ type: 'success', message: `Order #${orderId} quantity updated to ${parsed.toLocaleString()} units!` });
+        setEditingQuantityId(null);
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to update quantity.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err.message || 'Error updating order.' });
+    }
+  };
 
   // Price formatting utility with dynamic precision
   const formatPrice = (val: number | undefined | null) => {
@@ -604,13 +637,57 @@ export const OrderHistoryView: React.FC = () => {
                         </td>
 
                         {/* Quantity & Authoritative Price */}
-                        <td className="py-3.5 px-4">
-                          <div className="font-extrabold text-slate-900 dark:text-white">
-                            {order.quantity.toLocaleString()} <span className="text-[10px] font-normal text-slate-400">units</span>
-                          </div>
-                          <div className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
-                            {formatPrice(order.price)} INR
-                          </div>
+                        <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                          {editingQuantityId === order.id ? (
+                            <div className="flex items-center space-x-1.5">
+                              <input
+                                type="number"
+                                value={editingQtyVal}
+                                onChange={(e) => setEditingQtyVal(e.target.value)}
+                                className="w-24 px-2 py-1 text-xs font-bold border border-pink-400 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                autoFocus
+                              />
+                              <button
+                                type="button"
+                                onClick={(e) => handleSaveQuantity(order.id, e)}
+                                className="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] shadow-sm cursor-pointer"
+                                title="Save new quantity"
+                              >
+                                ✓
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingQuantityId(null)}
+                                className="px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-[11px] cursor-pointer"
+                                title="Cancel editing"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center space-x-1.5 group">
+                              <div>
+                                <div className="font-extrabold text-slate-900 dark:text-white">
+                                  {order.quantity.toLocaleString()} <span className="text-[10px] font-normal text-slate-400">units</span>
+                                </div>
+                                <div className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
+                                  {formatPrice(order.price)} INR
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingQuantityId(order.id);
+                                  setEditingQtyVal(String(order.quantity));
+                                }}
+                                className="p-1 rounded bg-slate-100 hover:bg-pink-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-400 hover:text-pink-600 transition-colors cursor-pointer"
+                                title="Edit Order Quantity"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          )}
                         </td>
 
                         {/* Status */}

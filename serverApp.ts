@@ -484,6 +484,22 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+app.patch('/api/orders/:id', (req, res) => {
+  try {
+    const orderId = parseInt(req.params.id, 10);
+    const { quantity, status, link, targetUrl } = req.body;
+    const updates: Partial<Order> = {};
+    if (quantity !== undefined) updates.quantity = Number(quantity);
+    if (status !== undefined) updates.status = status;
+    if (link || targetUrl) updates.link = link || targetUrl;
+
+    const updatedOrder = db.updateOrder(orderId, updates);
+    res.json({ success: true, order: updatedOrder, message: `Order #${orderId} updated successfully!` });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
 app.post('/api/orders/:id/cancel', (req, res) => {
   try {
     const orderId = parseInt(req.params.id, 10);

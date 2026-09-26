@@ -414,8 +414,8 @@ class DatabaseEngine {
       return list.reverse();
     }
 
-    // Regular user sees their orders + guest/unowned orders
-    return list.filter(o => o.userId === userId || o.userId === 'usr_guest' || !o.userId || o.userId === 'usr_mohit_owner').reverse();
+    // Regular user sees strictly their own orders
+    return list.filter(o => o.userId === userId).reverse();
   }
 
   getOrderById(id: number): Order | undefined {
