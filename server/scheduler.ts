@@ -70,11 +70,14 @@ export class SchedulerWorker {
           continue;
         }
 
-        const provider = db.getProviderById(item.providerId || service.providerId);
+        let provider = db.getProviderById(item.providerId || service.providerId);
         if (!provider) {
+          provider = db.getProviders().find(p => p.status !== 'inactive') || db.getProviders()[0];
+        }
+        if (!provider || !provider.apiUrl || !provider.apiKey) {
           db.updateScheduleItem(item.id, {
             status: 'failed',
-            errorMessage: `Provider for service #${service.id} not found`
+            errorMessage: `No active provider found with API credentials for service #${service.id}`
           });
           continue;
         }

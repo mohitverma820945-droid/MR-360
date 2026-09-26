@@ -45,7 +45,7 @@
       "name": "Mohit Verma",
       "email": "mohitverma912022@gmail.com",
       "role": "admin",
-      "balance": 99999.9896,
+      "balance": 99999.95749999999,
       "apiKey": "smm_ak_mohitverma912022",
       "passwordHash": "d71b3d731d16d27d8aa2f5844b3083858fe5d1cef625f5e1799cf8a6528ca623",
       "createdAt": "2026-09-26T17:18:37.592Z"
@@ -68,12 +68,12 @@
       "apiUrl": "https://yoyomedia.in/api/v2",
       "apiKey": "525619d4ba8f4be4535ef52ad4e8fef9ba5dc9e411cc43d61ad42de5f3985556",
       "status": "active",
-      "balance": 26.32,
+      "balance": 26.05,
       "balanceCurrency": "USD",
-      "lastBalanceCheck": "2026-09-26T17:36:17.756Z",
+      "lastBalanceCheck": "2026-09-26T20:38:28.342Z",
       "id": "prov_mud0eaxk",
       "createdAt": "2026-09-22T18:30:07.832Z",
-      "balanceInr": 26.32,
+      "balanceInr": 26.05,
       "balanceUsd": 0.3,
       "userId": "usr_mud2y46zkisk"
     }
@@ -66871,101 +66871,7 @@
       "refill": false
     }
   ],
-  "orders": [
-    {
-      "id": 10038,
-      "userId": "usr_mohit_owner",
-      "orderType": "single",
-      "platform": "Instagram",
-      "category": "Instagram Likes",
-      "serviceId": 13264,
-      "serviceName": "Instagram Likes [Instant] [100k Day] [No Refill]",
-      "link": "https://www.instagram.com/reel/Ddwii8yBEpX/?stkn=MTlpemlyaG8xODU3OA==",
-      "targetUrl": "https://www.instagram.com/reel/Ddwii8yBEpX/?stkn=MTlpemlyaG8xODU3OA==",
-      "quantity": 32,
-      "price": 0.003,
-      "status": "Processing",
-      "providerId": "prov_mud0eaxk",
-      "providerOrderId": "32001",
-      "createdAt": "2026-09-26T17:25:44.487Z",
-      "updatedAt": "2026-09-26T17:25:44.487Z"
-    },
-    {
-      "id": 10037,
-      "userId": "usr_mohit_owner",
-      "orderType": "single",
-      "platform": "Instagram",
-      "category": "Instagram Views",
-      "serviceId": 13264,
-      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
-      "link": "https://www.instagram.com/reel/Ddwii8yBEpX/?stkn=MTlpemlyaG8xODU3OA==",
-      "targetUrl": "https://www.instagram.com/reel/Ddwii8yBEpX/?stkn=MTlpemlyaG8xODU3OA==",
-      "quantity": 255,
-      "price": 0.002,
-      "status": "Processing",
-      "providerId": "prov_mud0eaxk",
-      "providerOrderId": "32002",
-      "createdAt": "2026-09-26T17:25:41.863Z",
-      "updatedAt": "2026-09-26T17:25:41.863Z"
-    },
-    {
-      "id": 10036,
-      "userId": "usr_mohit_owner",
-      "orderType": "all_in_one_parent",
-      "platform": "Instagram",
-      "category": "Organic Campaign",
-      "serviceId": 0,
-      "serviceName": "All-In-One Campaign (8 Bundles)",
-      "link": "https://www.instagram.com/reel/Ddwii8yBEpX/?stkn=MTlpemlyaG8xODU3OA==",
-      "targetUrl": "https://www.instagram.com/reel/Ddwii8yBEpX/?stkn=MTlpemlyaG8xODU3OA==",
-      "quantity": 2484,
-      "price": 0.025,
-      "status": "Processing",
-      "totalBundles": 8,
-      "completedBundles": 0,
-      "durationHours": 24,
-      "providerId": "multi",
-      "providerOrderId": "aio_1790443537",
-      "createdAt": "2026-09-26T17:25:37.617Z",
-      "updatedAt": "2026-09-26T17:25:37.617Z"
-    },
-    {
-      "id": 10017,
-      "userId": "usr_mohit_owner",
-      "orderType": "single",
-      "platform": "Instagram",
-      "category": "Instagram Views",
-      "serviceId": 13264,
-      "serviceName": "Instagram Video/Reel Views [100M] [Fast]",
-      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
-      "targetUrl": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
-      "quantity": 1000,
-      "price": 0.01,
-      "status": "Processing",
-      "providerId": "prov_mud0eaxk",
-      "providerOrderId": "31017",
-      "createdAt": "2026-09-23T18:05:34.699Z",
-      "updatedAt": "2026-09-23T18:05:34.699Z"
-    },
-    {
-      "id": 10016,
-      "userId": "usr_mohit_owner",
-      "orderType": "single",
-      "platform": "Instagram",
-      "category": "Instagram Likes",
-      "serviceId": 13264,
-      "serviceName": "Instagram Likes [Instant] [100k Day] [No Refill]",
-      "link": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
-      "targetUrl": "https://www.instagram.com/reel/DdmIH1evOyz/?stkn=NmpuNGowbjBsMDB2",
-      "quantity": 500,
-      "price": 0.008,
-      "status": "Processing",
-      "providerId": "prov_mud0eaxk",
-      "providerOrderId": "31016",
-      "createdAt": "2026-09-23T18:05:33.747Z",
-      "updatedAt": "2026-09-23T18:05:33.747Z"
-    }
-  ],
+  "orders": [],
   "schedules": [],
   "settings": {
     "markupPercentage": 20,
@@ -67909,7 +67815,59 @@
       "level": "info",
       "source": "Scheduler",
       "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790454861587_2ne6",
+      "createdAt": "2026-09-26T20:34:21.587Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790455057372_pvsl",
+      "createdAt": "2026-09-26T20:37:37.372Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790455066455_0piz",
+      "createdAt": "2026-09-26T20:37:46.455Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10001 (all_in_one_parent)",
+      "details": "{\"serviceId\":0,\"quantity\":100,\"price\":0.032}"
+    },
+    {
+      "id": "log_1790455067999_p123",
+      "createdAt": "2026-09-26T20:37:47.999Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Failed to submit Schedule #sch_1790455066475_0_lpkh to Provider Yo : Incorrect service ID"
+    },
+    {
+      "id": "log_1790455103307_a60t",
+      "createdAt": "2026-09-26T20:38:23.307Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10002 (all_in_one_parent)",
+      "details": "{\"serviceId\":0,\"quantity\":100,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790455108080_fpbt",
+      "createdAt": "2026-09-26T20:38:28.080Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10003 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":100,\"price\":0.0001}"
+    },
+    {
+      "id": "log_1790455108113_qzcd",
+      "createdAt": "2026-09-26T20:38:28.113Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141347223 for Schedule #sch_1790455103324_0_ca0n (Qty: 100)"
     }
   ],
-  "nextOrderId": 10039
+  "nextOrderId": 10001
 }

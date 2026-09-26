@@ -364,7 +364,10 @@ app.post('/api/orders/single', async (req, res) => {
       return res.status(400).json({ success: false, error: `Insufficient balance. Required: ₹${price.toFixed(2)}, Available: ₹${user.balance.toFixed(2)}` });
     }
 
-    const provider = db.getProviderById(service.providerId);
+    let provider = db.getProviderById(service.providerId);
+    if (!provider) {
+      provider = db.getProviders().find(p => p.status !== 'inactive') || db.getProviders()[0];
+    }
     let providerOrderId: string | null = null;
     let status: any = 'Pending';
     let errorMessage: string | undefined;
