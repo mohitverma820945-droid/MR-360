@@ -46,13 +46,13 @@
       "apiUrl": "https://yoyomedia.in/api/v2",
       "apiKey": "525619d4ba8f4be4535ef52ad4e8fef9ba5dc9e411cc43d61ad42de5f3985556",
       "status": "active",
-      "balance": 34.16,
+      "balance": 28.11,
       "balanceCurrency": "USD",
-      "lastBalanceCheck": "2026-09-25T19:27:11.989Z",
+      "lastBalanceCheck": "2026-09-26T08:36:58.825Z",
       "id": "prov_mud0eaxk",
       "createdAt": "2026-09-22T18:30:07.832Z",
-      "balanceInr": 34.16,
-      "balanceUsd": 0.39,
+      "balanceInr": 28.11,
+      "balanceUsd": 0.32,
       "userId": "usr_mud2y46zkisk"
     }
   ],
@@ -67367,7 +67367,7 @@
       "status": "Processing",
       "id": 10010,
       "createdAt": "2026-09-22T20:22:49.898Z",
-      "updatedAt": "2026-09-25T19:27:03.216Z",
+      "updatedAt": "2026-09-26T08:35:18.661Z",
       "providerStatus": "Refunded"
     },
     {
@@ -67428,7 +67428,7 @@
       "status": "Processing",
       "id": 10007,
       "createdAt": "2026-09-22T20:22:06.292Z",
-      "updatedAt": "2026-09-25T19:27:02.906Z",
+      "updatedAt": "2026-09-26T08:35:18.072Z",
       "providerStatus": "Refunded"
     },
     {
@@ -70341,6 +70341,20 @@
     {
       "id": "log_1790364428722_2gnh",
       "createdAt": "2026-09-25T19:27:08.722Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790411597473_5sq0",
+      "createdAt": "2026-09-26T08:33:17.473Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790411815191_iezv",
+      "createdAt": "2026-09-26T08:36:55.191Z",
       "level": "info",
       "source": "Scheduler",
       "message": "Background Scheduler Worker started"

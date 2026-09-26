@@ -525,8 +525,18 @@ app.post('/api/orders/all-in-one/preview', (req, res) => {
       const service = db.getServiceById(config.serviceId);
       if (!service) continue;
 
-      const provider = db.getProviderById(service.providerId);
-      if (!provider) continue;
+      let provider = db.getProviderById(service.providerId);
+      if (!provider) {
+        provider = db.getProviders().find(p => p.status !== 'inactive') || {
+          id: service.providerId || 'prov_default',
+          name: service.providerName || 'SMM Provider',
+          apiUrl: '',
+          apiKey: '',
+          status: 'active',
+          balance: null,
+          createdAt: new Date().toISOString()
+        };
+      }
 
       const autoMode = autoRunsMode[metricKey] ?? true;
       const minSize = BundleGenerator.getMinimumBundleSize(metricKey, service.min);
@@ -541,7 +551,11 @@ app.post('/api/orders/all-in-one/preview', (req, res) => {
         provider,
         totalQuantity: config.totalQuantity,
         requestedRunCount: runCount,
-        durationHours
+        durationHours,
+        randomVariancePercent: reqBody.randomVariancePercent,
+        peakHoursWeight: reqBody.peakHoursWeight,
+        patternType: reqBody.patternType,
+        patternEnabled: reqBody.patternEnabled
       });
 
       metricPlans.push(plan);
@@ -551,20 +565,62 @@ app.post('/api/orders/all-in-one/preview', (req, res) => {
 
     timelinePreview.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
 
+    // Calculate Provider Breakdown
+    const provMap = new Map<string, {
+      providerId: string;
+      providerName: string;
+      metrics: string[];
+      totalQuantity: number;
+      cost: number;
+      currentBalance: number | null;
+      currency: string;
+    }>();
+
+    for (const plan of metricPlans) {
+      const p = db.getProviderById(plan.bundles[0]?.providerId) || db.getProviders().find(prov => prov.status !== 'inactive');
+      const pId = p?.id || 'prov_default';
+      const pName = p?.name || 'SMM Provider';
+      const pBal = (p as any)?.balanceInr ?? p?.balance ?? null;
+
+      if (!provMap.has(pId)) {
+        provMap.set(pId, {
+          providerId: pId,
+          providerName: pName,
+          metrics: [plan.metric],
+          totalQuantity: plan.totalQuantity,
+          cost: plan.totalCost,
+          currentBalance: pBal,
+          currency: 'INR'
+        });
+      } else {
+        const item = provMap.get(pId)!;
+        if (!item.metrics.includes(plan.metric)) item.metrics.push(plan.metric);
+        item.totalQuantity += plan.totalQuantity;
+        item.cost += plan.totalCost;
+      }
+    }
+    const providerBreakdown = Array.from(provMap.values());
+
+    const summaryObj = {
+      platform,
+      targetUrl,
+      durationHours,
+      totalBundles: timelinePreview.length,
+      grandTotalCost: parseFloat(grandTotalCost.toFixed(4)),
+      providerName: providerBreakdown.length === 1 ? providerBreakdown[0].providerName : 'Multi-Provider Engine',
+      providerBreakdown
+    };
+
     res.json({
       success: true,
       data: {
-        summary: {
-          platform,
-          targetUrl,
-          durationHours,
-          totalBundles: timelinePreview.length,
-          grandTotalCost: parseFloat(grandTotalCost.toFixed(4)),
-          providerName: 'Multi-Provider Engine'
-        },
+        summary: summaryObj,
         metricPlans,
         timelinePreview
-      }
+      },
+      summary: summaryObj,
+      metricPlans,
+      timelinePreview
     });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
@@ -592,8 +648,18 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
       const service = db.getServiceById(config.serviceId);
       if (!service) continue;
 
-      const provider = db.getProviderById(service.providerId);
-      if (!provider) continue;
+      let provider = db.getProviderById(service.providerId);
+      if (!provider) {
+        provider = db.getProviders().find(p => p.status !== 'inactive') || {
+          id: service.providerId || 'prov_default',
+          name: service.providerName || 'SMM Provider',
+          apiUrl: '',
+          apiKey: '',
+          status: 'active',
+          balance: null,
+          createdAt: new Date().toISOString()
+        };
+      }
 
       const autoMode = autoRunsMode[metricKey] ?? true;
       const minSize = BundleGenerator.getMinimumBundleSize(metricKey, service.min);
@@ -608,7 +674,11 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
         provider,
         totalQuantity: config.totalQuantity,
         requestedRunCount: runCount,
-        durationHours
+        durationHours,
+        randomVariancePercent: reqBody.randomVariancePercent,
+        peakHoursWeight: reqBody.peakHoursWeight,
+        patternType: reqBody.patternType,
+        patternEnabled: reqBody.patternEnabled
       });
 
       metricPlans.push(plan);
@@ -626,6 +696,42 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
     if (user) {
       db.updateUserBalance(user.id, -grandTotalCost);
     }
+
+    // Calculate Provider Breakdown
+    const provMap = new Map<string, {
+      providerId: string;
+      providerName: string;
+      metrics: string[];
+      totalQuantity: number;
+      cost: number;
+      currentBalance: number | null;
+      currency: string;
+    }>();
+
+    for (const plan of metricPlans) {
+      const p = db.getProviderById(plan.bundles[0]?.providerId) || db.getProviders().find(prov => prov.status !== 'inactive');
+      const pId = p?.id || 'prov_default';
+      const pName = p?.name || 'SMM Provider';
+      const pBal = (p as any)?.balanceInr ?? p?.balance ?? null;
+
+      if (!provMap.has(pId)) {
+        provMap.set(pId, {
+          providerId: pId,
+          providerName: pName,
+          metrics: [plan.metric],
+          totalQuantity: plan.totalQuantity,
+          cost: plan.totalCost,
+          currentBalance: pBal,
+          currency: 'INR'
+        });
+      } else {
+        const item = provMap.get(pId)!;
+        if (!item.metrics.includes(plan.metric)) item.metrics.push(plan.metric);
+        item.totalQuantity += plan.totalQuantity;
+        item.cost += plan.totalCost;
+      }
+    }
+    const providerBreakdown = Array.from(provMap.values());
 
     const parentOrder = db.createOrder({
       userId: user?.id || 'usr_guest',
@@ -665,6 +771,11 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
     res.json({
       success: true,
       order: parentOrder,
+      parentOrder,
+      grandTotalCost: parseFloat(grandTotalCost.toFixed(4)),
+      totalBundles: timelinePreview.length,
+      durationHours,
+      providerBreakdown,
       message: `All-in-One Campaign #${parentOrder.id} successfully created with ${timelinePreview.length} scheduled runs!`
     });
   } catch (err: any) {

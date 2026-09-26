@@ -524,7 +524,12 @@ export const AllInOneOrderForm: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        setSchedulePreviewData(data);
+        const previewResult = data.data?.summary ? data.data : (data.summary ? data : null);
+        if (previewResult) {
+          setSchedulePreviewData(previewResult);
+        } else {
+          setErrorMessage('Could not load schedule preview data from server.');
+        }
       } else {
         setErrorMessage(data.error || 'Failed to generate schedule plan.');
       }
@@ -1911,7 +1916,7 @@ export const AllInOneOrderForm: React.FC = () => {
             <>
               <Sliders className="w-4 h-4 text-pink-500" />
               <span>
-                {schedulePreviewData 
+                {schedulePreviewData?.summary?.totalBundles
                   ? `View Schedule Runs (${schedulePreviewData.summary.totalBundles} runs calculated)` 
                   : 'Generate Schedule Run Quantities Preview'}
               </span>
@@ -1920,14 +1925,14 @@ export const AllInOneOrderForm: React.FC = () => {
         </button>
 
         {/* Schedule Breakdown Preview Drawer */}
-        {schedulePreviewData && (
+        {schedulePreviewData?.summary && (
           <div className="p-4 bg-pink-50/30 dark:bg-slate-950/90 rounded-2xl border border-pink-200 dark:border-slate-700 space-y-3.5 text-xs animate-fadeIn">
             <div className="flex items-center justify-between pb-2 border-b border-pink-100 dark:border-slate-800">
               <span className="font-extrabold text-slate-900 dark:text-white uppercase tracking-wider text-[11px]">
                 Schedule Run Quantities Breakdown ({patternEnabled ? activePattern.name : 'Flat Distribution'})
               </span>
               <span className="font-mono text-pink-600 dark:text-pink-400 font-bold">
-                {schedulePreviewData.summary.totalBundles} Total Runs
+                {schedulePreviewData.summary.totalBundles ?? 0} Total Runs
               </span>
             </div>
 
@@ -2031,9 +2036,11 @@ export const AllInOneOrderForm: React.FC = () => {
             })()}
 
             <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
-              {schedulePreviewData.timelinePreview.map((run: any, idx: number) => {
-                const maxQty = Math.max(...schedulePreviewData.timelinePreview.map((r: any) => r.quantity || 1), 1);
-                const pct = Math.max(10, Math.round((run.quantity / maxQty) * 100));
+              {(() => {
+                const timeline = schedulePreviewData?.timelinePreview || [];
+                const maxQty = Math.max(...timeline.map((r: any) => r.quantity || 1), 1);
+                return timeline.map((run: any, idx: number) => {
+                  const pct = Math.max(10, Math.round((run.quantity / maxQty) * 100));
                 const mKey = run.metric.toLowerCase();
                 const barThemeColor = mKey.includes('view')
                   ? 'bg-sky-500'
@@ -2073,7 +2080,8 @@ export const AllInOneOrderForm: React.FC = () => {
                     </div>
                   </div>
                 );
-              })}
+              });
+            })()}
             </div>
           </div>
         )}
