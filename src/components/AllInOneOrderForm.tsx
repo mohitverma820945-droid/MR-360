@@ -1924,167 +1924,179 @@ export const AllInOneOrderForm: React.FC = () => {
           )}
         </button>
 
-        {/* Schedule Breakdown Preview Drawer */}
-        {schedulePreviewData?.summary && (
-          <div className="p-4 bg-pink-50/30 dark:bg-slate-950/90 rounded-2xl border border-pink-200 dark:border-slate-700 space-y-3.5 text-xs animate-fadeIn">
-            <div className="flex items-center justify-between pb-2 border-b border-pink-100 dark:border-slate-800">
-              <span className="font-extrabold text-slate-900 dark:text-white uppercase tracking-wider text-[11px]">
-                Schedule Run Quantities Breakdown ({patternEnabled ? activePattern.name : 'Flat Distribution'})
-              </span>
-              <span className="font-mono text-pink-600 dark:text-pink-400 font-bold">
-                {schedulePreviewData.summary.totalBundles ?? 0} Total Runs
-              </span>
-            </div>
-
-            {/* Multi-Panel Routing Breakdown in Preview */}
-            {schedulePreviewData.summary.providerBreakdown && schedulePreviewData.summary.providerBreakdown.length > 0 && (
-              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-sky-200 dark:border-sky-900/60 space-y-2">
-                <div className="flex items-center justify-between text-xs font-black text-slate-800 dark:text-slate-100">
-                  <span className="flex items-center space-x-1.5">
-                    <Layers className="w-3.5 h-3.5 text-sky-500" />
-                    <span>Multi-SMM Panel Routing & Balance Deductions:</span>
+            {/* Schedule Breakdown Preview Drawer */}
+            {schedulePreviewData?.summary && (
+              <div className="p-4 bg-pink-50/30 dark:bg-slate-950/90 rounded-2xl border border-pink-200 dark:border-slate-700 space-y-3.5 text-xs animate-fadeIn">
+                <div className="flex items-center justify-between pb-2 border-b border-pink-100 dark:border-slate-800">
+                  <span className="font-extrabold text-slate-900 dark:text-white uppercase tracking-wider text-[11px]">
+                    Schedule Run Quantities Breakdown ({patternEnabled ? activePattern?.name || 'Organic Curve' : 'Flat Distribution'})
                   </span>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded">
-                    ⚡ Direct Provider Dispatch
+                  <span className="font-mono text-pink-600 dark:text-pink-400 font-bold">
+                    {schedulePreviewData.summary.totalBundles ?? 0} Total Runs
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {schedulePreviewData.summary.providerBreakdown.map((pb, idx) => (
-                    <div key={idx} className="p-2 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 text-[11px] space-y-1">
-                      <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200">
-                        <span>🏛️ {pb.providerName}</span>
-                        <span className="font-mono text-emerald-600 dark:text-emerald-400">₹{formatCostPrecision(pb.cost)}</span>
+
+                {/* Multi-Panel Routing Breakdown in Preview */}
+                {schedulePreviewData.summary.providerBreakdown && schedulePreviewData.summary.providerBreakdown.length > 0 && (
+                  <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-sky-200 dark:border-sky-900/60 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-black text-slate-800 dark:text-slate-100">
+                      <span className="flex items-center space-x-1.5">
+                        <Layers className="w-3.5 h-3.5 text-sky-500" />
+                        <span>Multi-SMM Panel Routing & Balance Deductions:</span>
+                      </span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded">
+                        ⚡ Direct Provider Dispatch
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {schedulePreviewData.summary.providerBreakdown.map((pb: any, idx: number) => (
+                        <div key={idx} className="p-2 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 text-[11px] space-y-1">
+                          <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200">
+                            <span>🏛️ {pb?.providerName || 'SMM Provider'}</span>
+                            <span className="font-mono text-emerald-600 dark:text-emerald-400">₹{formatCostPrecision(pb?.cost || 0)}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-slate-500">
+                            <span>{(pb?.metrics || []).join(', ')} ({(pb?.totalQuantity || 0).toLocaleString()} units)</span>
+                            {pb?.currentBalance !== null && pb?.currentBalance !== undefined && (
+                              <span className="font-mono text-slate-600 dark:text-slate-400">Bal: ₹{Number(pb.currentBalance).toFixed(2)}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Visual Bundle Quantity Profile (Graph Pattern Visualizer) */}
+                {(() => {
+                  const runs = schedulePreviewData.timelinePreview || [];
+                  if (runs.length === 0) return null;
+                  const quantities = runs.map((r: any) => Number(r?.quantity) || 0);
+                  const maxQty = Math.max(...quantities, 1);
+                  const minQty = Math.min(...quantities);
+                  const firstQty = runs[0]?.quantity || 0;
+                  const lastQty = runs[runs.length - 1]?.quantity || 0;
+                  const isAscending = runs.length > 1 && lastQty > firstQty * 1.2;
+                  const isDescending = runs.length > 1 && firstQty > lastQty * 1.2;
+                  const hasPeak = runs.length > 2 && maxQty > firstQty * 1.2 && maxQty > lastQty * 1.2;
+
+                  return (
+                    <div className="p-3 bg-slate-900 rounded-xl border border-pink-900/60 space-y-2.5 text-white">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-extrabold flex items-center space-x-1.5 text-pink-400">
+                          <BarChart3 className="w-3.5 h-3.5" />
+                          <span>Live Bundle Quantities along {patternEnabled ? activePattern?.name || 'Organic Curve' : 'Uniform Curve'}</span>
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-950 text-pink-300 border border-pink-800">
+                          {isAscending ? '📈 Kam se Zyada (Ascending)' : isDescending ? '📉 Zyada se Kam (Descending)' : hasPeak ? '🚀 Viral Peak Surge' : '📊 Dynamic Pacing'}
+                        </span>
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-slate-500">
-                        <span>{pb.metrics.join(', ')} ({pb.totalQuantity.toLocaleString()} units)</span>
-                        {pb.currentBalance !== null && (
-                          <span className="font-mono text-slate-600 dark:text-slate-400">Bal: ₹{pb.currentBalance.toFixed(2)}</span>
-                        )}
+
+                      {/* Spark Bar Chart */}
+                      <div className="h-16 flex items-end gap-1 px-1 pt-2 pb-1 bg-slate-950 rounded-lg border border-slate-800 overflow-x-auto">
+                        {runs.map((r: any, i: number) => {
+                          const rQty = Number(r?.quantity) || 0;
+                          const heightPercent = Math.max(15, Math.round((rQty / maxQty) * 100));
+                          const mKey = String(r?.metric || '').toLowerCase();
+                          const barColor = mKey.includes('view')
+                            ? 'bg-sky-500 hover:bg-sky-400'
+                            : mKey.includes('like')
+                            ? 'bg-rose-500 hover:bg-rose-400'
+                            : mKey.includes('comment')
+                            ? 'bg-emerald-500 hover:bg-emerald-400'
+                            : mKey.includes('share')
+                            ? 'bg-amber-500 hover:bg-amber-400'
+                            : 'bg-purple-500 hover:bg-purple-400';
+
+                          return (
+                            <div
+                              key={i}
+                              className="flex-1 min-w-[14px] max-w-[32px] flex flex-col items-center justify-end group relative h-full cursor-pointer"
+                              title={`Run #${r?.runNumber || (i + 1)}: ${rQty.toLocaleString()} ${r?.metric || ''}`}
+                            >
+                              {/* Tooltip on hover */}
+                              <div className="absolute -top-7 hidden group-hover:flex items-center px-1.5 py-0.5 rounded bg-slate-800 text-[9px] font-mono text-white whitespace-nowrap shadow-lg z-20 pointer-events-none">
+                                #{r?.runNumber || (i + 1)}: {rQty.toLocaleString()}
+                              </div>
+                              <div
+                                style={{ height: `${heightPercent}%` }}
+                                className={`w-full rounded-t transition-all duration-300 ${barColor}`}
+                              />
+                              <span className="text-[8px] font-mono text-slate-500 mt-0.5 group-hover:text-white">
+                                {r?.runNumber || (i + 1)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex items-center justify-between text-[9px] text-slate-400 px-1 font-mono">
+                        <span>Start (Run #1: {firstQty.toLocaleString()} units)</span>
+                        <span className="text-pink-300 font-bold">Min: {minQty.toLocaleString()} &bull; Max: {maxQty.toLocaleString()}</span>
+                        <span>End (Run #{runs.length}: {lastQty.toLocaleString()} units)</span>
                       </div>
                     </div>
-                  ))}
+                  );
+                })()}
+
+                <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
+                  {(() => {
+                    const timeline = schedulePreviewData?.timelinePreview || [];
+                    if (timeline.length === 0) return null;
+                    const quantities = timeline.map((r: any) => Number(r?.quantity) || 0);
+                    const maxQty = Math.max(...quantities, 1);
+                    return timeline.map((run: any, idx: number) => {
+                      const runQty = Number(run?.quantity) || 0;
+                      const pct = Math.max(10, Math.round((runQty / maxQty) * 100));
+                      const mKey = String(run?.metric || '').toLowerCase();
+                      const barThemeColor = mKey.includes('view')
+                        ? 'bg-sky-500'
+                        : mKey.includes('like')
+                        ? 'bg-rose-500'
+                        : mKey.includes('comment')
+                        ? 'bg-emerald-500'
+                        : mKey.includes('share')
+                        ? 'bg-amber-500'
+                        : 'bg-purple-500';
+
+                      const dateObj = run?.scheduledAt ? new Date(run.scheduledAt) : new Date();
+                      const timeStr = !isNaN(dateObj.getTime()) 
+                        ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                        : 'Scheduled';
+
+                      return (
+                        <div key={idx} className="p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-pink-100 dark:border-slate-800 flex flex-col gap-1 text-[11px]">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className="w-5 h-5 rounded-full bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300 font-black flex items-center justify-center text-[10px]">
+                                #{run?.runNumber || (idx + 1)}
+                              </span>
+                              <span className="font-bold text-slate-800 dark:text-slate-200">{run?.metric || 'Run'}</span>
+                              <span className="text-[10px] text-slate-400">({timeStr})</span>
+                            </div>
+
+                            <div className="flex items-center space-x-2.5">
+                              <span className="font-mono font-extrabold text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-950/60 px-2 py-0.5 rounded">
+                                +{runQty.toLocaleString()}
+                              </span>
+                              <span className="font-mono text-slate-500 text-[10px]">₹{formatCostPrecision(run?.cost || 0)}</span>
+                            </div>
+                          </div>
+
+                          {/* Miniature bundle relative size bar */}
+                          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              style={{ width: `${pct}%` }}
+                              className={`h-full rounded-full ${barThemeColor} transition-all duration-300`}
+                            />
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             )}
-
-            {/* Visual Bundle Quantity Profile (Graph Pattern Visualizer) */}
-            {(() => {
-              const runs = schedulePreviewData.timelinePreview || [];
-              if (runs.length === 0) return null;
-              const maxQty = Math.max(...runs.map((r: any) => r.quantity || 1), 1);
-              const minQty = Math.min(...runs.map((r: any) => r.quantity || 1));
-              const isAscending = runs.length > 1 && runs[runs.length - 1].quantity > runs[0].quantity * 1.2;
-              const isDescending = runs.length > 1 && runs[0].quantity > runs[runs.length - 1].quantity * 1.2;
-              const hasPeak = runs.length > 2 && maxQty > runs[0].quantity * 1.2 && maxQty > runs[runs.length - 1].quantity * 1.2;
-
-              return (
-                <div className="p-3 bg-slate-900 rounded-xl border border-pink-900/60 space-y-2.5 text-white">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-extrabold flex items-center space-x-1.5 text-pink-400">
-                      <BarChart3 className="w-3.5 h-3.5" />
-                      <span>Live Bundle Quantities along {patternEnabled ? activePattern.name : 'Uniform Curve'}</span>
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-950 text-pink-300 border border-pink-800">
-                      {isAscending ? '📈 Kam se Zyada (Ascending)' : isDescending ? '📉 Zyada se Kam (Descending)' : hasPeak ? '🚀 Viral Peak Surge' : '📊 Dynamic Pacing'}
-                    </span>
-                  </div>
-
-                  {/* Spark Bar Chart */}
-                  <div className="h-16 flex items-end gap-1 px-1 pt-2 pb-1 bg-slate-950 rounded-lg border border-slate-800 overflow-x-auto">
-                    {runs.map((r: any, i: number) => {
-                      const heightPercent = Math.max(15, Math.round((r.quantity / maxQty) * 100));
-                      const mKey = r.metric.toLowerCase();
-                      const barColor = mKey.includes('view')
-                        ? 'bg-sky-500 hover:bg-sky-400'
-                        : mKey.includes('like')
-                        ? 'bg-rose-500 hover:bg-rose-400'
-                        : mKey.includes('comment')
-                        ? 'bg-emerald-500 hover:bg-emerald-400'
-                        : mKey.includes('share')
-                        ? 'bg-amber-500 hover:bg-amber-400'
-                        : 'bg-purple-500 hover:bg-purple-400';
-
-                      return (
-                        <div
-                          key={i}
-                          className="flex-1 min-w-[14px] max-w-[32px] flex flex-col items-center justify-end group relative h-full cursor-pointer"
-                          title={`Run #${r.runNumber}: ${r.quantity.toLocaleString()} ${r.metric}`}
-                        >
-                          {/* Tooltip on hover */}
-                          <div className="absolute -top-7 hidden group-hover:flex items-center px-1.5 py-0.5 rounded bg-slate-800 text-[9px] font-mono text-white whitespace-nowrap shadow-lg z-20 pointer-events-none">
-                            #{r.runNumber}: {r.quantity.toLocaleString()}
-                          </div>
-                          <div
-                            style={{ height: `${heightPercent}%` }}
-                            className={`w-full rounded-t transition-all duration-300 ${barColor}`}
-                          />
-                          <span className="text-[8px] font-mono text-slate-500 mt-0.5 group-hover:text-white">
-                            {r.runNumber}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="flex items-center justify-between text-[9px] text-slate-400 px-1 font-mono">
-                    <span>Start (Run #1: {runs[0]?.quantity.toLocaleString()} units)</span>
-                    <span className="text-pink-300 font-bold">Min: {minQty.toLocaleString()} &bull; Max: {maxQty.toLocaleString()}</span>
-                    <span>End (Run #{runs.length}: {runs[runs.length - 1]?.quantity.toLocaleString()} units)</span>
-                  </div>
-                </div>
-              );
-            })()}
-
-            <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
-              {(() => {
-                const timeline = schedulePreviewData?.timelinePreview || [];
-                const maxQty = Math.max(...timeline.map((r: any) => r.quantity || 1), 1);
-                return timeline.map((run: any, idx: number) => {
-                  const pct = Math.max(10, Math.round((run.quantity / maxQty) * 100));
-                const mKey = run.metric.toLowerCase();
-                const barThemeColor = mKey.includes('view')
-                  ? 'bg-sky-500'
-                  : mKey.includes('like')
-                  ? 'bg-rose-500'
-                  : mKey.includes('comment')
-                  ? 'bg-emerald-500'
-                  : mKey.includes('share')
-                  ? 'bg-amber-500'
-                  : 'bg-purple-500';
-
-                return (
-                  <div key={idx} className="p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-pink-100 dark:border-slate-800 flex flex-col gap-1 text-[11px]">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="w-5 h-5 rounded-full bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300 font-black flex items-center justify-center text-[10px]">
-                          #{run.runNumber}
-                        </span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200">{run.metric}</span>
-                        <span className="text-[10px] text-slate-400">({new Date(run.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})</span>
-                      </div>
-
-                      <div className="flex items-center space-x-2.5">
-                        <span className="font-mono font-extrabold text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-950/60 px-2 py-0.5 rounded">
-                          +{run.quantity.toLocaleString()}
-                        </span>
-                        <span className="font-mono text-slate-500 text-[10px]">₹{formatCostPrecision(run.cost)}</span>
-                      </div>
-                    </div>
-
-                    {/* Miniature bundle relative size bar */}
-                    <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        style={{ width: `${pct}%` }}
-                        className={`h-full rounded-full ${barThemeColor} transition-all duration-300`}
-                      />
-                    </div>
-                  </div>
-                );
-              });
-            })()}
-            </div>
-          </div>
-        )}
 
       </div>
 

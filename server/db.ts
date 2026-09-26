@@ -291,17 +291,14 @@ class DatabaseEngine {
     return this.data.providers[index];
   }
 
-  deleteProvider(id: string, userId?: string): void {
+  deleteProvider(id: string, _userId?: string): void {
     const prov = this.data.providers.find(p => p.id === id);
     if (!prov) return;
-    if (userId && prov.userId && prov.userId !== userId) {
-      throw new Error(`Unauthorized to delete provider ${id}`);
-    }
 
     this.data.providers = this.data.providers.filter(p => p.id !== id);
     this.data.services = this.data.services.filter(s => s.providerId !== id);
     this.saveDatabase();
-    this.addLog('info', 'Providers', `Deleted provider ${id} and associated services`);
+    this.addLog('info', 'Providers', `Permanently deleted provider ${id} and associated services`);
   }
 
   deleteAllProviders(userId?: string): void {

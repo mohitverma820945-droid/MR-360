@@ -534,6 +534,8 @@ app.post('/api/orders/all-in-one/preview', (req, res) => {
           apiKey: '',
           status: 'active',
           balance: null,
+          balanceCurrency: 'INR',
+          lastBalanceCheck: new Date().toISOString(),
           createdAt: new Date().toISOString()
         };
       }
@@ -657,6 +659,8 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
           apiKey: '',
           status: 'active',
           balance: null,
+          balanceCurrency: 'INR',
+          lastBalanceCheck: new Date().toISOString(),
           createdAt: new Date().toISOString()
         };
       }
