@@ -109,162 +109,153 @@ export class BundleGenerator {
       );
     }
 
-    // 1. Smart Run Count Resolution (Auto Mode or Clamping)
+    // 1. Smart Run Count & Safe Curve Floor Resolution
+    const registeredPattern = GROWTH_PATTERNS_MAP.get(patternType);
+    const weightEvaluator = (progress: number): number => {
+      if (!patternEnabled || patternType === 'none') return 1.0;
+      if (registeredPattern) return Math.max(0.01, registeredPattern.calculateWeight(progress));
+      if (patternType === 'viral' || patternType === 'viral_gaussian_peak') {
+        const peak = 0.3, width = 0.18;
+        return 0.1 + 0.9 * Math.exp(-Math.pow(progress - peak, 2) / (2 * width * width));
+      }
+      if (patternType === 'ramp') return 0.1 + 1.4 * progress;
+      if (patternType === 'pulse') return 0.3 + 0.7 * (0.5 * Math.sin(progress * Math.PI * 4) + 0.5);
+      if (patternType === 'front') return progress < 0.25 ? 2.0 : 0.3;
+      return 0.85 + 0.3 * Math.sin(progress * Math.PI * 2);
+    };
+
+    // Calculate sample minimum weight ratio to prevent tail bundle starvation
+    const sampleWeights: number[] = [];
+    for (let i = 0; i < 20; i++) {
+      sampleWeights.push(weightEvaluator(i / 19));
+    }
+    const minW = Math.min(...sampleWeights);
+    const avgW = sampleWeights.reduce((a, b) => a + b, 0) / (sampleWeights.length || 1);
+    const minWeightRatio = Math.max(0.35, minW / (avgW || 1));
+
+    // Determine safe maximum runs so no bundle is forced down to minBundleSize
+    const safeAvgForUnique = Math.ceil((minBundleSize + 15) / minWeightRatio);
+    const maxSafeRuns = Math.max(1, Math.floor(totalQuantity / safeAvgForUnique));
+
     let actualRunCount: number;
     let explanationNote: string | undefined = undefined;
 
-    // Check if auto mode requested (0, -1, or not provided)
     if (!requestedRunCount || requestedRunCount <= 0 || (requestedRunCount as any) === 'auto') {
-      actualRunCount = this.calculateOptimalAutoRuns(metric, totalQuantity, durationHours, minBundleSize);
-      explanationNote = `✨ Smart Auto Mode: Generated ${actualRunCount} natural bundles for ${totalQuantity.toLocaleString()} ${metric} (all > ${minBundleSize} units guaranteed).`;
-    } else if (requestedRunCount > maxPossibleBundles) {
-      // User requested more bundles than mathematically possible (e.g. 20 bundles for 1357 views where max is 13)
-      actualRunCount = Math.max(1, maxPossibleBundles);
-      explanationNote = `💡 Smart Safety: For ${totalQuantity.toLocaleString()} ${metric}, maximum ${actualRunCount} bundles possible to guarantee each bundle satisfies > ${minBundleSize} units (adjusted from ${requestedRunCount}).`;
+      const autoCalculated = this.calculateOptimalAutoRuns(metric, totalQuantity, durationHours, minBundleSize);
+      actualRunCount = Math.max(1, Math.min(maxSafeRuns, autoCalculated));
+      explanationNote = `✨ Smart Auto Mode: Generated ${actualRunCount} natural, non-equal bundles along ${registeredPattern?.name || patternType} curve.`;
     } else {
-      actualRunCount = Math.max(1, Math.min(maxPossibleBundles, requestedRunCount));
+      actualRunCount = Math.max(1, Math.min(maxPossibleBundles, Math.min(maxSafeRuns, requestedRunCount)));
     }
 
-    // 2. Compute pattern curve multiplier weights across runs
-    const varianceRatio = Math.min(0.35, Math.max(0, randomVariancePercent / 100));
-    const rawWeights: number[] = [];
-
-    // Lookup selected pattern from 100+ catalog
-    const registeredPattern = GROWTH_PATTERNS_MAP.get(patternType);
+    // 2. Compute run weights with organic random entropy jitter
+    const runWeights: number[] = [];
+    const varianceRatio = Math.min(0.35, Math.max(0.12, (randomVariancePercent || 15) / 100));
 
     for (let i = 0; i < actualRunCount; i++) {
       const progress = actualRunCount > 1 ? i / (actualRunCount - 1) : 0.5;
-      let basePatternWeight = 1.0;
-
-      if (!patternEnabled || patternType === 'none') {
-        // Flat uniform distribution if pattern scheduling is turned OFF
-        basePatternWeight = 1.0;
-      } else if (registeredPattern) {
-        // Use exact mathematical formula from 100+ catalog
-        basePatternWeight = Math.max(0.01, registeredPattern.calculateWeight(progress));
-      } else if (patternType === 'viral' || patternType === 'viral_gaussian_peak') {
-        // Gaussian peak curve centered around 30% duration
-        const peak = 0.3;
-        const width = 0.18;
-        basePatternWeight = 0.1 + 0.9 * Math.exp(-Math.pow(progress - peak, 2) / (2 * width * width));
-      } else if (patternType === 'ramp') {
-        // Ascending ramp (Kam se Zyada)
-        basePatternWeight = 0.1 + 1.4 * progress;
-      } else if (patternType === 'pulse') {
-        // Multi-wave pulse
-        basePatternWeight = 0.3 + 0.7 * (0.5 * Math.sin(progress * Math.PI * 4) + 0.5);
-      } else if (patternType === 'front') {
-        // Front-heavy burst (Zyada se Kam)
-        basePatternWeight = progress < 0.25 ? 2.0 : 0.3;
-      } else {
-        basePatternWeight = 0.85 + 0.3 * Math.sin(progress * Math.PI * 2);
-      }
-
-      // Add controlled organic entropy jitter if variance is enabled (without inverting general curve shape)
-      let finalWeight = basePatternWeight;
-      if (patternEnabled && varianceRatio > 0) {
-        const jitterFactor = 1 + ((Math.random() - 0.5) * 2 * varianceRatio * 0.4);
-        finalWeight = Math.max(0.01, basePatternWeight * jitterFactor);
-      }
-
-      rawWeights.push(finalWeight);
+      const baseW = weightEvaluator(progress);
+      const clampedW = Math.max(avgW * minWeightRatio, baseW);
+      // Organic entropy jitter
+      const jitterFactor = 1 + ((Math.random() - 0.5) * 2 * varianceRatio * 0.5);
+      runWeights.push(Math.max(0.05, clampedW * jitterFactor));
     }
 
-    // 3. Constrained Exact-Sum Water-Filling Allocation
-    // Directly projects the mathematical curve weights onto totalQuantity while guaranteeing:
-    // a) Every bundle >= minBundleSize
-    // b) Every bundle <= maxBundleSize
-    // c) Exact sum === totalQuantity
-    // d) Faithful reproduction of curve profile (ascending / descending / peak / wave)
-    const rawQuantities: number[] = new Array(actualRunCount).fill(0);
-    let remainingUnits = totalQuantity;
-    const activeIndices = new Set<number>(Array.from({ length: actualRunCount }, (_, idx) => idx));
+    // 3. Constrained Exact-Sum Allocation
+    const wSum = runWeights.reduce((a, b) => a + b, 0);
+    const rawQuantities = runWeights.map(w => Math.floor((w / wSum) * totalQuantity));
+    let currentSum = rawQuantities.reduce((a, b) => a + b, 0);
+    let rem = totalQuantity - currentSum;
 
-    while (activeIndices.size > 0) {
-      const activeWeightSum = Array.from(activeIndices).reduce((sum, idx) => sum + rawWeights[idx], 0);
+    // Distribute remaining residual units based on largest remainder fractional weight
+    const remainders = runWeights.map((w, idx) => ({
+      idx,
+      frac: ((w / wSum) * totalQuantity) - rawQuantities[idx]
+    })).sort((a, b) => b.frac - a.frac);
 
-      if (activeWeightSum <= 0) {
-        const perItem = Math.floor(remainingUnits / activeIndices.size);
-        let rem = remainingUnits % activeIndices.size;
-        for (const idx of activeIndices) {
-          rawQuantities[idx] = perItem + (rem > 0 ? 1 : 0);
-          if (rem > 0) rem--;
+    for (let i = 0; i < rem; i++) {
+      rawQuantities[remainders[i % remainders.length].idx] += 1;
+    }
+
+    // Enforce min / max bounds
+    for (let i = 0; i < actualRunCount; i++) {
+      if (rawQuantities[i] < minBundleSize) rawQuantities[i] = minBundleSize;
+      if (rawQuantities[i] > maxBundleSize) rawQuantities[i] = maxBundleSize;
+    }
+
+    // Exact sum safeguard adjustment
+    currentSum = rawQuantities.reduce((a, b) => a + b, 0);
+    let discrepancy = totalQuantity - currentSum;
+    let safeguardLoop = 0;
+    while (discrepancy !== 0 && safeguardLoop < 100) {
+      safeguardLoop++;
+      for (let i = 0; i < actualRunCount; i++) {
+        if (discrepancy > 0 && rawQuantities[i] < maxBundleSize) {
+          rawQuantities[i]++;
+          discrepancy--;
+        } else if (discrepancy < 0 && rawQuantities[i] > minBundleSize) {
+          rawQuantities[i]--;
+          discrepancy++;
         }
-        break;
-      }
-
-      let anyClamped = false;
-      for (const idx of Array.from(activeIndices)) {
-        const share = (rawWeights[idx] / activeWeightSum) * remainingUnits;
-        if (share < minBundleSize) {
-          rawQuantities[idx] = minBundleSize;
-          remainingUnits -= minBundleSize;
-          activeIndices.delete(idx);
-          anyClamped = true;
-          break;
-        } else if (share > maxBundleSize) {
-          rawQuantities[idx] = maxBundleSize;
-          remainingUnits -= maxBundleSize;
-          activeIndices.delete(idx);
-          anyClamped = true;
-          break;
-        }
-      }
-
-      if (!anyClamped) {
-        // Distribute remaining units with Largest-Remainder (Hamilton) Method
-        const shares = Array.from(activeIndices).map(idx => {
-          const floatVal = (rawWeights[idx] / activeWeightSum) * remainingUnits;
-          const floorVal = Math.floor(floatVal);
-          const remainder = floatVal - floorVal;
-          return { idx, floorVal, remainder };
-        });
-
-        const sumFloors = shares.reduce((s, it) => s + it.floorVal, 0);
-        let residual = remainingUnits - sumFloors;
-
-        // Sort by remainder descending to award residual single units
-        shares.sort((a, b) => b.remainder - a.remainder);
-        for (let i = 0; i < residual; i++) {
-          shares[i % shares.length].floorVal += 1;
-        }
-
-        for (const sh of shares) {
-          rawQuantities[sh.idx] = Math.max(minBundleSize, Math.min(maxBundleSize, sh.floorVal));
-        }
-        break;
+        if (discrepancy === 0) break;
       }
     }
 
-    // 3b. Exact Sum Safeguard Verification & Fine Calibration
-    let allocatedSum = rawQuantities.reduce((a, b) => a + b, 0);
-    let discrepancy = totalQuantity - allocatedSum;
+    // 4. ANTI-DUPLICATE & UNIQUE VALUE PASS (Guarantees no two bundles are identical!)
+    let antiDupLoop = 0;
+    while (antiDupLoop < 100 && actualRunCount > 1) {
+      antiDupLoop++;
+      let foundDup = false;
+      const seenVals = new Map<number, number>();
 
-    if (discrepancy !== 0) {
-      const sortedByWeightDesc = Array.from({ length: actualRunCount }, (_, i) => i)
-        .sort((a, b) => rawWeights[b] - rawWeights[a]);
+      for (let i = 0; i < actualRunCount; i++) {
+        const val = rawQuantities[i];
+        if (seenVals.has(val)) {
+          foundDup = true;
+          const prevIdx = seenVals.get(val)!;
 
-      if (discrepancy > 0) {
-        for (let i = 0; i < discrepancy; i++) {
-          const targetIdx = sortedByWeightDesc[i % sortedByWeightDesc.length];
-          if (rawQuantities[targetIdx] < maxBundleSize) {
-            rawQuantities[targetIdx] += 1;
-          }
-        }
-      } else {
-        const sortedByWeightAsc = [...sortedByWeightDesc].reverse();
-        let neededToSubtract = Math.abs(discrepancy);
-        for (let i = 0; i < neededToSubtract; i++) {
-          for (const targetIdx of sortedByWeightAsc) {
-            if (rawQuantities[targetIdx] > minBundleSize) {
-              rawQuantities[targetIdx] -= 1;
-              neededToSubtract--;
-              if (neededToSubtract === 0) break;
+          // Find a donor bundle with extra capacity above minBundleSize + 25
+          let donorIdx = -1;
+          for (let k = 0; k < actualRunCount; k++) {
+            if (k !== i && k !== prevIdx && rawQuantities[k] >= minBundleSize + 30) {
+              donorIdx = k;
+              break;
             }
           }
-          if (neededToSubtract === 0) break;
+
+          if (donorIdx !== -1) {
+            let candidateDelta = 13 + Math.floor(Math.random() * 15);
+            for (let offset = 0; offset < 20; offset++) {
+              const tryDelta = candidateDelta + offset;
+              const newValI = rawQuantities[i] + tryDelta;
+              const newValDonor = rawQuantities[donorIdx] - tryDelta;
+              if (
+                newValDonor >= minBundleSize + 5 &&
+                newValI <= maxBundleSize &&
+                !rawQuantities.includes(newValI) &&
+                !rawQuantities.includes(newValDonor)
+              ) {
+                candidateDelta = tryDelta;
+                break;
+              }
+            }
+            rawQuantities[donorIdx] -= candidateDelta;
+            rawQuantities[i] += candidateDelta;
+          } else {
+            let candidateDelta = 5 + Math.floor(Math.random() * 9);
+            if (rawQuantities[i] + candidateDelta <= maxBundleSize && rawQuantities[prevIdx] - candidateDelta >= minBundleSize) {
+              rawQuantities[i] += candidateDelta;
+              rawQuantities[prevIdx] -= candidateDelta;
+            } else if (rawQuantities[i] - candidateDelta >= minBundleSize && rawQuantities[prevIdx] + candidateDelta <= maxBundleSize) {
+              rawQuantities[i] -= candidateDelta;
+              rawQuantities[prevIdx] += candidateDelta;
+            }
+          }
+        } else {
+          seenVals.set(val, i);
         }
       }
+      if (!foundDup) break;
     }
 
     // 4. Generate Timestamps across duration window

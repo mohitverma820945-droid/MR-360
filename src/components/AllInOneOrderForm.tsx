@@ -113,6 +113,12 @@ export const getServicesForMetric = (metricKey: string, platformServices: SmmSer
     matched = platformServices;
   }
 
+  // Filter out fixed combo packages (e.g. max <= 10) to prefer genuine scalable single services
+  const scalableMatched = matched.filter(s => (s.max || 100000) > 10);
+  if (scalableMatched.length > 0) {
+    matched = scalableMatched;
+  }
+
   const minThreshold = m === 'views' ? 100 : 10;
   return matched.sort((a, b) => {
     const aText = (a.name + ' ' + a.category).toLowerCase();
@@ -473,23 +479,28 @@ export const AllInOneOrderForm: React.FC = () => {
     setErrorMessage(null);
     setOrderSuccessMessage(null);
 
-    if (!targetUrl.trim()) {
-      setErrorMessage('Please enter a valid Post / Reel URL.');
-      return;
-    }
+    const effectiveTargetUrl = targetUrl.trim() || `https://${platform.toLowerCase()}.com/p/preview-sample`;
+    const platformSvcs = services.filter(s => s.platform.toLowerCase() === platform.toLowerCase());
 
     const activeConfigs: Record<string, any> = {};
     for (const [key, enabled] of Object.entries(enabledMetrics)) {
       if (enabled) {
         const config = metricConfigs[key as keyof typeof metricConfigs];
-        if (!config.serviceId) continue;
+        let resolvedServiceId = config.serviceId;
+
+        if (!resolvedServiceId && platformSvcs.length > 0) {
+          const metricSvcs = getServicesForMetric(key, platformSvcs);
+          resolvedServiceId = metricSvcs[0]?.id || platformSvcs[0]?.id;
+        }
+
         const isAuto = autoRunsMode[key as keyof typeof autoRunsMode];
         const maxRuns = getMaxRunsForQty(key, config.totalQuantity);
-        const resolvedRunCount = isAuto ? 0 : Math.min(config.runCount, maxRuns);
+        const resolvedRunCount = isAuto ? 0 : Math.min(config.runCount || 10, maxRuns);
 
         const labelKey = key.charAt(0).toUpperCase() + key.slice(1);
         activeConfigs[labelKey] = {
           ...config,
+          serviceId: resolvedServiceId,
           runCount: resolvedRunCount
         };
       }
@@ -511,7 +522,7 @@ export const AllInOneOrderForm: React.FC = () => {
         },
         body: JSON.stringify({
           platform,
-          targetUrl: targetUrl.trim(),
+          targetUrl: effectiveTargetUrl,
           durationHours,
           metricsConfig: activeConfigs,
           randomVariancePercent: randomVariance,
@@ -1900,24 +1911,32 @@ export const AllInOneOrderForm: React.FC = () => {
           </div>
         )}
 
+        {/* Error Alert Display above button if present */}
+        {errorMessage && (
+          <div className="p-3.5 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-900 rounded-2xl text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center space-x-2 animate-fadeIn">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* Generate Timeline Schedule Button */}
         <button
           type="button"
           onClick={handleGeneratePreview}
           disabled={previewing}
-          className="w-full py-3 rounded-2xl bg-pink-50 dark:bg-slate-950 hover:bg-pink-100 dark:hover:bg-slate-800 text-pink-700 dark:text-pink-300 font-bold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer border border-pink-200 dark:border-slate-700"
+          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-600 via-rose-600 to-fuchsia-600 hover:from-pink-500 hover:to-fuchsia-500 text-white font-extrabold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-pink-600/20 hover:shadow-pink-600/30 transition-all cursor-pointer active:scale-[0.99] border border-pink-400/30"
         >
           {previewing ? (
             <>
-              <RefreshCw className="w-4 h-4 animate-spin text-pink-500" />
+              <RefreshCw className="w-4 h-4 animate-spin text-white" />
               <span>Calculating Schedule Run Breakdown...</span>
             </>
           ) : (
             <>
-              <Sliders className="w-4 h-4 text-pink-500" />
+              <Sliders className="w-4 h-4 text-white" />
               <span>
                 {schedulePreviewData?.summary?.totalBundles
-                  ? `View Schedule Runs (${schedulePreviewData.summary.totalBundles} runs calculated)` 
+                  ? `Recalculate Schedule Runs (${schedulePreviewData.summary.totalBundles} runs loaded)` 
                   : 'Generate Schedule Run Quantities Preview'}
               </span>
             </>
