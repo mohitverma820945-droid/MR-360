@@ -390,6 +390,21 @@ class DatabaseEngine {
   }
 
   // Orders
+  migrateUserOrders(fromUserId: string, toUserId: string): void {
+    if (!fromUserId || !toUserId || fromUserId === toUserId) return;
+    let count = 0;
+    this.data.orders.forEach(o => {
+      if (o.userId === fromUserId) {
+        o.userId = toUserId;
+        count++;
+      }
+    });
+    if (count > 0) {
+      this.saveDatabase();
+      this.addLog('info', 'Orders', `Migrated ${count} orders from ${fromUserId} to ${toUserId}`);
+    }
+  }
+
   getOrders(userId?: string): Order[] {
     const list = [...this.data.orders];
     if (!userId) {

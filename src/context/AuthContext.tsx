@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '../types';
+import { getStoredUserId } from '../utils/apiAuth';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -46,9 +47,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(storedUser);
       }
 
-      const userId = storedUser ? storedUser.id : undefined;
+      const currentStoredId = getStoredUserId();
       const res = await fetch('/api/auth/me', {
-        headers: userId ? { 'x-user-id': userId } : {}
+        headers: { 'x-user-id': currentStoredId }
       });
 
       if (res.ok) {
@@ -72,10 +73,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
+      const currentGuestId = getStoredUserId();
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password })
+        body: JSON.stringify({ email: email.trim(), password, guestUserId: currentGuestId })
       });
 
       const contentType = res.headers.get('content-type');
@@ -98,10 +100,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, username?: string, name?: string): Promise<{ success: boolean; error?: string }> => {
     try {
+      const currentGuestId = getStoredUserId();
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password, username, name })
+        body: JSON.stringify({ email: email.trim(), password, username, name, guestUserId: currentGuestId })
       });
 
       const contentType = res.headers.get('content-type');
