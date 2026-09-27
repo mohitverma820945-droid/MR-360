@@ -130,10 +130,8 @@ app.post('/api/providers', async (req, res) => {
       const catalogRes = await ProviderClient.getServices(provider);
       if (catalogRes.success && catalogRes.services) {
         const rawItems = catalogRes.services;
-        const existingServices = db.getServices();
         const markupPct = db.getSettings().markupPercentage || 0;
-
-        const updatedList: SmmService[] = [...existingServices.filter(s => s.providerId !== provider.id)];
+        const newServicesList: SmmService[] = [];
 
         for (const item of rawItems) {
           const pRate = typeof item.rate === 'string' ? parseFloat(item.rate) : item.rate;
@@ -155,7 +153,7 @@ app.post('/api/providers', async (req, res) => {
 
           const svcId = typeof item.service === 'number' ? item.service : parseInt(item.service as string, 10);
 
-          updatedList.push({
+          newServicesList.push({
             id: svcId,
             providerId: provider.id,
             providerServiceId: svcId,
@@ -173,7 +171,7 @@ app.post('/api/providers', async (req, res) => {
           });
         }
 
-        db.saveServices(updatedList);
+        db.saveServicesForProvider(provider.id, newServicesList);
       }
     } catch (err) {
       console.error('[Provider] Auto-sync failed upon addition:', err);
@@ -259,10 +257,8 @@ app.post('/api/providers/:id/sync-services', async (req, res) => {
     }
 
     const rawItems = catalogRes.services;
-    const existingServices = db.getServices();
     const markupPct = db.getSettings().markupPercentage || 0;
-
-    const updatedList: SmmService[] = [...existingServices.filter(s => s.providerId !== provider.id)];
+    const syncedServices: SmmService[] = [];
 
     for (const item of rawItems) {
       const pRate = typeof item.rate === 'string' ? parseFloat(item.rate) : item.rate;
@@ -283,9 +279,10 @@ app.post('/api/providers/:id/sync-services', async (req, res) => {
       else if (catLower.includes('facebook') || catLower.includes('fb')) platform = 'Facebook';
 
       const sellingRate = parseFloat((pRate * (1 + markupPct / 100)).toFixed(4));
+      const svcId = typeof item.service === 'number' ? item.service : parseInt(item.service as string, 10) || Math.floor(1000 + Math.random() * 9000);
 
-      updatedList.push({
-        id: typeof item.service === 'number' ? item.service : parseInt(item.service as string, 10) || Math.floor(1000 + Math.random() * 9000),
+      syncedServices.push({
+        id: svcId,
         providerId: provider.id,
         providerServiceId: typeof item.service === 'number' ? item.service : parseInt(item.service as string, 10),
         providerName: provider.name,
@@ -302,7 +299,7 @@ app.post('/api/providers/:id/sync-services', async (req, res) => {
       });
     }
 
-    db.saveServices(updatedList);
+    db.saveServicesForProvider(provider.id, syncedServices);
     res.json({ success: true, count: rawItems.length, message: `Synced ${rawItems.length} services from ${provider.name}` });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
@@ -371,8 +368,8 @@ app.post('/api/orders/single', async (req, res) => {
     }
 
     let provider = db.getProviderById(service.providerId);
-    if (!provider) {
-      provider = db.getProviders().find(p => p.status !== 'inactive') || db.getProviders()[0];
+    if (!provider || provider.status === 'inactive') {
+      return res.status(400).json({ success: false, error: `Provider for service #${service.id} is inactive or deleted. Please select an active service.` });
     }
     let providerOrderId: string | null = null;
     let status: any = 'Pending';
@@ -551,18 +548,8 @@ app.post('/api/orders/all-in-one/preview', (req, res) => {
       if (!service) continue;
 
       let provider = db.getProviderById(service.providerId);
-      if (!provider) {
-        provider = db.getProviders().find(p => p.status !== 'inactive') || {
-          id: service.providerId || 'prov_default',
-          name: service.providerName || 'SMM Provider',
-          apiUrl: '',
-          apiKey: '',
-          status: 'active',
-          balance: null,
-          balanceCurrency: 'INR',
-          lastBalanceCheck: new Date().toISOString(),
-          createdAt: new Date().toISOString()
-        };
+      if (!provider || provider.status === 'inactive') {
+        continue;
       }
 
       const autoMode = autoRunsMode[metricKey] ?? true;

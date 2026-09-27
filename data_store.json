@@ -45,7 +45,7 @@
       "name": "Mohit Verma",
       "email": "mohitverma912022@gmail.com",
       "role": "admin",
-      "balance": 99999.95749999999,
+      "balance": 99999.9561,
       "apiKey": "smm_ak_mohitverma912022",
       "passwordHash": "d71b3d731d16d27d8aa2f5844b3083858fe5d1cef625f5e1799cf8a6528ca623",
       "createdAt": "2026-09-26T17:18:37.592Z"
@@ -68,13 +68,13 @@
       "apiUrl": "https://yoyomedia.in/api/v2",
       "apiKey": "525619d4ba8f4be4535ef52ad4e8fef9ba5dc9e411cc43d61ad42de5f3985556",
       "status": "active",
-      "balance": 26.05,
+      "balance": 24.69,
       "balanceCurrency": "USD",
-      "lastBalanceCheck": "2026-09-26T20:38:28.342Z",
+      "lastBalanceCheck": "2026-09-27T09:57:17.801Z",
       "id": "prov_mud0eaxk",
       "createdAt": "2026-09-22T18:30:07.832Z",
-      "balanceInr": 26.05,
-      "balanceUsd": 0.3,
+      "balanceInr": 24.69,
+      "balanceUsd": 0.28,
       "userId": "usr_mud2y46zkisk"
     }
   ],
@@ -67867,6 +67867,123 @@
       "level": "info",
       "source": "Scheduler",
       "message": "Successfully submitted Provider Order #141347223 for Schedule #sch_1790455103324_0_ca0n (Qty: 100)"
+    },
+    {
+      "id": "log_1790502287381_0lfk",
+      "createdAt": "2026-09-27T09:44:47.381Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790502435425_5l0a",
+      "createdAt": "2026-09-27T09:47:15.425Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790502447831_pkyf",
+      "createdAt": "2026-09-27T09:47:27.831Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10001 (all_in_one_parent)",
+      "details": "{\"serviceId\":0,\"quantity\":1000,\"price\":0.0014}"
+    },
+    {
+      "id": "log_1790502456151_e2ki",
+      "createdAt": "2026-09-27T09:47:36.151Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10002 (all_in_one_child)",
+      "details": "{\"serviceId\":14218,\"quantity\":133,\"price\":0.0002}"
+    },
+    {
+      "id": "log_1790502456207_amq4",
+      "createdAt": "2026-09-27T09:47:36.207Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Successfully submitted Provider Order #141374732 for Schedule #sch_1790502447849_0_amys (Qty: 133)"
+    },
+    {
+      "id": "log_1790502479646_3hm7",
+      "createdAt": "2026-09-27T09:47:59.646Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790502486850_npxg",
+      "createdAt": "2026-09-27T09:48:06.850Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790502707474_8elu",
+      "createdAt": "2026-09-27T09:51:47.474Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: Test Provider Dummy (User: usr_mohit_owner)",
+      "details": "{\"apiUrl\":\"https://dummyprovider.com/api/v2\"}"
+    },
+    {
+      "id": "log_1790502707539_vrv5",
+      "createdAt": "2026-09-27T09:51:47.539Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Permanently deleted provider prov_mujn2z25 and associated services"
+    },
+    {
+      "id": "log_1790502787782_40fv",
+      "createdAt": "2026-09-27T09:53:07.782Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790502795038_ock7",
+      "createdAt": "2026-09-27T09:53:15.038Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: New Custom SMM Provider (User: usr_mohit_owner)",
+      "details": "{\"apiUrl\":\"https://newprovider.com/api/v2\"}"
+    },
+    {
+      "id": "log_1790502795189_fg6q",
+      "createdAt": "2026-09-27T09:53:15.189Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Permanently deleted provider prov_mujn4um9 and associated services"
+    },
+    {
+      "id": "log_1790502803532_1vg1",
+      "createdAt": "2026-09-27T09:53:23.532Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790503034186_8oul",
+      "createdAt": "2026-09-27T09:57:14.186Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790503039881_hixy",
+      "createdAt": "2026-09-27T09:57:19.881Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: Persistent SMM Panel",
+      "details": "{\"apiUrl\":\"https://persistentsmm.com/api/v2\"}"
+    },
+    {
+      "id": "log_1790503039969_jvsk",
+      "createdAt": "2026-09-27T09:57:19.969Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Permanently deleted provider prov_mujna3js and associated services"
     }
   ],
   "nextOrderId": 10001

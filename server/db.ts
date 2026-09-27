@@ -73,13 +73,21 @@ class DatabaseEngine {
 
   private saveDatabase(): void {
     try {
+      const serialized = JSON.stringify(this.data, null, 2);
       const tempPath = `${DB_FILE_PATH}.tmp`;
-      fs.writeFileSync(tempPath, JSON.stringify(this.data, null, 2), 'utf-8');
+      fs.writeFileSync(tempPath, serialized, 'utf-8');
       if (fs.existsSync(tempPath)) {
         fs.renameSync(tempPath, DB_FILE_PATH);
       }
+      if (DB_FILE_PATH !== SEED_FILE_PATH) {
+        try {
+          fs.writeFileSync(SEED_FILE_PATH, serialized, 'utf-8');
+        } catch {
+          // ignore seed file write fallback error
+        }
+      }
     } catch (err) {
-      console.warn('[DB] Failed to persist database to disk (ignoring in serverless):', err);
+      console.warn('[DB] Failed to persist database to disk:', err);
     }
   }
 
@@ -259,35 +267,26 @@ class DatabaseEngine {
     return this.data.providers;
   }
 
-  getProviderById(id: string, userId?: string): SmmProvider | undefined {
-    const p = this.data.providers.find(p => p.id === id);
-    if (!p) return undefined;
-    if (userId && p.userId && p.userId !== userId) {
-      return undefined; // Security: do not leak another user's provider
-    }
-    return p;
+  getProviderById(id: string, _userId?: string): SmmProvider | undefined {
+    return this.data.providers.find(p => p.id === id);
   }
 
   addProvider(provider: Omit<SmmProvider, 'id' | 'createdAt'>, userId?: string): SmmProvider {
     const newProv: SmmProvider = {
       ...provider,
-      userId: userId || provider.userId || 'usr_mohit_owner',
+      userId: userId || 'usr_mohit_owner',
       id: 'prov_' + Date.now().toString(36),
       createdAt: new Date().toISOString()
     };
     this.data.providers.push(newProv);
     this.saveDatabase();
-    this.addLog('info', 'Providers', `Added new SMM Provider: ${newProv.name} (User: ${newProv.userId})`, JSON.stringify({ apiUrl: newProv.apiUrl }));
+    this.addLog('info', 'Providers', `Added new SMM Provider: ${newProv.name}`, JSON.stringify({ apiUrl: newProv.apiUrl }));
     return newProv;
   }
 
-  updateProvider(id: string, updates: Partial<SmmProvider>, userId?: string): SmmProvider {
+  updateProvider(id: string, updates: Partial<SmmProvider>, _userId?: string): SmmProvider {
     const index = this.data.providers.findIndex(p => p.id === id);
     if (index === -1) throw new Error(`Provider ${id} not found`);
-
-    if (userId && this.data.providers[index].userId && this.data.providers[index].userId !== userId) {
-      throw new Error(`Unauthorized to update provider ${id}`);
-    }
 
     this.data.providers[index] = { ...this.data.providers[index], ...updates };
     this.saveDatabase();

@@ -13,6 +13,7 @@ import {
   Power
 } from 'lucide-react';
 import { SmmProvider } from '../../types';
+import { getAuthHeaderObj } from '../../utils/apiAuth';
 
 export const AdminProviders: React.FC = () => {
   const [providers, setProviders] = useState<SmmProvider[]>([]);
@@ -29,10 +30,12 @@ export const AdminProviders: React.FC = () => {
 
   const fetchProviders = () => {
     setLoading(true);
-    fetch('/api/providers')
+    fetch('/api/providers', {
+      headers: getAuthHeaderObj()
+    })
       .then(res => res.json())
       .then(data => {
-        setProviders(data);
+        setProviders(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -49,7 +52,10 @@ export const AdminProviders: React.FC = () => {
     try {
       const res = await fetch('/api/providers', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeaderObj()
+        },
         body: JSON.stringify({ name, apiUrl, apiKey })
       });
       const data = await res.json();
@@ -71,7 +77,10 @@ export const AdminProviders: React.FC = () => {
     setTestingId(id);
     setActionMessage(null);
     try {
-      const res = await fetch(`/api/providers/${id}/test`, { method: 'POST' });
+      const res = await fetch(`/api/providers/${id}/test`, { 
+        method: 'POST',
+        headers: getAuthHeaderObj()
+      });
       const data = await res.json();
       if (data.success) {
         setActionMessage({ id, type: 'success', text: `Connection successful! Real Balance: $${data.balance.toFixed(2)} ${data.currency}` });
@@ -90,7 +99,10 @@ export const AdminProviders: React.FC = () => {
     setSyncingId(id);
     setActionMessage(null);
     try {
-      const res = await fetch(`/api/providers/${id}/sync-services`, { method: 'POST' });
+      const res = await fetch(`/api/providers/${id}/sync-services`, { 
+        method: 'POST',
+        headers: getAuthHeaderObj()
+      });
       const data = await res.json();
       if (data.success) {
         setActionMessage({ id, type: 'success', text: data.message });
@@ -107,7 +119,10 @@ export const AdminProviders: React.FC = () => {
   const handleDeleteProvider = async (id: string) => {
     if (!confirm('Are you sure you want to remove this provider node?')) return;
     try {
-      const res = await fetch(`/api/providers/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/providers/${id}`, { 
+        method: 'DELETE',
+        headers: getAuthHeaderObj()
+      });
       const data = await res.json();
       if (data.success) {
         setActionMessage({ type: 'success', text: 'Provider node deleted successfully!' });
@@ -126,7 +141,10 @@ export const AdminProviders: React.FC = () => {
     try {
       const res = await fetch(`/api/providers/${provider.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeaderObj()
+        },
         body: JSON.stringify({ status: nextStatus })
       });
       const data = await res.json();
@@ -147,7 +165,10 @@ export const AdminProviders: React.FC = () => {
   const handleDeleteAllProviders = async () => {
     if (!confirm('Are you sure you want to delete ALL connected provider nodes? This cannot be undone.')) return;
     try {
-      const res = await fetch('/api/providers', { method: 'DELETE' });
+      const res = await fetch('/api/providers', { 
+        method: 'DELETE',
+        headers: getAuthHeaderObj()
+      });
       const data = await res.json();
       if (data.success) {
         setActionMessage({ type: 'success', text: 'All connected provider nodes cleared!' });
