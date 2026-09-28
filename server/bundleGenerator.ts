@@ -1,4 +1,4 @@
-import { SmmService, BundlePreview, AllInOneMetricConfig, SmmProvider } from '../src/types';
+import { SmmService, BundlePreview, SmmProvider } from '../src/types';
 import { GROWTH_PATTERNS_MAP } from '../src/data/growthPatterns';
 
 export interface BundleGenerationParams {
@@ -6,12 +6,12 @@ export interface BundleGenerationParams {
   service: SmmService;
   provider: SmmProvider;
   totalQuantity: number;
-  requestedRunCount: number; // 20, 30, 50, 100, N
+  requestedRunCount: number; // 20, 30, 50, 100, N, or 0/auto
   durationHours: number; // e.g. 24
-  randomVariancePercent?: number; // e.g. 15%
+  randomVariancePercent?: number; // e.g. 25
   peakHoursWeight?: boolean;
-  patternType?: string; // Pattern ID from 100+ catalog, or 'viral', 'ramp', 'pulse', 'front', 'steady', 'none'
-  patternEnabled?: boolean; // Whether organic growth curve scheduling is ON or OFF
+  patternType?: string; // Pattern ID from catalog or 'viral', 'ramp', 'pulse', 'front', 'none'
+  patternEnabled?: boolean;
 }
 
 export interface GeneratedMetricPlan {
@@ -48,32 +48,29 @@ export class BundleGenerator {
     const isViews = metric.toLowerCase().includes('view');
     const maxPossible = Math.max(1, Math.floor(totalQuantity / minBundleSize));
 
-    // Target average bundle size for authentic algorithm pacing
     let targetAverageSize: number;
     if (isViews) {
       if (totalQuantity <= 1500) {
-        targetAverageSize = 140; // e.g. 1295 -> ~9 bundles (102, 167, 146, 196...)
+        targetAverageSize = 140;
       } else if (totalQuantity <= 5000) {
-        targetAverageSize = 250; // e.g. 3000 -> ~12 bundles
+        targetAverageSize = 250;
       } else if (totalQuantity <= 20000) {
-        targetAverageSize = 500;
+        targetAverageSize = 400;
       } else {
-        targetAverageSize = Math.max(600, Math.floor(totalQuantity / Math.min(50, Math.max(10, durationHours * 2))));
+        targetAverageSize = Math.max(500, Math.floor(totalQuantity / Math.min(100, Math.max(10, durationHours * 2))));
       }
     } else {
-      // Likes, Comments, Shares, Saves
       if (totalQuantity <= 100) {
         targetAverageSize = 15;
       } else if (totalQuantity <= 500) {
         targetAverageSize = 25;
       } else {
-        targetAverageSize = Math.max(30, Math.floor(totalQuantity / Math.min(40, Math.max(8, durationHours * 1.5))));
+        targetAverageSize = Math.max(30, Math.floor(totalQuantity / Math.min(50, Math.max(8, durationHours * 1.5))));
       }
     }
 
     let calculatedRuns = Math.round(totalQuantity / targetAverageSize);
-    calculatedRuns = Math.max(1, Math.min(maxPossible, calculatedRuns));
-    return calculatedRuns;
+    return Math.max(1, Math.min(maxPossible, calculatedRuns));
   }
 
   /**
@@ -87,7 +84,7 @@ export class BundleGenerator {
       totalQuantity,
       requestedRunCount,
       durationHours,
-      randomVariancePercent = 15,
+      randomVariancePercent = 25,
       peakHoursWeight = false,
       patternType = 'viral_gaussian_peak',
       patternEnabled = true
@@ -95,21 +92,28 @@ export class BundleGenerator {
 
     const minBundleSize = this.getMinimumBundleSize(metric, service.min);
     const maxBundleSize = service.max || 10000000;
-    const maxPossibleBundles = Math.floor(totalQuantity / minBundleSize);
+    const maxPossibleBundles = Math.max(1, Math.floor(totalQuantity / minBundleSize));
 
-    if (maxPossibleBundles < 1) {
-      const baseRule = this.getMinimumBundleSize(metric, 1);
-      if (totalQuantity < baseRule) {
-        throw new Error(
-          `Total quantity of ${totalQuantity.toLocaleString()} for ${metric} is below the minimum required quantity of ${baseRule} units.`
-        );
-      }
+    if (totalQuantity < minBundleSize) {
       throw new Error(
-        `Selected service "${service.name}" requires a minimum order of ${service.min.toLocaleString()} units. Total quantity of ${totalQuantity.toLocaleString()} for ${metric} is below this service's minimum. Please select a service with a lower minimum (Min: ${baseRule}) or increase quantity.`
+        `Total quantity of ${totalQuantity.toLocaleString()} for ${metric} is below the minimum required quantity of ${minBundleSize.toLocaleString()} units.`
       );
     }
 
-    // 1. Smart Run Count & Safe Curve Floor Resolution
+    // 1. Determine Bundle Count N
+    let actualRunCount: number;
+    let explanationNote: string | undefined = undefined;
+
+    if (!requestedRunCount || requestedRunCount <= 0 || (requestedRunCount as any) === 'auto') {
+      const autoCalculated = this.calculateOptimalAutoRuns(metric, totalQuantity, durationHours, minBundleSize);
+      actualRunCount = Math.max(1, Math.min(maxPossibleBundles, autoCalculated));
+      explanationNote = `✨ Smart Auto Mode: Generated ${actualRunCount} natural, non-equal bundles.`;
+    } else {
+      // User explicitly requested N bundles (e.g. 20, 30, 50, 100)
+      actualRunCount = Math.max(1, Math.min(maxPossibleBundles, requestedRunCount));
+    }
+
+    // 2. Growth Pattern Weight Evaluator
     const registeredPattern = GROWTH_PATTERNS_MAP.get(patternType);
     const weightEvaluator = (progress: number): number => {
       if (!patternEnabled || patternType === 'none') return 1.0;
@@ -124,50 +128,26 @@ export class BundleGenerator {
       return 0.85 + 0.3 * Math.sin(progress * Math.PI * 2);
     };
 
-    // Calculate sample minimum weight ratio to prevent tail bundle starvation
-    const sampleWeights: number[] = [];
-    for (let i = 0; i < 20; i++) {
-      sampleWeights.push(weightEvaluator(i / 19));
-    }
-    const minW = Math.min(...sampleWeights);
-    const avgW = sampleWeights.reduce((a, b) => a + b, 0) / (sampleWeights.length || 1);
-    const minWeightRatio = Math.max(0.35, minW / (avgW || 1));
-
-    // Determine safe maximum runs so no bundle is forced down to minBundleSize
-    const safeAvgForUnique = Math.ceil((minBundleSize + 15) / minWeightRatio);
-    const maxSafeRuns = Math.max(1, Math.floor(totalQuantity / safeAvgForUnique));
-
-    let actualRunCount: number;
-    let explanationNote: string | undefined = undefined;
-
-    if (!requestedRunCount || requestedRunCount <= 0 || (requestedRunCount as any) === 'auto') {
-      const autoCalculated = this.calculateOptimalAutoRuns(metric, totalQuantity, durationHours, minBundleSize);
-      actualRunCount = Math.max(1, Math.min(maxSafeRuns, autoCalculated));
-      explanationNote = `✨ Smart Auto Mode: Generated ${actualRunCount} natural, non-equal bundles along ${registeredPattern?.name || patternType} curve.`;
-    } else {
-      actualRunCount = Math.max(1, Math.min(maxPossibleBundles, Math.min(maxSafeRuns, requestedRunCount)));
-    }
-
-    // 2. Compute run weights with organic random entropy jitter
+    // 3. Generate Weights with Organic Variance Jitter
     const runWeights: number[] = [];
-    const varianceRatio = Math.min(0.35, Math.max(0.12, (randomVariancePercent || 15) / 100));
+    const varianceRatio = Math.min(0.60, Math.max(0.10, (randomVariancePercent || 25) / 100));
 
     for (let i = 0; i < actualRunCount; i++) {
       const progress = actualRunCount > 1 ? i / (actualRunCount - 1) : 0.5;
       const baseW = weightEvaluator(progress);
-      const clampedW = Math.max(avgW * minWeightRatio, baseW);
-      // Organic entropy jitter
-      const jitterFactor = 1 + ((Math.random() - 0.5) * 2 * varianceRatio * 0.5);
-      runWeights.push(Math.max(0.05, clampedW * jitterFactor));
+      // Organic entropy jitter creates natural variance
+      const jitterFactor = 1 + ((Math.random() - 0.5) * 2 * varianceRatio);
+      runWeights.push(Math.max(0.05, baseW * jitterFactor));
     }
 
-    // 3. Constrained Exact-Sum Allocation
+    // 4. Initial Proportional Allocation
     const wSum = runWeights.reduce((a, b) => a + b, 0);
     const rawQuantities = runWeights.map(w => Math.floor((w / wSum) * totalQuantity));
+
+    // Distribute remaining residual units by largest remainder
     let currentSum = rawQuantities.reduce((a, b) => a + b, 0);
     let rem = totalQuantity - currentSum;
 
-    // Distribute remaining residual units based on largest remainder fractional weight
     const remainders = runWeights.map((w, idx) => ({
       idx,
       frac: ((w / wSum) * totalQuantity) - rawQuantities[idx]
@@ -177,17 +157,17 @@ export class BundleGenerator {
       rawQuantities[remainders[i % remainders.length].idx] += 1;
     }
 
-    // Enforce min / max bounds
+    // Enforce min / max bounds initially
     for (let i = 0; i < actualRunCount; i++) {
       if (rawQuantities[i] < minBundleSize) rawQuantities[i] = minBundleSize;
       if (rawQuantities[i] > maxBundleSize) rawQuantities[i] = maxBundleSize;
     }
 
-    // Exact sum safeguard adjustment
+    // Rebalance discrepancy to strictly ensure SUM === totalQuantity
     currentSum = rawQuantities.reduce((a, b) => a + b, 0);
     let discrepancy = totalQuantity - currentSum;
     let safeguardLoop = 0;
-    while (discrepancy !== 0 && safeguardLoop < 100) {
+    while (discrepancy !== 0 && safeguardLoop < 1000) {
       safeguardLoop++;
       for (let i = 0; i < actualRunCount; i++) {
         if (discrepancy > 0 && rawQuantities[i] < maxBundleSize) {
@@ -201,64 +181,55 @@ export class BundleGenerator {
       }
     }
 
-    // 4. ANTI-DUPLICATE & UNIQUE VALUE PASS (Guarantees no two bundles are identical!)
-    let antiDupLoop = 0;
-    while (antiDupLoop < 100 && actualRunCount > 1) {
-      antiDupLoop++;
-      let foundDup = false;
-      const seenVals = new Map<number, number>();
+    // 5. ANTI-DUPLICATE & NATURAL VARIATION REFINEMENT
+    if (actualRunCount > 1) {
+      let antiDupLoop = 0;
+      while (antiDupLoop < 200) {
+        antiDupLoop++;
+        let foundDup = false;
+        const seenVals = new Map<number, number>();
 
-      for (let i = 0; i < actualRunCount; i++) {
-        const val = rawQuantities[i];
-        if (seenVals.has(val)) {
-          foundDup = true;
-          const prevIdx = seenVals.get(val)!;
+        for (let i = 0; i < actualRunCount; i++) {
+          const val = rawQuantities[i];
+          if (seenVals.has(val)) {
+            foundDup = true;
+            const prevIdx = seenVals.get(val)!;
 
-          // Find a donor bundle with extra capacity above minBundleSize + 25
-          let donorIdx = -1;
-          for (let k = 0; k < actualRunCount; k++) {
-            if (k !== i && k !== prevIdx && rawQuantities[k] >= minBundleSize + 30) {
-              donorIdx = k;
-              break;
-            }
-          }
-
-          if (donorIdx !== -1) {
-            let candidateDelta = 13 + Math.floor(Math.random() * 15);
-            for (let offset = 0; offset < 20; offset++) {
-              const tryDelta = candidateDelta + offset;
-              const newValI = rawQuantities[i] + tryDelta;
-              const newValDonor = rawQuantities[donorIdx] - tryDelta;
-              if (
-                newValDonor >= minBundleSize + 5 &&
-                newValI <= maxBundleSize &&
-                !rawQuantities.includes(newValI) &&
-                !rawQuantities.includes(newValDonor)
-              ) {
-                candidateDelta = tryDelta;
+            let donorIdx = -1;
+            for (let k = 0; k < actualRunCount; k++) {
+              if (k !== i && k !== prevIdx && rawQuantities[k] >= minBundleSize + 5) {
+                donorIdx = k;
                 break;
               }
             }
-            rawQuantities[donorIdx] -= candidateDelta;
-            rawQuantities[i] += candidateDelta;
-          } else {
-            let candidateDelta = 5 + Math.floor(Math.random() * 9);
-            if (rawQuantities[i] + candidateDelta <= maxBundleSize && rawQuantities[prevIdx] - candidateDelta >= minBundleSize) {
-              rawQuantities[i] += candidateDelta;
-              rawQuantities[prevIdx] -= candidateDelta;
-            } else if (rawQuantities[i] - candidateDelta >= minBundleSize && rawQuantities[prevIdx] + candidateDelta <= maxBundleSize) {
-              rawQuantities[i] -= candidateDelta;
-              rawQuantities[prevIdx] += candidateDelta;
+
+            if (donorIdx !== -1) {
+              const delta = 1 + Math.floor(Math.random() * Math.min(15, rawQuantities[donorIdx] - minBundleSize));
+              if (rawQuantities[donorIdx] - delta >= minBundleSize && rawQuantities[i] + delta <= maxBundleSize) {
+                rawQuantities[donorIdx] -= delta;
+                rawQuantities[i] += delta;
+              }
+            } else if (rawQuantities[prevIdx] >= minBundleSize + 2) {
+              const delta = 1;
+              rawQuantities[prevIdx] -= delta;
+              rawQuantities[i] += delta;
             }
+          } else {
+            seenVals.set(val, i);
           }
-        } else {
-          seenVals.set(val, i);
         }
+        if (!foundDup) break;
       }
-      if (!foundDup) break;
     }
 
-    // 4. Generate Timestamps across duration window
+    // Final Exact Sum Safety Verification
+    currentSum = rawQuantities.reduce((a, b) => a + b, 0);
+    discrepancy = totalQuantity - currentSum;
+    if (discrepancy !== 0) {
+      rawQuantities[rawQuantities.length - 1] += discrepancy;
+    }
+
+    // 6. Generate Timestamps across duration window
     const nowMs = Date.now();
     const durationMs = durationHours * 60 * 60 * 1000;
     const intervalMs = actualRunCount > 1 ? durationMs / (actualRunCount - 1) : 0;
@@ -267,12 +238,10 @@ export class BundleGenerator {
     let prevDelayMs = 0;
 
     for (let i = 0; i < actualRunCount; i++) {
-      // First bundle executes immediately (delay = 0)
       let delayMs = i * intervalMs;
 
-      // Add gentle timing variation for intermediate bundles while strictly maintaining order
       if (i > 0 && i < actualRunCount - 1) {
-        const maxJitter = intervalMs * 0.15;
+        const maxJitter = Math.min(intervalMs * 0.20, 300000);
         const jitter = (Math.random() - 0.5) * 2 * maxJitter;
         delayMs = Math.max(prevDelayMs + 2000, Math.min(durationMs - 2000, delayMs + jitter));
       } else if (i === actualRunCount - 1 && actualRunCount > 1) {
@@ -301,6 +270,12 @@ export class BundleGenerator {
     const totalCost = parseFloat(
       bundles.reduce((sum, b) => sum + b.cost, 0).toFixed(4)
     );
+
+    // 7. Validate Plan
+    const validation = this.validateBundlePlan(bundles, totalQuantity, metric, service);
+    if (!validation.valid) {
+      console.warn(`[BundleGenerator] Plan validation warnings for ${metric}:`, validation.errors);
+    }
 
     return {
       metric,
