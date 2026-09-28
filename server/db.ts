@@ -262,9 +262,42 @@ class DatabaseEngine {
     return sanitized as UserProfile;
   }
 
-  // Providers - Return all connected providers for system and user APIs
+  // Providers - Return connected providers scoped to requested user or system admin
   getProviders(userId?: string): SmmProvider[] {
-    return this.data.providers;
+    if (!userId) return this.data.providers;
+
+    const user = this.data.users.find(u => u.id === userId);
+    const mohitEmails = [
+      'mohitverma912022@gmail.com',
+      'mohitverma820925@gmail.com',
+      'mohitverma820945@gmail.com',
+      'mohitkumar820945@gmail.com'
+    ];
+    const isMohitOrAdmin = user?.role === 'admin' ||
+      userId === 'usr_mohit_owner' ||
+      userId === 'usr_mohit_alt' ||
+      (user && mohitEmails.includes(user.email.toLowerCase()));
+
+    if (isMohitOrAdmin) {
+      return this.data.providers;
+    }
+
+    return this.data.providers.filter(p => p.userId === userId || p.userId === 'usr_mohit_owner' || !p.userId);
+  }
+
+  migrateUserProviders(fromUserId: string, toUserId: string): void {
+    if (!fromUserId || !toUserId || fromUserId === toUserId) return;
+    let count = 0;
+    this.data.providers.forEach(p => {
+      if (p.userId === fromUserId) {
+        p.userId = toUserId;
+        count++;
+      }
+    });
+    if (count > 0) {
+      this.saveDatabase();
+      this.addLog('info', 'Providers', `Migrated ${count} providers from ${fromUserId} to ${toUserId}`);
+    }
   }
 
   getProviderById(id: string, _userId?: string): SmmProvider | undefined {

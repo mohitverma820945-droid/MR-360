@@ -36,6 +36,7 @@ app.post('/api/auth/register', (req, res) => {
     }
     if (guestUserId && result.user) {
       db.migrateUserOrders(guestUserId, result.user.id);
+      db.migrateUserProviders(guestUserId, result.user.id);
     }
     res.json({ success: true, user: result.user, message: 'Registration successful' });
   } catch (err: any) {
@@ -55,6 +56,7 @@ app.post('/api/auth/login', (req, res) => {
     }
     if (guestUserId && result.user) {
       db.migrateUserOrders(guestUserId, result.user.id);
+      db.migrateUserProviders(guestUserId, result.user.id);
     }
     res.json({ success: true, user: result.user, message: 'Login successful' });
   } catch (err: any) {
@@ -769,6 +771,7 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
 
     const schedulesToInsert = timelinePreview.map((bundle, idx) => ({
       parentOrderId: parentOrder.id,
+      userId: parentOrder.userId,
       metric: bundle.metric,
       serviceId: bundle.serviceId,
       serviceName: bundle.serviceName || `Service #${bundle.serviceId}`,

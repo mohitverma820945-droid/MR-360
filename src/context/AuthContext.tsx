@@ -128,6 +128,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('zynyx_current_user');
+    try {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('mr360_cached_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch {}
   };
 
   return (

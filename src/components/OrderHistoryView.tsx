@@ -21,14 +21,14 @@ import {
   Edit3
 } from 'lucide-react';
 import { Order, OrderStatus, ScheduleItem } from '../types';
-import { getAuthHeaderObj } from '../utils/apiAuth';
+import { getAuthHeaderObj, getStoredUserId } from '../utils/apiAuth';
 
-const CACHE_KEY = 'mr360_cached_user_orders';
+const getCacheKey = () => `mr360_cached_orders_${getStoredUserId()}`;
 
 export const OrderHistoryView: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
-      const stored = localStorage.getItem(CACHE_KEY);
+      const stored = localStorage.getItem(getCacheKey());
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -72,7 +72,7 @@ export const OrderHistoryView: React.FC = () => {
       if (data.success) {
         setOrders(prev => {
           const updated = prev.map(o => o.id === orderId ? { ...o, quantity: parsed } : o);
-          try { localStorage.setItem(CACHE_KEY, JSON.stringify(updated)); } catch {}
+          try { localStorage.setItem(getCacheKey(), JSON.stringify(updated)); } catch {}
           return updated;
         });
         setActionNotice({ type: 'success', message: `Order #${orderId} quantity updated to ${parsed.toLocaleString()} units!` });
@@ -108,7 +108,7 @@ export const OrderHistoryView: React.FC = () => {
         if (Array.isArray(data)) {
           setOrders(data);
           try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+            localStorage.setItem(getCacheKey(), JSON.stringify(data));
           } catch {}
         }
         setLoading(false);

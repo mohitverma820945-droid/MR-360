@@ -68,13 +68,13 @@
       "apiUrl": "https://yoyomedia.in/api/v2",
       "apiKey": "525619d4ba8f4be4535ef52ad4e8fef9ba5dc9e411cc43d61ad42de5f3985556",
       "status": "active",
-      "balance": 16.63,
+      "balance": 7,
       "balanceCurrency": "USD",
-      "lastBalanceCheck": "2026-09-28T05:05:36.521Z",
+      "lastBalanceCheck": "2026-09-28T05:50:03.205Z",
       "id": "prov_mud0eaxk",
       "createdAt": "2026-09-22T18:30:07.832Z",
-      "balanceInr": 16.63,
-      "balanceUsd": 0.19,
+      "balanceInr": 7,
+      "balanceUsd": 0.08,
       "userId": "usr_mud2y46zkisk"
     }
   ],
@@ -68020,6 +68020,92 @@
       "level": "info",
       "source": "Providers",
       "message": "Permanently deleted provider prov_muksgpw9 and associated services"
+    },
+    {
+      "id": "log_1790572245090_h9fl",
+      "createdAt": "2026-09-28T05:10:45.090Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790572253781_81rl",
+      "createdAt": "2026-09-28T05:10:53.781Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790572571802_scvw",
+      "createdAt": "2026-09-28T05:16:11.802Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790572577287_qrjw",
+      "createdAt": "2026-09-28T05:16:17.287Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790574599300_hbfj",
+      "createdAt": "2026-09-28T05:49:59.300Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790574608914_wiaz",
+      "createdAt": "2026-09-28T05:50:08.914Z",
+      "level": "info",
+      "source": "Auth",
+      "message": "New user registered: user_x_test@gmail.com (user)"
+    },
+    {
+      "id": "log_1790574608960_n1r5",
+      "createdAt": "2026-09-28T05:50:08.960Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: Provider X SMM",
+      "details": "{\"apiUrl\":\"https://providerX.com/api\"}"
+    },
+    {
+      "id": "log_1790574609405_sxi1",
+      "createdAt": "2026-09-28T05:50:09.405Z",
+      "level": "info",
+      "source": "Auth",
+      "message": "New user registered: user_y_test@gmail.com (user)"
+    },
+    {
+      "id": "log_1790574609450_u9cr",
+      "createdAt": "2026-09-28T05:50:09.450Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: Provider Y SMM",
+      "details": "{\"apiUrl\":\"https://providerY.com/api\"}"
+    },
+    {
+      "id": "log_1790574609716_6ofv",
+      "createdAt": "2026-09-28T05:50:09.716Z",
+      "level": "info",
+      "source": "Auth",
+      "message": "User logged in successfully: user_x_test@gmail.com"
+    },
+    {
+      "id": "log_1790574609760_a0bx",
+      "createdAt": "2026-09-28T05:50:09.760Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Permanently deleted provider prov_muktw2lr and associated services"
+    },
+    {
+      "id": "log_1790574609799_6nsa",
+      "createdAt": "2026-09-28T05:50:09.799Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Permanently deleted provider prov_muktw2zb and associated services"
     }
   ],
   "nextOrderId": 10001
