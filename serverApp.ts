@@ -205,7 +205,8 @@ app.delete('/api/providers', (req, res) => {
 
 app.delete('/api/providers/:id', (req, res) => {
   try {
-    db.deleteProvider(req.params.id);
+    const userId = getRequestUserId(req);
+    db.deleteProvider(req.params.id, userId);
     res.json({ success: true, message: 'Provider removed successfully' });
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
@@ -818,7 +819,8 @@ app.get('/api/balance', async (req, res) => {
       targetProvider = db.getProviderById(providerId);
     }
 
-    const allProviders = db.getProviders();
+    const requestingUserId = getRequestUserId(req);
+    const allProviders = db.getProviders(requestingUserId);
 
     // Fetch live balances for all connected providers
     const providerList: Array<{

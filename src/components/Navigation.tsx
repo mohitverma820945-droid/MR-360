@@ -75,7 +75,11 @@ export const Navigation: React.FC<NavigationProps> = ({
   useEffect(() => {
     fetchBalance();
     const interval = setInterval(fetchBalance, 60000);
-    return () => clearInterval(interval);
+    window.addEventListener('providers-changed', fetchBalance);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('providers-changed', fetchBalance);
+    };
   }, [user]);
 
   const handleTabClick = (tabId: string) => {

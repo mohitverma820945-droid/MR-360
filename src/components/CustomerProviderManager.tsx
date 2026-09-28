@@ -78,6 +78,7 @@ export const CustomerProviderManager: React.FC = () => {
         setApiKey('');
         setShowAddForm(false);
         fetchProviders();
+        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setStatusMessage({ type: 'error', text: data.error || 'Failed to add provider.' });
       }
@@ -100,6 +101,7 @@ export const CustomerProviderManager: React.FC = () => {
       if (data.success) {
         setStatusMessage({ type: 'success', text: data.message || 'Connection test successful!' });
         fetchProviders();
+        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setStatusMessage({ type: 'error', text: data.error || 'Connection test failed.' });
       }
@@ -142,6 +144,7 @@ export const CustomerProviderManager: React.FC = () => {
       if (data.success) {
         setStatusMessage({ type: 'success', text: 'Provider removed.' });
         fetchProviders();
+        window.dispatchEvent(new Event('providers-changed'));
       }
     } catch (err: any) {
       setStatusMessage({ type: 'error', text: err.message });

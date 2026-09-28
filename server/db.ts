@@ -262,25 +262,9 @@ class DatabaseEngine {
     return sanitized as UserProfile;
   }
 
-  // Providers - Return connected providers scoped to requested user or system admin
+  // Providers - Return connected providers scoped to requested user
   getProviders(userId?: string): SmmProvider[] {
     if (!userId) return this.data.providers;
-
-    const user = this.data.users.find(u => u.id === userId);
-    const mohitEmails = [
-      'mohitverma912022@gmail.com',
-      'mohitverma820925@gmail.com',
-      'mohitverma820945@gmail.com',
-      'mohitkumar820945@gmail.com'
-    ];
-    const isMohitOrAdmin = user?.role === 'admin' ||
-      userId === 'usr_mohit_owner' ||
-      userId === 'usr_mohit_alt' ||
-      (user && mohitEmails.includes(user.email.toLowerCase()));
-
-    if (isMohitOrAdmin) {
-      return this.data.providers;
-    }
 
     return this.data.providers.filter(p => p.userId === userId || p.userId === 'usr_mohit_owner' || !p.userId);
   }

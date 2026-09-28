@@ -127,6 +127,7 @@ export const AdminProviders: React.FC = () => {
       if (data.success) {
         setActionMessage({ type: 'success', text: 'Provider node deleted successfully!' });
         fetchProviders();
+        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setActionMessage({ type: 'error', text: data.error || 'Failed to delete provider' });
       }
