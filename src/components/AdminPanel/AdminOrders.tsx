@@ -9,27 +9,52 @@ import {
   CheckCircle2 
 } from 'lucide-react';
 import { Order } from '../../types';
+import { getAuthHeaderObj } from '../../utils/apiAuth';
+
+const ADMIN_ORDERS_CACHE_KEY = 'mr360_cached_admin_orders';
 
 export const AdminOrders: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState<Order[]>(() => {
+    try {
+      const stored = localStorage.getItem(ADMIN_ORDERS_CACHE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => orders.length === 0);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [retryingId, setRetryingId] = useState<number | null>(null);
   const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const fetchOrders = () => {
-    setLoading(true);
-    fetch('/api/orders')
+  const fetchOrders = (showSpinner = false) => {
+    if (showSpinner || orders.length === 0) {
+      setLoading(true);
+    }
+    setIsRefreshing(true);
+    fetch('/api/orders', {
+      headers: getAuthHeaderObj()
+    })
       .then(res => res.json())
       .then(data => {
-        setOrders(data);
+        if (Array.isArray(data)) {
+          setOrders(data);
+          try { localStorage.setItem(ADMIN_ORDERS_CACHE_KEY, JSON.stringify(data)); } catch {}
+        }
         setLoading(false);
+        setIsRefreshing(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setLoading(false);
+        setIsRefreshing(false);
+      });
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(false);
   }, []);
 
   const handleRetryOrder = async (orderId: number) => {
@@ -77,11 +102,11 @@ export const AdminOrders: React.FC = () => {
         </div>
 
         <button
-          onClick={fetchOrders}
-          disabled={loading}
+          onClick={() => fetchOrders(false)}
+          disabled={isRefreshing}
           className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center space-x-2 border border-slate-200 dark:border-slate-700 transition-colors"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
           <span>Refresh All Orders</span>
         </button>
       </div>

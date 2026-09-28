@@ -23,9 +23,21 @@ import {
 import { Order, OrderStatus, ScheduleItem } from '../types';
 import { getAuthHeaderObj } from '../utils/apiAuth';
 
+const CACHE_KEY = 'mr360_cached_user_orders';
+
 export const OrderHistoryView: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState<Order[]>(() => {
+    try {
+      const stored = localStorage.getItem(CACHE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => orders.length === 0);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -58,7 +70,11 @@ export const OrderHistoryView: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, quantity: parsed } : o));
+        setOrders(prev => {
+          const updated = prev.map(o => o.id === orderId ? { ...o, quantity: parsed } : o);
+          try { localStorage.setItem(CACHE_KEY, JSON.stringify(updated)); } catch {}
+          return updated;
+        });
         setActionNotice({ type: 'success', message: `Order #${orderId} quantity updated to ${parsed.toLocaleString()} units!` });
         setEditingQuantityId(null);
       } else {
@@ -79,22 +95,34 @@ export const OrderHistoryView: React.FC = () => {
     return `₹${val.toFixed(6)}`;
   };
 
-  const fetchOrders = () => {
-    setLoading(true);
+  const fetchOrders = (showSpinner = false) => {
+    if (showSpinner || orders.length === 0) {
+      setLoading(true);
+    }
+    setIsRefreshing(true);
     fetch('/api/orders', {
       headers: getAuthHeaderObj()
     })
       .then(res => res.json())
       .then((data: Order[]) => {
-        setOrders(data);
+        if (Array.isArray(data)) {
+          setOrders(data);
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+          } catch {}
+        }
         setLoading(false);
+        setIsRefreshing(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setLoading(false);
+        setIsRefreshing(false);
+      });
   };
 
   useEffect(() => {
-    fetchOrders();
-    const interval = setInterval(fetchOrders, 12000); // Poll history every 12s
+    fetchOrders(false);
+    const interval = setInterval(() => fetchOrders(false), 8000); // Poll history every 8s
     return () => clearInterval(interval);
   }, []);
 
@@ -331,11 +359,11 @@ export const OrderHistoryView: React.FC = () => {
             </div>
           </div>
           <button
-            onClick={fetchOrders}
-            disabled={loading}
+            onClick={() => fetchOrders(false)}
+            disabled={isRefreshing}
             className="px-4 py-2.5 rounded-xl bg-pink-50 dark:bg-slate-900 hover:bg-pink-100 dark:hover:bg-slate-800 text-pink-700 dark:text-pink-300 font-bold text-xs flex items-center space-x-2 border border-pink-200 dark:border-slate-700 transition-colors cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>

@@ -68,13 +68,13 @@
       "apiUrl": "https://yoyomedia.in/api/v2",
       "apiKey": "525619d4ba8f4be4535ef52ad4e8fef9ba5dc9e411cc43d61ad42de5f3985556",
       "status": "active",
-      "balance": 24.69,
+      "balance": 16.63,
       "balanceCurrency": "USD",
-      "lastBalanceCheck": "2026-09-27T09:57:17.801Z",
+      "lastBalanceCheck": "2026-09-28T05:05:36.521Z",
       "id": "prov_mud0eaxk",
       "createdAt": "2026-09-22T18:30:07.832Z",
-      "balanceInr": 24.69,
-      "balanceUsd": 0.28,
+      "balanceInr": 16.63,
+      "balanceUsd": 0.19,
       "userId": "usr_mud2y46zkisk"
     }
   ],
@@ -48295,22 +48295,6 @@
       "refill": false
     },
     {
-      "id": 8623,
-      "providerId": "prov_mud0eaxk",
-      "providerServiceId": 8623,
-      "providerName": "Yo ",
-      "platform": "Telegram",
-      "category": "Telegram - Post Shares",
-      "name": "Telegram Post Share & View  [Real] [1 Post] [Instant] [No Refill] [10K/D] ",
-      "rate": 0.11,
-      "providerRate": 0.11,
-      "min": 10,
-      "max": 10000,
-      "status": "active",
-      "type": "default",
-      "refill": false
-    },
-    {
       "id": 8626,
       "providerId": "prov_mud0eaxk",
       "providerServiceId": 8626,
@@ -67984,6 +67968,58 @@
       "level": "info",
       "source": "Providers",
       "message": "Permanently deleted provider prov_mujna3js and associated services"
+    },
+    {
+      "id": "log_1790571932881_8qjw",
+      "createdAt": "2026-09-28T05:05:32.881Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790572211284_ipwa",
+      "createdAt": "2026-09-28T05:10:11.284Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: Test Provider A",
+      "details": "{\"apiUrl\":\"https://providerA.com/api\"}"
+    },
+    {
+      "id": "log_1790572212857_vyld",
+      "createdAt": "2026-09-28T05:10:12.857Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: Test Provider B",
+      "details": "{\"apiUrl\":\"https://providerB.com/api\"}"
+    },
+    {
+      "id": "log_1790572212992_vs9t",
+      "createdAt": "2026-09-28T05:10:12.992Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Permanently deleted provider prov_muksgojf and associated services"
+    },
+    {
+      "id": "log_1790572213036_nbit",
+      "createdAt": "2026-09-28T05:10:13.036Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: Test Provider C",
+      "details": "{\"apiUrl\":\"https://providerC.com/api\"}"
+    },
+    {
+      "id": "log_1790572238125_vni4",
+      "createdAt": "2026-09-28T05:10:38.125Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Permanently deleted provider prov_muksgpr9 and associated services"
+    },
+    {
+      "id": "log_1790572238169_lbty",
+      "createdAt": "2026-09-28T05:10:38.169Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Permanently deleted provider prov_muksgpw9 and associated services"
     }
   ],
   "nextOrderId": 10001
