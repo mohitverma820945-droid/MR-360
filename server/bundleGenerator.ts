@@ -25,6 +25,31 @@ export interface GeneratedMetricPlan {
   totalCost: number;
 }
 
+export interface DripFeedGenerationParams {
+  metric: string; // 'Views' | 'Likes' | 'Comments' | 'Shares' | 'Saves' | 'Reposts'
+  service: SmmService;
+  provider: SmmProvider;
+  quantityPerRun?: number;
+  totalQuantity?: number;
+  runs: number;
+  intervalMinutes: number;
+  organicRandomize?: boolean; // default true
+  randomVariancePercent?: number; // default 35%
+}
+
+export interface GeneratedDripFeedPlan {
+  metric: string;
+  serviceId: number;
+  serviceName: string;
+  quantityPerRun: number;
+  totalRuns: number;
+  totalQuantity: number;
+  intervalMinutes: number;
+  organicRandomize: boolean;
+  bundles: BundlePreview[];
+  totalCost: number;
+}
+
 export class BundleGenerator {
 
   /**
@@ -56,16 +81,22 @@ export class BundleGenerator {
         targetAverageSize = 250;
       } else if (totalQuantity <= 20000) {
         targetAverageSize = 400;
+      } else if (totalQuantity <= 100000) {
+        targetAverageSize = Math.max(500, Math.floor(totalQuantity / Math.min(100, Math.max(12, durationHours * 2))));
       } else {
-        targetAverageSize = Math.max(500, Math.floor(totalQuantity / Math.min(100, Math.max(10, durationHours * 2))));
+        // High-scale: 500k, 1M+ views
+        targetAverageSize = Math.max(1000, Math.floor(totalQuantity / Math.min(100, Math.max(20, durationHours * 2.5))));
       }
     } else {
       if (totalQuantity <= 100) {
         targetAverageSize = 15;
       } else if (totalQuantity <= 500) {
         targetAverageSize = 25;
-      } else {
+      } else if (totalQuantity <= 5000) {
         targetAverageSize = Math.max(30, Math.floor(totalQuantity / Math.min(50, Math.max(8, durationHours * 1.5))));
+      } else {
+        // Large likes/shares/comments
+        targetAverageSize = Math.max(100, Math.floor(totalQuantity / Math.min(60, Math.max(12, durationHours * 2))));
       }
     }
 
@@ -74,7 +105,7 @@ export class BundleGenerator {
   }
 
   /**
-   * Main Dynamic Bundle Generator with Natural Non-Equal Partitioning
+   * Main Dynamic Bundle Generator with Natural Non-Equal Partitioning (All-in-One & High Scale)
    */
   static generateMetricBundles(params: BundleGenerationParams): GeneratedMetricPlan {
     const {
@@ -163,28 +194,44 @@ export class BundleGenerator {
       if (rawQuantities[i] > maxBundleSize) rawQuantities[i] = maxBundleSize;
     }
 
-    // Rebalance discrepancy to strictly ensure SUM === totalQuantity
+    // High-performance Chunked Discrepancy Rebalance (Handles 100k, 500k, 1M smoothly)
     currentSum = rawQuantities.reduce((a, b) => a + b, 0);
     let discrepancy = totalQuantity - currentSum;
     let safeguardLoop = 0;
-    while (discrepancy !== 0 && safeguardLoop < 1000) {
+    while (discrepancy !== 0 && safeguardLoop < 100) {
       safeguardLoop++;
-      for (let i = 0; i < actualRunCount; i++) {
+      const step = Math.max(1, Math.floor(Math.abs(discrepancy) / actualRunCount));
+      for (let i = 0; i < actualRunCount && discrepancy !== 0; i++) {
         if (discrepancy > 0 && rawQuantities[i] < maxBundleSize) {
-          rawQuantities[i]++;
-          discrepancy--;
+          const add = Math.min(step, discrepancy, maxBundleSize - rawQuantities[i]);
+          rawQuantities[i] += add;
+          discrepancy -= add;
         } else if (discrepancy < 0 && rawQuantities[i] > minBundleSize) {
-          rawQuantities[i]--;
-          discrepancy++;
+          const sub = Math.min(step, -discrepancy, rawQuantities[i] - minBundleSize);
+          rawQuantities[i] -= sub;
+          discrepancy += sub;
         }
-        if (discrepancy === 0) break;
       }
     }
 
-    // 5. ANTI-DUPLICATE & NATURAL VARIATION REFINEMENT
+    // Final exact single-unit balance if any fractional discrepancy remains
+    currentSum = rawQuantities.reduce((a, b) => a + b, 0);
+    discrepancy = totalQuantity - currentSum;
+    if (discrepancy > 0) {
+      for (let i = 0; i < discrepancy; i++) {
+        rawQuantities[i % actualRunCount]++;
+      }
+    } else if (discrepancy < 0) {
+      for (let i = 0; i < -discrepancy; i++) {
+        const idx = i % actualRunCount;
+        if (rawQuantities[idx] > minBundleSize) rawQuantities[idx]--;
+      }
+    }
+
+    // 5. ANTI-DUPLICATE & PROPORTIONAL NATURAL VARIATION REFINEMENT
     if (actualRunCount > 1) {
       let antiDupLoop = 0;
-      while (antiDupLoop < 200) {
+      while (antiDupLoop < 150) {
         antiDupLoop++;
         let foundDup = false;
         const seenVals = new Map<number, number>();
@@ -197,14 +244,18 @@ export class BundleGenerator {
 
             let donorIdx = -1;
             for (let k = 0; k < actualRunCount; k++) {
-              if (k !== i && k !== prevIdx && rawQuantities[k] >= minBundleSize + 5) {
+              if (k !== i && k !== prevIdx && rawQuantities[k] >= minBundleSize + 10) {
                 donorIdx = k;
                 break;
               }
             }
 
             if (donorIdx !== -1) {
-              const delta = 1 + Math.floor(Math.random() * Math.min(15, rawQuantities[donorIdx] - minBundleSize));
+              const maxDelta = Math.min(
+                Math.floor((rawQuantities[donorIdx] - minBundleSize) * 0.25),
+                Math.max(15, Math.floor(totalQuantity / (actualRunCount * 6)))
+              );
+              const delta = Math.max(1, Math.floor(Math.random() * maxDelta));
               if (rawQuantities[donorIdx] - delta >= minBundleSize && rawQuantities[i] + delta <= maxBundleSize) {
                 rawQuantities[donorIdx] -= delta;
                 rawQuantities[i] += delta;
@@ -284,6 +335,165 @@ export class BundleGenerator {
       totalQuantity,
       actualRunCount,
       explanationNote,
+      bundles,
+      totalCost
+    };
+  }
+
+  /**
+   * Dedicated Drip-Feed Bundle Generator with Natural Anti-Bot Randomization
+   * Example: 1160 views x 10 runs (60m interval) -> total 11600 views
+   * Randomizes runs naturally (e.g. 357, 978, 1168, 1257, 1368, 689...) while SUM strictly === 11600!
+   * Example: 50 likes x 10 runs (70m interval) -> total 500 likes
+   * Randomizes runs naturally (e.g. 20, 46, 47, 24, 32...) while SUM strictly === 500!
+   */
+  static generateDripFeedBundles(params: DripFeedGenerationParams): GeneratedDripFeedPlan {
+    const {
+      metric,
+      service,
+      provider,
+      runs,
+      intervalMinutes,
+      organicRandomize = true,
+      randomVariancePercent = 35
+    } = params;
+
+    const totalQuantity = params.totalQuantity && params.totalQuantity > 0
+      ? params.totalQuantity
+      : (params.quantityPerRun || 1000) * runs;
+    const quantityPerRun = Math.round(totalQuantity / runs);
+    const minBundleSize = this.getMinimumBundleSize(metric, service.min);
+    const maxBundleSize = service.max || 10000000;
+
+    if (totalQuantity < minBundleSize * runs && !organicRandomize) {
+      throw new Error(`Quantity per run (${quantityPerRun}) is below service minimum of ${minBundleSize}.`);
+    }
+
+    const rawQuantities: number[] = [];
+
+    if (!organicRandomize || runs <= 1) {
+      // Standard static drip feed without randomization
+      for (let i = 0; i < runs; i++) {
+        rawQuantities.push(quantityPerRun);
+      }
+    } else {
+      // Natural Organic Randomization
+      // Generate diverse random multipliers that average to 1.0
+      const varianceRatio = Math.min(0.65, Math.max(0.15, randomVariancePercent / 100));
+      const weights: number[] = [];
+
+      for (let i = 0; i < runs; i++) {
+        // Natural bell-curve with entropy jitter
+        const u1 = Math.random();
+        const u2 = Math.random();
+        const randStdNormal = Math.sqrt(-2.0 * Math.log(u1 || 0.001)) * Math.cos(2.0 * Math.PI * u2);
+        const factor = Math.max(0.20, 1.0 + (randStdNormal * varianceRatio));
+        weights.push(factor);
+      }
+
+      const sumW = weights.reduce((a, b) => a + b, 0);
+      for (let i = 0; i < runs; i++) {
+        const initialQty = Math.floor((weights[i] / sumW) * totalQuantity);
+        rawQuantities.push(Math.max(minBundleSize, Math.min(maxBundleSize, initialQty)));
+      }
+
+      // Rebalance discrepancy to guarantee exact total
+      let currentSum = rawQuantities.reduce((a, b) => a + b, 0);
+      let discrepancy = totalQuantity - currentSum;
+      let loop = 0;
+
+      while (discrepancy !== 0 && loop < 100) {
+        loop++;
+        const step = Math.max(1, Math.floor(Math.abs(discrepancy) / runs));
+        for (let i = 0; i < runs && discrepancy !== 0; i++) {
+          if (discrepancy > 0 && rawQuantities[i] < maxBundleSize) {
+            const add = Math.min(step, discrepancy, maxBundleSize - rawQuantities[i]);
+            rawQuantities[i] += add;
+            discrepancy -= add;
+          } else if (discrepancy < 0 && rawQuantities[i] > minBundleSize) {
+            const sub = Math.min(step, -discrepancy, rawQuantities[i] - minBundleSize);
+            rawQuantities[i] -= sub;
+            discrepancy += sub;
+          }
+        }
+      }
+
+      // Final single-unit precision balance
+      currentSum = rawQuantities.reduce((a, b) => a + b, 0);
+      discrepancy = totalQuantity - currentSum;
+      if (discrepancy > 0) {
+        for (let i = 0; i < discrepancy; i++) {
+          rawQuantities[i % runs]++;
+        }
+      } else if (discrepancy < 0) {
+        for (let i = 0; i < -discrepancy; i++) {
+          const idx = i % runs;
+          if (rawQuantities[idx] > minBundleSize) rawQuantities[idx]--;
+        }
+      }
+
+      // Anti-duplicate refinement for drip runs so no two consecutive runs are identical
+      for (let i = 1; i < runs; i++) {
+        if (rawQuantities[i] === rawQuantities[i - 1] && rawQuantities[i] > minBundleSize + 4) {
+          const delta = Math.min(5, Math.floor(rawQuantities[i] * 0.1) || 1);
+          rawQuantities[i - 1] += delta;
+          rawQuantities[i] -= delta;
+        }
+      }
+
+      // Re-verify exact sum
+      currentSum = rawQuantities.reduce((a, b) => a + b, 0);
+      discrepancy = totalQuantity - currentSum;
+      if (discrepancy !== 0) {
+        rawQuantities[runs - 1] += discrepancy;
+      }
+    }
+
+    // Generate schedule timestamps based on intervalMinutes
+    // Run 1 fires immediately (now), Run 2 fires at now + interval, etc.
+    const nowMs = Date.now();
+    const intervalMs = Math.max(1, intervalMinutes) * 60 * 1000;
+    const bundles: BundlePreview[] = [];
+
+    for (let i = 0; i < runs; i++) {
+      let runDelayMs = i * intervalMs;
+      // Organic minute timing jitter (+- 1-2 minutes for runs > 0 so it doesn't fire at exact clock seconds)
+      if (organicRandomize && i > 0 && intervalMinutes >= 10) {
+        const jitterMs = (Math.random() - 0.5) * 2 * Math.min(120000, intervalMs * 0.05);
+        runDelayMs = Math.max((i - 0.8) * intervalMs, runDelayMs + jitterMs);
+      }
+
+      const scheduledDate = new Date(nowMs + runDelayMs);
+      const qty = rawQuantities[i];
+      const cost = parseFloat(((qty / 1000) * service.rate).toFixed(4));
+
+      bundles.push({
+        runNumber: i + 1,
+        metric,
+        serviceId: service.id,
+        serviceName: service.name,
+        quantity: qty,
+        scheduledAt: scheduledDate.toISOString(),
+        providerId: provider.id,
+        providerName: provider.name,
+        providerRate: service.providerRate || service.rate,
+        cost
+      });
+    }
+
+    const totalCost = parseFloat(
+      bundles.reduce((sum, b) => sum + b.cost, 0).toFixed(4)
+    );
+
+    return {
+      metric,
+      serviceId: service.id,
+      serviceName: service.name,
+      quantityPerRun,
+      totalRuns: runs,
+      totalQuantity,
+      intervalMinutes,
+      organicRandomize,
       bundles,
       totalCost
     };

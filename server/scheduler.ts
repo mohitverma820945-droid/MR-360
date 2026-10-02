@@ -1,9 +1,10 @@
 import { db } from './db';
 import { ProviderClient, processProviderBalance } from './providerClient';
-import { OrderStatus } from '../src/types';
+import { OrderStatus, ScheduleItem } from '../src/types';
 
 export class SchedulerWorker {
   private static isRunning = false;
+  private static isProcessing = false;
   private static schedulerInterval: NodeJS.Timeout | null = null;
   private static statusSyncInterval: NodeJS.Timeout | null = null;
   private static balanceRefreshInterval: NodeJS.Timeout | null = null;
@@ -18,7 +19,7 @@ export class SchedulerWorker {
     console.log('[Scheduler] Starting ZYNYX Background Scheduler Worker...');
     db.addLog('info', 'Scheduler', 'Background Scheduler Worker started');
 
-    // 1. Process Due Scheduled Orders every 10 seconds
+    // 1. Process Due Scheduled Orders every 10 seconds (or configured interval)
     const cronSecs = db.getSettings().cronExecutionIntervalSeconds || 10;
     this.schedulerInterval = setInterval(() => {
       this.processDueSchedules().catch(err => {
@@ -49,140 +50,200 @@ export class SchedulerWorker {
   }
 
   /**
-   * Process Due Schedule Items Atomically
+   * Process Due Schedule Items Atomically (Protected against duplicates and double executions)
    */
-  private static async processDueSchedules(): Promise<void> {
-    const dueItems = db.getDueSchedules();
-    if (dueItems.length === 0) return;
+  static async processDueSchedules(): Promise<void> {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
 
-    for (const item of dueItems) {
-      // Atomic Job Claim for Idempotency
-      const claimed = db.claimDueScheduleItem(item.id);
-      if (!claimed) continue; // Already claimed by another worker pass
+    try {
+      const dueItems = db.getDueSchedules(50);
+      if (dueItems.length === 0) return;
 
-      try {
-        const service = db.getServiceById(item.serviceId);
-        if (!service) {
-          db.updateScheduleItem(item.id, {
-            status: 'failed',
-            errorMessage: `Service #${item.serviceId} not found in database`
-          });
-          continue;
-        }
+      // Process in controlled parallel worker pool (5 concurrent workers for high efficiency & low latency)
+      const CONCURRENCY_CHUNK = 5;
+      for (let i = 0; i < dueItems.length; i += CONCURRENCY_CHUNK) {
+        const chunk = dueItems.slice(i, i + CONCURRENCY_CHUNK);
+        await Promise.allSettled(chunk.map(item => this.processSingleScheduleItem(item)));
+      }
+    } finally {
+      this.isProcessing = false;
+    }
+  }
 
-        let provider = db.getProviderById(item.providerId || service.providerId);
-        if (!provider || provider.status === 'inactive') {
-          db.updateScheduleItem(item.id, {
-            status: 'failed',
-            errorMessage: `Provider for service #${service.id} is inactive or deleted`
-          });
-          continue;
-        }
-        if (!provider || !provider.apiUrl || !provider.apiKey) {
-          db.updateScheduleItem(item.id, {
-            status: 'failed',
-            errorMessage: `No active provider found with API credentials for service #${service.id}`
-          });
-          continue;
-        }
+  /**
+   * Process an individual schedule item with retry resilience, balance synchronization, and duplicate guard
+   */
+  private static async processSingleScheduleItem(item: ScheduleItem): Promise<void> {
+    // Prevent duplicate execution: if already submitted, skip
+    if (item.providerOrderId && item.status === 'submitted') return;
 
-        console.log(`[Scheduler] Submitting real provider order for Schedule #${item.id} (Run ${item.runNumber}/${item.totalRuns}, Qty ${item.quantity})...`);
+    // Atomic Job Claim for Idempotency
+    const claimed = db.claimDueScheduleItem(item.id);
+    if (!claimed) return; // Already claimed by another worker pass
 
-        // Execute Real Provider API Order
-        const result = await ProviderClient.addOrder(provider, {
-          service: service.providerServiceId,
-          link: item.link,
-          quantity: item.quantity
+    try {
+      const service = db.getServiceById(item.serviceId);
+      if (!service) {
+        db.updateScheduleItem(item.id, {
+          status: 'failed',
+          errorMessage: `Service #${item.serviceId} not found in database`
+        });
+        return;
+      }
+
+      let provider = db.getProviderById(item.providerId || service.providerId);
+      if (!provider || provider.status === 'inactive') {
+        db.updateScheduleItem(item.id, {
+          status: 'failed',
+          errorMessage: `Provider for service #${service.id} is inactive or deleted`
+        });
+        return;
+      }
+      if (!provider || !provider.apiUrl || !provider.apiKey) {
+        db.updateScheduleItem(item.id, {
+          status: 'failed',
+          errorMessage: `No active provider found with API credentials for service #${service.id}`
+        });
+        return;
+      }
+
+      // Parent order validation
+      const parentOrder = item.parentOrderId ? db.getOrderById(item.parentOrderId) : undefined;
+      if (parentOrder && (parentOrder.status === 'Canceled' || parentOrder.status === 'Failed')) {
+        db.updateScheduleItem(item.id, {
+          status: 'canceled',
+          errorMessage: 'Parent order canceled'
+        });
+        return;
+      }
+
+      console.log(`[Scheduler] Submitting provider order for Schedule #${item.id} (Run ${item.runNumber}/${item.totalRuns}, Qty ${item.quantity})...`);
+
+      // Execute Real Provider API Order (Pure single run without external drip params)
+      const result = await ProviderClient.addOrder(provider, {
+        service: service.providerServiceId,
+        link: item.link,
+        quantity: item.quantity
+      });
+
+      if (result.success && result.orderId) {
+        db.updateScheduleItem(item.id, {
+          status: 'submitted',
+          providerOrderId: String(result.orderId),
+          errorMessage: undefined
         });
 
-        if (result.success && result.orderId) {
-          db.updateScheduleItem(item.id, {
-            status: 'submitted',
-            providerOrderId: result.orderId,
-            errorMessage: undefined
-          });
+        // Deduct exact execution charge from provider's balance
+        const bundleCost = (item.quantity / 1000) * (service.providerRate || service.rate);
+        db.deductProviderBalance(provider.id, bundleCost);
 
-          // Deduct exact execution charge from the specific provider's balance
-          const bundleCost = (item.quantity / 1000) * (service.providerRate || service.rate);
-          db.deductProviderBalance(provider.id, bundleCost);
-
-          // Asynchronously sync latest real balance from provider API
-          ProviderClient.getBalance(provider).then(bRes => {
-            if (bRes.success && bRes.balance !== undefined) {
-              const proc = processProviderBalance(bRes.balance, bRes.currency);
-              db.updateProvider(provider.id, {
-                balance: proc.balanceInr,
-                balanceInr: proc.balanceInr,
-                balanceUsd: proc.balanceUsd,
-                lastBalanceCheck: new Date().toISOString()
-              });
-            }
-          }).catch(() => {});
-
-          // Create or update real child order record in Database
-          db.createOrder({
-            providerOrderId: result.orderId,
-            parentOrderId: item.parentOrderId,
-            userId: 'usr_admin_1', // default or parent owner
-            orderType: 'all_in_one_child',
-            platform: service.platform,
-            category: service.category,
-            serviceId: service.id,
-            serviceName: service.name,
-            providerId: provider.id,
-            providerName: provider.name,
-            link: item.link,
-            quantity: item.quantity,
-            price: parseFloat(((item.quantity / 1000) * service.rate).toFixed(4)),
-            status: 'Processing',
-            providerStatus: 'Pending'
-          });
-
-          // Update parent order progress
-          const parentOrder = db.getOrderById(item.parentOrderId);
-          if (parentOrder && parentOrder.status !== 'Canceled' && parentOrder.status !== 'Failed') {
-            const completedBundles = (parentOrder.completedBundles || 0) + 1;
-            const isFullyDone = completedBundles >= (parentOrder.totalBundles || 1);
-
-            db.updateOrder(parentOrder.id, {
-              completedBundles,
-              status: isFullyDone ? 'Completed' : 'Processing'
+        // Asynchronously sync latest real balance from provider API
+        ProviderClient.getBalance(provider).then(bRes => {
+          if (bRes.success && bRes.balance !== undefined) {
+            const proc = processProviderBalance(bRes.balance, bRes.currency);
+            db.updateProvider(provider.id, {
+              balance: proc.balanceInr,
+              balanceInr: proc.balanceInr,
+              balanceUsd: proc.balanceUsd,
+              lastBalanceCheck: new Date().toISOString()
             });
           }
+        }).catch(() => {});
+
+        // Create or update real child order record in Database bound to parent's owner
+        const ownerUserId = parentOrder?.userId || item.userId || 'usr_mohit_owner';
+        const childOrderType = parentOrder?.orderType === 'drip_feed' ? 'drip_feed' : 'all_in_one_child';
+
+        db.createOrder({
+          providerOrderId: String(result.orderId),
+          parentOrderId: item.parentOrderId,
+          userId: ownerUserId,
+          orderType: childOrderType,
+          platform: service.platform,
+          category: service.category,
+          serviceId: service.id,
+          serviceName: service.name,
+          providerId: provider.id,
+          providerName: provider.name,
+          link: item.link,
+          quantity: item.quantity,
+          price: parseFloat(((item.quantity / 1000) * service.rate).toFixed(4)),
+          status: 'Processing',
+          providerStatus: 'Pending'
+        });
+
+        // Update parent order progress
+        if (parentOrder && parentOrder.status !== 'Canceled' && parentOrder.status !== 'Failed') {
+          const completedBundles = (parentOrder.completedBundles || 0) + 1;
+          const isFullyDone = completedBundles >= (parentOrder.totalBundles || 1);
+
+          db.updateOrder(parentOrder.id, {
+            completedBundles,
+            status: isFullyDone ? 'Completed' : 'Processing'
+          });
+        }
+
+        db.addLog(
+          'info',
+          'Scheduler',
+          `Successfully submitted Provider Order #${result.orderId} for Schedule #${item.id} (Qty: ${item.quantity})`
+        );
+
+      } else {
+        // Provider API error with Smart Retry Resilience
+        const errMsg = result.error || 'Provider returned unsuccessful response';
+        const isTransient = errMsg.toLowerCase().includes('timeout') ||
+          errMsg.toLowerCase().includes('network') ||
+          errMsg.toLowerCase().includes('rate limit') ||
+          errMsg.toLowerCase().includes('502') ||
+          errMsg.toLowerCase().includes('503') ||
+          errMsg.toLowerCase().includes('429') ||
+          errMsg.toLowerCase().includes('busy');
+
+        const currentRetries = item.retryCount || 0;
+
+        if (isTransient && currentRetries < 3) {
+          const nextRetry = currentRetries + 1;
+          const retryDelaySecs = nextRetry * 30; // 30s, 60s, 90s
+          db.updateScheduleItem(item.id, {
+            status: 'pending',
+            retryCount: nextRetry,
+            scheduledAt: new Date(Date.now() + retryDelaySecs * 1000).toISOString(),
+            errorMessage: `Transient error (${errMsg}). Auto-retry #${nextRetry}/3 in ${retryDelaySecs}s.`
+          });
 
           db.addLog(
-            'info',
+            'warn',
             'Scheduler',
-            `Successfully submitted Provider Order #${result.orderId} for Schedule #${item.id} (Qty: ${item.quantity})`
+            `Schedule #${item.id} transient failure with Provider ${provider.name}. Re-queued for retry #${nextRetry}/3 in ${retryDelaySecs}s.`
           );
-
         } else {
-          // Provider API error
-          const errMsg = result.error || 'Provider returned unsuccessful response';
           db.updateScheduleItem(item.id, {
             status: 'failed',
+            retryCount: currentRetries + 1,
             errorMessage: errMsg
           });
 
           db.addLog(
             'error',
             'Scheduler',
-            `Failed to submit Schedule #${item.id} to Provider ${provider.name}: ${errMsg}`
+            `Permanent failure submitting Schedule #${item.id} to Provider ${provider.name}: ${errMsg}`
           );
         }
-
-      } catch (err: any) {
-        db.updateScheduleItem(item.id, {
-          status: 'failed',
-          errorMessage: err.message || 'Exception during provider order execution'
-        });
-
-        db.addLog(
-          'error',
-          'Scheduler',
-          `Exception processing schedule #${item.id}: ${err.message}`
-        );
       }
+
+    } catch (err: any) {
+      db.updateScheduleItem(item.id, {
+        status: 'failed',
+        errorMessage: err.message || 'Exception during provider order execution'
+      });
+
+      db.addLog(
+        'error',
+        'Scheduler',
+        `Exception processing schedule #${item.id}: ${err.message}`
+      );
     }
   }
 

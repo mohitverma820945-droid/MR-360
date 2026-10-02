@@ -2,6 +2,7 @@ import express from 'express';
 import { db } from './server/db';
 import { ProviderClient, processProviderBalance } from './server/providerClient';
 import { BundleGenerator } from './server/bundleGenerator';
+import { SchedulerWorker } from './server/scheduler';
 import { Order, ScheduleItem, SmmService, SmmProvider, AllInOneOrderRequest, OrderType, BundlePreview } from './src/types';
 
 const app = express();
@@ -352,19 +353,69 @@ app.get('/api/orders', (req, res) => {
   res.json(db.getOrders(userId));
 });
 
+app.post('/api/orders/drip-feed/preview', (req, res) => {
+  try {
+    const { serviceId, quantityPerRun, totalQuantity, quantity, runs, intervalMinutes, organicRandomize, randomVariancePercent, isTotalQuantity } = req.body;
+    const service = db.getServiceById(parseInt(serviceId, 10));
+    if (!service) return res.status(400).json({ success: false, error: 'Service not found' });
+
+    let provider = db.getProviderById(service.providerId);
+    if (!provider) {
+      provider = db.getProviders().find(p => p.status !== 'inactive') || {
+        id: service.providerId || 'prov_default',
+        name: service.providerName || 'SMM Provider',
+        apiUrl: '',
+        apiKey: '',
+        status: 'active',
+        balance: null,
+        balanceCurrency: 'INR',
+        lastBalanceCheck: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      };
+    }
+
+    const isTotal = Boolean(isTotalQuantity || totalQuantity);
+    const tQty = isTotal ? Number(totalQuantity || quantity) : undefined;
+    const qPerRun = !isTotal ? Number(quantityPerRun || quantity) : undefined;
+
+    const plan = BundleGenerator.generateDripFeedBundles({
+      metric: service.category || 'Views',
+      service,
+      provider,
+      totalQuantity: tQty,
+      quantityPerRun: qPerRun,
+      runs: Number(runs),
+      intervalMinutes: Number(intervalMinutes || 60),
+      organicRandomize: organicRandomize !== false,
+      randomVariancePercent: Number(randomVariancePercent || 35)
+    });
+
+    res.json({ success: true, plan });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
 app.post('/api/orders/single', async (req, res) => {
   try {
     const userId = getRequestUserId(req) || req.body.userId;
     const user = userId ? db.getUserById(userId) : undefined;
 
-    const { serviceId, link, quantity, comments, runs, interval } = req.body;
+    const { serviceId, link, quantity, comments, runs, interval, organicRandomize, randomVariancePercent, isTotalQuantity } = req.body;
     const service = db.getServiceById(parseInt(serviceId, 10));
 
     if (!service) {
       return res.status(400).json({ success: false, error: 'Service not found' });
     }
 
-    const price = parseFloat(((service.rate / 1000) * quantity).toFixed(4));
+    const isDripFeed = Boolean(runs && Number(runs) > 1);
+    const totalRuns = isDripFeed ? Number(runs) : 1;
+    const intervalMins = isDripFeed ? Number(interval || 60) : 0;
+    const isTotal = Boolean(isTotalQuantity);
+    const totalQuantity = isDripFeed
+      ? (isTotal ? Number(quantity) : Number(quantity) * totalRuns)
+      : Number(quantity);
+    const price = parseFloat(((service.rate / 1000) * totalQuantity).toFixed(4));
 
     if (user && user.balance !== undefined && user.balance < price) {
       return res.status(400).json({ success: false, error: `Insufficient balance. Required: ₹${price.toFixed(2)}, Available: ₹${user.balance.toFixed(2)}` });
@@ -374,6 +425,77 @@ app.post('/api/orders/single', async (req, res) => {
     if (!provider || provider.status === 'inactive') {
       return res.status(400).json({ success: false, error: `Provider for service #${service.id} is inactive or deleted. Please select an active service.` });
     }
+
+    // DRIP-FEED MODE WITH ORGANIC ANTI-BOT RANDOMIZATION & SCHEDULE QUEUE
+    if (isDripFeed) {
+      const plan = BundleGenerator.generateDripFeedBundles({
+        metric: service.category || 'Views',
+        service,
+        provider,
+        totalQuantity: isTotal ? totalQuantity : undefined,
+        quantityPerRun: !isTotal ? Number(quantity) : undefined,
+        runs: totalRuns,
+        intervalMinutes: intervalMins,
+        organicRandomize: organicRandomize !== false,
+        randomVariancePercent: Number(randomVariancePercent || 35)
+      });
+
+      if (user) {
+        db.updateUserBalance(user.id, -price);
+      }
+
+      const parentOrder = db.createOrder({
+        userId: user?.id || 'usr_guest',
+        orderType: 'drip_feed',
+        serviceId: service.id,
+        serviceName: `${service.name} (Drip-Feed: ${totalRuns} runs)`,
+        platform: service.platform,
+        category: service.category,
+        link,
+        quantity: totalQuantity,
+        price,
+        status: 'Processing',
+        totalBundles: totalRuns,
+        completedBundles: 0,
+        runs: totalRuns,
+        interval: intervalMins,
+        providerId: service.providerId,
+        providerOrderId: `drip_${Date.now()}`,
+        comments
+      });
+
+      const schedulesToInsert = plan.bundles.map((bundle, idx) => ({
+        parentOrderId: parentOrder.id,
+        userId: parentOrder.userId,
+        metric: bundle.metric,
+        serviceId: bundle.serviceId,
+        serviceName: bundle.serviceName || service.name,
+        providerId: bundle.providerId,
+        providerOrderId: undefined,
+        link,
+        quantity: bundle.quantity,
+        scheduledAt: bundle.scheduledAt,
+        status: 'pending' as const,
+        runNumber: idx + 1,
+        totalRuns
+      }));
+
+      db.addSchedules(schedulesToInsert);
+
+      // Trigger scheduler for immediate first run check
+      setTimeout(() => {
+        SchedulerWorker.processDueSchedules().catch(() => {});
+      }, 500);
+
+      return res.json({
+        success: true,
+        order: parentOrder,
+        plan,
+        message: `Drip-feed campaign #${parentOrder.id} active! Total ${totalQuantity.toLocaleString()} units scheduled across ${totalRuns} organic runs.`
+      });
+    }
+
+    // STANDARD SINGLE IMMEDIATE RUN
     let providerOrderId: string | null = null;
     let status: any = 'Pending';
     let errorMessage: string | undefined;
@@ -382,7 +504,7 @@ app.post('/api/orders/single', async (req, res) => {
       const pRes = await ProviderClient.addOrder(provider, {
         service: service.providerServiceId,
         link,
-        quantity,
+        quantity: totalQuantity,
         comments
       });
 
@@ -407,14 +529,14 @@ app.post('/api/orders/single', async (req, res) => {
       platform: service.platform,
       category: service.category,
       link,
-      quantity,
+      quantity: totalQuantity,
       price,
       status,
       providerId: service.providerId,
       providerOrderId,
       errorMessage,
-      runs,
-      interval,
+      runs: undefined,
+      interval: undefined,
       comments
     });
 
@@ -777,7 +899,7 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
       serviceId: bundle.serviceId,
       serviceName: bundle.serviceName || `Service #${bundle.serviceId}`,
       providerId: bundle.providerId,
-      providerOrderId: String(bundle.serviceId),
+      providerOrderId: undefined,
       link: targetUrl,
       quantity: bundle.quantity,
       scheduledAt: bundle.scheduledAt,

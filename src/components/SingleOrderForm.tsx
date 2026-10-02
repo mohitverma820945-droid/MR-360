@@ -25,7 +25,7 @@ export const SingleOrderForm: React.FC = () => {
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
   const [serviceSearch, setServiceSearch] = useState<string>('');
 
-  const [orderMode, setOrderMode] = useState<'single' | 'drip_feed'>('single');
+  const [orderMode, setOrderMode] = useState<'single_instant' | 'single_organic' | 'drip_feed'>('single_organic');
   const [link, setLink] = useState('');
   const [quantity, setQuantity] = useState<number>(1000);
   
@@ -33,6 +33,14 @@ export const SingleOrderForm: React.FC = () => {
   const [runs, setRuns] = useState<number>(5);
   const [interval, setIntervalMinutes] = useState<number>(30);
   const [customComments, setCustomComments] = useState('');
+  const [organicRandomize, setOrganicRandomize] = useState<boolean>(true);
+  const [dripPreview, setDripPreview] = useState<{
+    bundles: Array<{ runNumber: number; quantity: number; scheduledAt: string; cost: number }>;
+    totalQuantity: number;
+    totalCost: number;
+    intervalMinutes: number;
+  } | null>(null);
+  const [loadingDripPreview, setLoadingDripPreview] = useState<boolean>(false);
 
   const [providerBalance, setProviderBalance] = useState<number | null>(null);
   const [providerName, setProviderName] = useState<string>('');
@@ -53,19 +61,26 @@ export const SingleOrderForm: React.FC = () => {
 
   // 1. Fetch Service Catalog
   useEffect(() => {
-    fetch('/api/services', {
-      headers: getAuthHeaderObj()
-    })
-      .then(res => res.json())
-      .then((data: SmmService[]) => {
-        setServices(data);
-        const uniquePlatforms = Array.from(new Set(data.map(s => s.platform)));
-        setPlatforms(uniquePlatforms.length > 0 ? uniquePlatforms : ['Instagram', 'TikTok', 'YouTube', 'Telegram']);
-        
-        if (uniquePlatforms.length > 0) {
-          setSelectedPlatform(uniquePlatforms[0]);
-        }
-      });
+    const loadServices = () => {
+      fetch('/api/services', {
+        headers: getAuthHeaderObj()
+      })
+        .then(res => res.json())
+        .then((data: SmmService[]) => {
+          if (!Array.isArray(data)) return;
+          setServices(data);
+          const uniquePlatforms = Array.from(new Set(data.map(s => s.platform)));
+          setPlatforms(uniquePlatforms.length > 0 ? uniquePlatforms : ['Instagram', 'TikTok', 'YouTube', 'Telegram']);
+          
+          if (uniquePlatforms.length > 0) {
+            setSelectedPlatform(prev => uniquePlatforms.includes(prev) ? prev : uniquePlatforms[0]);
+          }
+        });
+    };
+
+    loadServices();
+    window.addEventListener('providers-changed', loadServices);
+    return () => window.removeEventListener('providers-changed', loadServices);
   }, []);
 
   // 2. Filter Categories when Platform Changes
@@ -123,9 +138,48 @@ export const SingleOrderForm: React.FC = () => {
       });
   }, [selectedServiceId, currentService]);
 
-  // Accurate Authoritative Price Calculation (including all drip runs)
-  const effectiveRuns = orderMode === 'drip_feed' ? (runs || 1) : 1;
-  const calculatedTotalQuantity = (quantity || 0) * effectiveRuns;
+  // Live Drip-Feed & Organic Single Preview Generator
+  useEffect(() => {
+    const isScheduled = orderMode === 'single_organic' || orderMode === 'drip_feed';
+    if (!isScheduled || !selectedServiceId || !currentService || runs < 2 || quantity <= 0) {
+      setDripPreview(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setLoadingDripPreview(true);
+      try {
+        const res = await fetch('/api/orders/drip-feed/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaderObj() },
+          body: JSON.stringify({
+            serviceId: selectedServiceId,
+            quantity,
+            isTotalQuantity: orderMode === 'single_organic',
+            runs,
+            intervalMinutes: interval,
+            organicRandomize
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.plan) {
+          setDripPreview(data.plan);
+        }
+      } catch {
+        // graceful ignore
+      } finally {
+        setLoadingDripPreview(false);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [orderMode, selectedServiceId, currentService, quantity, runs, interval, organicRandomize]);
+
+  // Accurate Authoritative Price Calculation
+  const isDripFeed = orderMode === 'drip_feed';
+  const calculatedTotalQuantity = isDripFeed
+    ? (quantity || 0) * (runs || 1)
+    : (quantity || 0);
   const calculatedPrice = currentService 
     ? ((calculatedTotalQuantity / 1000) * currentService.rate)
     : 0;
@@ -145,7 +199,9 @@ export const SingleOrderForm: React.FC = () => {
       return;
     }
 
-    if (quantity < currentService.min || quantity > currentService.max) {
+    // Min/Max validation: for drip feed, check quantity per run; for single, check total
+    const checkQty = isDripFeed ? quantity : calculatedTotalQuantity;
+    if (checkQty < currentService.min || checkQty > currentService.max) {
       setErrorMessage(`Quantity must be between ${currentService.min.toLocaleString()} and ${currentService.max.toLocaleString()}`);
       return;
     }
@@ -153,6 +209,7 @@ export const SingleOrderForm: React.FC = () => {
     setSubmitting(true);
 
     try {
+      const isScheduled = orderMode === 'single_organic' || orderMode === 'drip_feed';
       const response = await fetch('/api/orders/single', {
         method: 'POST',
         headers: { 
@@ -163,8 +220,10 @@ export const SingleOrderForm: React.FC = () => {
           serviceId: selectedServiceId,
           link: link.trim(),
           quantity,
-          runs: orderMode === 'drip_feed' ? runs : undefined,
-          interval: orderMode === 'drip_feed' ? interval : undefined,
+          runs: isScheduled ? runs : undefined,
+          interval: isScheduled ? interval : undefined,
+          organicRandomize: isScheduled ? organicRandomize : undefined,
+          isTotalQuantity: orderMode === 'single_organic',
           comments: currentService.type === 'custom_comments' ? customComments : undefined
         })
       });
@@ -220,30 +279,41 @@ export const SingleOrderForm: React.FC = () => {
       {/* Main Order Form Card */}
       <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
         
-        {/* Order Mode Switch */}
-        <div className="flex rounded-2xl bg-pink-50/60 dark:bg-slate-900 p-1 border border-pink-100 dark:border-slate-800">
+        {/* Order Mode Switch: Instant vs Organic Delivery vs Custom Drip-Feed */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 rounded-2xl bg-pink-50/60 dark:bg-slate-900 p-1 border border-pink-100 dark:border-slate-800 gap-1">
           <button
             type="button"
-            onClick={() => setOrderMode('single')}
-            className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-              orderMode === 'single'
+            onClick={() => setOrderMode('single_instant')}
+            className={`py-2 px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+              orderMode === 'single_instant'
                 ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-sm shadow-pink-500/20'
                 : 'text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-white'
             }`}
           >
-            Single Order
+            <span>⚡ Instant Single</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setOrderMode('single_organic')}
+            className={`py-2 px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+              orderMode === 'single_organic'
+                ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-sm shadow-pink-500/20'
+                : 'text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-white'
+            }`}
+          >
+            <span>🛡️ Organic Single Drip</span>
           </button>
           <button
             type="button"
             onClick={() => setOrderMode('drip_feed')}
-            className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
+            className={`py-2 px-3 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
               orderMode === 'drip_feed'
                 ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-sm shadow-pink-500/20'
                 : 'text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-white'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
-            <span>Drip-Feed Order</span>
+            <span>⏱️ Custom Drip-Feed</span>
           </button>
         </div>
 
@@ -370,19 +440,23 @@ export const SingleOrderForm: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                {orderMode === 'drip_feed' ? 'Quantity per Run' : 'Quantity'}
+                {orderMode === 'drip_feed' 
+                  ? 'Quantity per Run (Fixed Base)' 
+                  : orderMode === 'single_organic' 
+                    ? 'Total Target Quantity (Auto-Distributed Organically)' 
+                    : 'Quantity (Instant One-Time Execution)'}
               </label>
               <input
                 type="number"
                 min={currentService?.min || 10}
-                max={currentService?.max || 1000000}
+                max={currentService?.max || 10000000}
                 value={quantity}
                 onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 0)}
                 className="w-full px-4 py-2.5 rounded-xl bg-pink-50/30 dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
               {/* Preset Buttons */}
               <div className="flex flex-wrap gap-1.5 pt-1">
-                {[1000, 2000, 5000, 10000, 15000].map(val => (
+                {[1000, 2000, 5000, 10000, 25000, 50000, 100000].map(val => (
                   <button
                     key={val}
                     type="button"
@@ -399,12 +473,17 @@ export const SingleOrderForm: React.FC = () => {
               </div>
             </div>
 
-            {orderMode === 'drip_feed' ? (
+            {(orderMode === 'drip_feed' || orderMode === 'single_organic') ? (
               <>
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Total Runs
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Total Runs / Batches
+                    </label>
+                    <span className="text-[10px] text-pink-600 dark:text-pink-400 font-bold">
+                      {orderMode === 'single_organic' ? 'Spread across runs' : 'Fixed runs'}
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min={2}
@@ -413,12 +492,34 @@ export const SingleOrderForm: React.FC = () => {
                     onChange={(e) => setRuns(parseInt(e.target.value, 10) || 2)}
                     className="w-full px-4 py-2.5 rounded-xl bg-pink-50/30 dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
                   />
+                  {/* Runs presets */}
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {[5, 10, 20, 30, 40].map(r => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setRuns(r)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
+                          runs === r
+                            ? 'bg-pink-600 text-white'
+                            : 'bg-pink-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-pink-100 dark:border-slate-700'
+                        }`}
+                      >
+                        {r} runs
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2 space-y-2">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Interval (Minutes between runs)
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Interval (Minutes between runs)
+                    </label>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                      {interval >= 60 ? `${(interval / 60).toFixed(1)} hrs` : `${interval} mins`}
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min={1}
@@ -427,7 +528,83 @@ export const SingleOrderForm: React.FC = () => {
                     onChange={(e) => setIntervalMinutes(parseInt(e.target.value, 10) || 10)}
                     className="w-full px-4 py-2.5 rounded-xl bg-pink-50/30 dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
                   />
+                  {/* Interval presets */}
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {[15, 30, 60, 90, 120].map(m => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setIntervalMinutes(m)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
+                          interval === m
+                            ? 'bg-pink-600 text-white'
+                            : 'bg-pink-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-pink-100 dark:border-slate-700'
+                        }`}
+                      >
+                        {m}m {m >= 60 ? `(${(m/60).toFixed(1)}h)` : ''}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Organic Anti-Bot Randomization Toggle */}
+                <div className="sm:col-span-2 p-3.5 bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-purple-500/10 dark:from-pink-950/30 dark:to-purple-950/30 rounded-xl border border-pink-200 dark:border-pink-900/50 flex items-center justify-between">
+                  <div className="space-y-0.5 pr-3">
+                    <div className="text-xs font-black text-slate-900 dark:text-white flex items-center space-x-1.5">
+                      <span>🛡️ Organic Anti-Bot Randomization</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold uppercase">
+                        Recommended
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Dispatches varied natural batches (e.g. 357, 978, 1168...) instead of robotic identical chunks. Total units delivered remain 100% exact.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOrganicRandomize(!organicRandomize)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      organicRandomize ? 'bg-pink-600' : 'bg-slate-300 dark:bg-slate-700'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        organicRandomize ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Live Drip-Feed Schedule Preview */}
+                {dripPreview && dripPreview.bundles && dripPreview.bundles.length > 0 && (
+                  <div className="sm:col-span-2 p-3.5 bg-slate-50 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                        <Clock className="w-3.5 h-3.5 text-pink-500" />
+                        <span>Live Delivery Schedule Preview</span>
+                      </span>
+                      <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-extrabold">
+                        Exact Sum: {dripPreview.totalQuantity.toLocaleString()} units
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-40 overflow-y-auto pr-1">
+                      {dripPreview.bundles.map((b) => (
+                        <div
+                          key={b.runNumber}
+                          className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-center"
+                        >
+                          <div className="text-[10px] text-slate-400 font-bold">Run #{b.runNumber}</div>
+                          <div className="text-xs font-mono font-extrabold text-pink-600 dark:text-pink-400">
+                            {b.quantity.toLocaleString()}
+                          </div>
+                          <div className="text-[9px] text-slate-500 dark:text-slate-400 font-mono">
+                            {new Date(b.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             ) : null}
           </div>
@@ -440,7 +617,9 @@ export const SingleOrderForm: React.FC = () => {
                 <span>
                   {orderMode === 'drip_feed' 
                     ? `Live Total: ${runs} runs × ${quantity.toLocaleString()} units = ${calculatedTotalQuantity.toLocaleString()} total units`
-                    : `Live Total: ${quantity.toLocaleString()} units`}
+                    : orderMode === 'single_organic'
+                      ? `Live Total: ${calculatedTotalQuantity.toLocaleString()} units distributed across ${runs} organic runs`
+                      : `Live Total: ${quantity.toLocaleString()} units (Instant One-Time)`}
                 </span>
               </span>
               <div className="font-mono font-bold text-sm text-emerald-700 dark:text-emerald-300">
@@ -477,16 +656,28 @@ export const SingleOrderForm: React.FC = () => {
                 <span className="font-mono font-bold text-pink-600 dark:text-pink-400">{formatPrice(currentService.rate)} / 1,000</span>
               </div>
               <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
-                <span>Total Units Requested:</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">
-                  {orderMode === 'drip_feed' ? `${calculatedTotalQuantity.toLocaleString()} (${quantity} x ${runs} runs)` : quantity.toLocaleString()}
+                <span>Delivery Mode:</span>
+                <span className="font-bold text-pink-600 dark:text-pink-400">
+                  {orderMode === 'drip_feed' 
+                    ? `Drip-Feed (${runs} runs × ${quantity.toLocaleString()} units)` 
+                    : orderMode === 'single_organic' 
+                      ? `Organic Anti-Bot Schedule (${runs} natural batches)` 
+                      : 'Instant One-Time Execution'}
                 </span>
               </div>
-              {orderMode === 'drip_feed' && (
+              <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                <span>Total Units Requested:</span>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">
+                  {orderMode === 'drip_feed' 
+                    ? `${calculatedTotalQuantity.toLocaleString()} (${quantity.toLocaleString()} x ${runs} runs)` 
+                    : calculatedTotalQuantity.toLocaleString()}
+                </span>
+              </div>
+              {(orderMode === 'drip_feed' || orderMode === 'single_organic') && (
                 <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
                   <span>Schedule Timeline:</span>
                   <span className="font-medium text-slate-800 dark:text-slate-200">
-                    Every {interval} mins (~{Math.round(((runs - 1) * interval) / 60 * 10) / 10}h total)
+                    Every {interval} mins (~{Math.round(((runs - 1) * interval) / 60 * 10) / 10}h total delivery window)
                   </span>
                 </div>
               )}

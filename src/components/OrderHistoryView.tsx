@@ -22,10 +22,12 @@ import {
 } from 'lucide-react';
 import { Order, OrderStatus, ScheduleItem } from '../types';
 import { getAuthHeaderObj, getStoredUserId } from '../utils/apiAuth';
+import { useAuth } from '../context/AuthContext';
 
 const getCacheKey = () => `mr360_cached_orders_${getStoredUserId()}`;
 
 export const OrderHistoryView: React.FC = () => {
+  const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
       const stored = localStorage.getItem(getCacheKey());
@@ -121,10 +123,19 @@ export const OrderHistoryView: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchOrders(false);
+    try {
+      const stored = localStorage.getItem(getCacheKey());
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setOrders(parsed);
+      } else {
+        setOrders([]);
+      }
+    } catch {}
+    fetchOrders(true);
     const interval = setInterval(() => fetchOrders(false), 8000); // Poll history every 8s
     return () => clearInterval(interval);
-  }, []);
+  }, [user?.id]);
 
   // Clear notice after 5 seconds
   useEffect(() => {

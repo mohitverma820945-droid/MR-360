@@ -91,6 +91,7 @@ export interface Order {
 export interface ScheduleItem {
   id: string;
   parentOrderId: number;
+  userId?: string;
   serviceId: number;
   serviceName: string;
   providerId: string;
@@ -101,6 +102,9 @@ export interface ScheduleItem {
   status: 'pending' | 'processing' | 'submitted' | 'failed' | 'canceled';
   providerOrderId: string | null;
   errorMessage?: string;
+  retryCount?: number;
+  lastAttemptAt?: string;
+  idempotencyKey?: string;
   runNumber: number;
   totalRuns: number;
   metric: string;

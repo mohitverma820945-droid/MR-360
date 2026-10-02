@@ -317,7 +317,7 @@ export const AllInOneOrderForm: React.FC = () => {
   }, [baseViewsQty]);
 
   // Fetch Providers
-  useEffect(() => {
+  const fetchProvidersList = () => {
     fetch('/api/providers', {
       headers: getAuthHeaderObj()
     })
@@ -328,6 +328,12 @@ export const AllInOneOrderForm: React.FC = () => {
         }
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchProvidersList();
+    window.addEventListener('providers-changed', fetchProvidersList);
+    return () => window.removeEventListener('providers-changed', fetchProvidersList);
   }, []);
 
   const [loadingServices, setLoadingServices] = useState<boolean>(true);
@@ -390,6 +396,8 @@ export const AllInOneOrderForm: React.FC = () => {
 
   useEffect(() => {
     fetchServicesCatalog();
+    window.addEventListener('providers-changed', fetchServicesCatalog);
+    return () => window.removeEventListener('providers-changed', fetchServicesCatalog);
   }, [platform]);
 
   // Active pattern details

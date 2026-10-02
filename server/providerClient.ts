@@ -69,30 +69,55 @@ export class ProviderClient {
   
   /**
    * Helper to execute POST form-urlencoded requests to SMM API v2 endpoints
+   * with browser headers, timeout safety, and fast transparent socket recovery
    */
-  private static async makeApiCall(apiUrl: string, params: Record<string, string>): Promise<any> {
+  private static async makeApiCall(apiUrl: string, params: Record<string, string>, retriesLeft = 2): Promise<any> {
     const searchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null) {
-        searchParams.append(key, value.toString());
+        searchParams.append(key, value.toString().trim());
       }
     }
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'ZYNYX-SMM-Engine/1.0'
-      },
-      body: searchParams.toString()
-    });
-
-    const rawText = await response.text();
+    const cleanUrl = apiUrl.trim();
 
     try {
-      return JSON.parse(rawText);
-    } catch {
-      throw new Error(`Invalid non-JSON provider response: ${rawText.substring(0, 150)}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+      const response = await fetch(cleanUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json, text/plain, */*',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+        },
+        body: searchParams.toString(),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      const rawText = await response.text();
+
+      try {
+        return JSON.parse(rawText);
+      } catch {
+        // Robust JSON fallback: check if raw text contains {"order": 12345} or an order number
+        const orderMatch = rawText.match(/"order"\s*:\s*"?(\d+)"?/i) || rawText.match(/\b(order\s*id\s*[:#]?\s*(\d+))\b/i);
+        if (orderMatch) {
+          const extracted = orderMatch[1] || orderMatch[2];
+          return { order: extracted };
+        }
+        throw new Error(`Invalid non-JSON provider response: ${rawText.substring(0, 150)}`);
+      }
+    } catch (err: any) {
+      if (retriesLeft > 0) {
+        // Fast instant retry under 250ms so user NEVER experiences a first-time handshake glitch
+        await new Promise(r => setTimeout(r, 200));
+        return this.makeApiCall(apiUrl, params, retriesLeft - 1);
+      }
+      throw err;
     }
   }
 
@@ -170,24 +195,30 @@ export class ProviderClient {
       }
 
       const postData: Record<string, string> = {
-        key: provider.apiKey,
+        key: provider.apiKey.trim(),
         action: 'add',
-        service: payload.service.toString(),
-        link: payload.link,
-        quantity: payload.quantity.toString()
+        service: String(Math.round(Number(payload.service))).trim(),
+        link: payload.link.trim(),
+        quantity: Math.max(1, Math.round(Number(payload.quantity))).toString()
       };
 
-      if (payload.runs) postData.runs = payload.runs.toString();
-      if (payload.interval) postData.interval = payload.interval.toString();
-      if (payload.comments) postData.comments = payload.comments;
+      if (payload.comments && payload.comments.trim().length > 0) {
+        postData.comments = payload.comments.trim();
+      }
+
+      if (payload.runs && Number(payload.runs) > 1 && payload.interval && Number(payload.interval) > 0) {
+        postData.runs = payload.runs.toString();
+        postData.interval = payload.interval.toString();
+      }
 
       const data = await this.makeApiCall(provider.apiUrl, postData);
 
-      // SMM v2 standard response format: { "order": 12345 } or { "order": "12345" }
-      if (data && data.order) {
+      // SMM v2 standard response format: { "order": 12345 } or { "order": "12345" } or { "order_id": 12345 }
+      if (data && (data.order !== undefined || data.order_id !== undefined)) {
+        const orderId = String(data.order ?? data.order_id);
         return {
           success: true,
-          orderId: data.order.toString(),
+          orderId,
           rawResponse: data
         };
       }
@@ -195,14 +226,14 @@ export class ProviderClient {
       if (data && data.error) {
         return {
           success: false,
-          error: data.error,
+          error: typeof data.error === 'string' ? data.error : JSON.stringify(data.error),
           rawResponse: data
         };
       }
 
       return {
         success: false,
-        error: 'Provider API response missing "order" field',
+        error: 'Provider API response missing "order" confirmation',
         rawResponse: data
       };
     } catch (err: any) {

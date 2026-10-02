@@ -64,7 +64,8 @@ export const AdminProviders: React.FC = () => {
         setApiUrl('');
         setApiKey('');
         fetchProviders();
-        setActionMessage({ type: 'success', text: 'Provider added successfully!' });
+        setActionMessage({ type: 'success', text: 'Provider added successfully! Live services synced.' });
+        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setActionMessage({ type: 'error', text: data.error || 'Failed to add provider' });
       }
@@ -155,6 +156,7 @@ export const AdminProviders: React.FC = () => {
           text: `Provider "${provider.name}" turned ${nextStatus === 'active' ? 'ON (Active & Visible)' : 'OFF (Services Hidden)'}.` 
         });
         fetchProviders();
+        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setActionMessage({ type: 'error', text: data.error || 'Failed to toggle provider status' });
       }
@@ -174,6 +176,7 @@ export const AdminProviders: React.FC = () => {
       if (data.success) {
         setActionMessage({ type: 'success', text: 'All connected provider nodes cleared!' });
         fetchProviders();
+        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setActionMessage({ type: 'error', text: data.error || 'Failed to clear providers' });
       }

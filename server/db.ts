@@ -74,11 +74,7 @@ class DatabaseEngine {
   private saveDatabase(): void {
     try {
       const serialized = JSON.stringify(this.data, null, 2);
-      const tempPath = `${DB_FILE_PATH}.tmp`;
-      fs.writeFileSync(tempPath, serialized, 'utf-8');
-      if (fs.existsSync(tempPath)) {
-        fs.renameSync(tempPath, DB_FILE_PATH);
-      }
+      fs.writeFileSync(DB_FILE_PATH, serialized, 'utf-8');
       if (DB_FILE_PATH !== SEED_FILE_PATH) {
         try {
           fs.writeFileSync(SEED_FILE_PATH, serialized, 'utf-8');
@@ -143,12 +139,30 @@ class DatabaseEngine {
       }
     }
 
-    // Assign any existing unowned providers to Mohit's owner account
+    // Unify all providers under primary Mohit owner account
     for (const p of this.data.providers) {
-      if (!p.userId) {
+      if (!p.userId || p.userId.startsWith('usr_mohit') || p.userId === 'usr_mud2y46zkisk' || p.userId === 'usr_admin_1') {
         p.userId = primaryMohit.id;
       }
     }
+
+    // Unify all orders under primary Mohit owner account
+    for (const o of this.data.orders) {
+      if (!o.userId || o.userId.startsWith('usr_mohit') || o.userId === 'usr_mud2y46zkisk' || o.userId === 'usr_admin_1') {
+        o.userId = primaryMohit.id;
+      }
+    }
+
+    // Unify all schedules under primary Mohit owner account
+    for (const s of this.data.schedules) {
+      if (!s.userId || s.userId.startsWith('usr_mohit') || s.userId === 'usr_mud2y46zkisk' || s.userId === 'usr_admin_1') {
+        s.userId = primaryMohit.id;
+      }
+    }
+
+    // Clean up any orphaned services whose provider was deleted by the user
+    const existingProvIds = new Set(this.data.providers.map(p => p.id));
+    this.data.services = this.data.services.filter(s => s.providerId && existingProvIds.has(s.providerId));
 
     // Ensure all services strictly preserve 1:1 matching providerServiceId and exact rates
     for (const s of this.data.services) {
@@ -169,7 +183,10 @@ class DatabaseEngine {
   }
 
   getUserById(id: string): UserProfile | undefined {
-    const user = this.data.users.find(u => u.id === id);
+    let user = this.data.users.find(u => u.id === id);
+    if (!user && (id.startsWith('usr_mohit') || id === 'usr_mud2y46zkisk')) {
+      user = this.data.users.find(u => u.id === 'usr_mohit_owner');
+    }
     if (!user) return undefined;
     const { passwordHash, ...rest } = user;
     return rest as UserProfile;
@@ -217,8 +234,6 @@ class DatabaseEngine {
 
   authenticateUser(email: string, password: string): { success: boolean; user?: UserProfile; error?: string } {
     const cleanEmail = email.trim().toLowerCase();
-    let user = this.getUserByEmail(cleanEmail);
-
     const mohitEmails = [
       'mohitverma912022@gmail.com',
       'mohitverma820925@gmail.com',
@@ -226,15 +241,18 @@ class DatabaseEngine {
       'mohitkumar820945@gmail.com'
     ];
 
-    if (!user && mohitEmails.includes(cleanEmail)) {
-      user = this.data.users.find(u => u.id === 'usr_mohit_owner' || mohitEmails.includes(u.email.toLowerCase()));
+    let user: any;
+    if (mohitEmails.includes(cleanEmail)) {
+      user = this.data.users.find(u => u.id === 'usr_mohit_owner') || this.getUserByEmail(cleanEmail);
+    } else {
+      user = this.getUserByEmail(cleanEmail);
     }
 
     if (!user) {
       return { success: false, error: 'Invalid email or password' };
     }
 
-    const fullUser = this.data.users.find(u => u.id === user.id);
+    const fullUser = this.data.users.find(u => u.id === user.id) || user;
     if (!fullUser) {
       return { success: false, error: 'User account security error' };
     }
@@ -262,11 +280,29 @@ class DatabaseEngine {
     return sanitized as UserProfile;
   }
 
-  // Providers - Return connected providers scoped to requested user
+  // Providers - Return connected providers scoped to requested user (Admins/Owner see ALL)
   getProviders(userId?: string): SmmProvider[] {
     if (!userId) return this.data.providers;
 
-    return this.data.providers.filter(p => p.userId === userId || p.userId === 'usr_mohit_owner' || !p.userId);
+    const user = this.data.users.find(u => u.id === userId);
+    const mohitEmails = [
+      'mohitverma912022@gmail.com',
+      'mohitverma820925@gmail.com',
+      'mohitverma820945@gmail.com',
+      'mohitkumar820945@gmail.com'
+    ];
+    const isOwnerOrAdmin = user?.role === 'admin' ||
+      userId.startsWith('usr_mohit') ||
+      userId === 'usr_admin_1' ||
+      userId === 'usr_mud2y46zkisk' ||
+      (user && mohitEmails.includes(user.email.toLowerCase()));
+
+    // Admin / Owner sees ALL providers in the system so no provider is ever lost!
+    if (isOwnerOrAdmin) {
+      return this.data.providers;
+    }
+
+    return this.data.providers.filter(p => p.userId === userId || !p.userId || p.userId === 'usr_mohit_owner');
   }
 
   migrateUserProviders(fromUserId: string, toUserId: string): void {
@@ -328,9 +364,9 @@ class DatabaseEngine {
     if (!prov) return;
 
     this.data.providers = this.data.providers.filter(p => p.id !== id);
-    this.data.services = this.data.services.filter(s => s.providerId !== id);
+    this.data.services = this.data.services.filter(s => s.providerId !== id && s.providerId !== prov.name);
     this.saveDatabase();
-    this.addLog('info', 'Providers', `Permanently deleted provider ${id} and associated services`);
+    this.addLog('info', 'Providers', `Permanently deleted provider ${prov.name} (${id}) and associated services`);
   }
 
   deleteAllProviders(userId?: string): void {
@@ -436,8 +472,9 @@ class DatabaseEngine {
     ];
 
     const isMohitOrAdmin = requestingUser?.role === 'admin' ||
-      userId === 'usr_mohit_owner' ||
-      userId === 'usr_mohit_alt' ||
+      userId.startsWith('usr_mohit') ||
+      userId === 'usr_admin_1' ||
+      userId === 'usr_mud2y46zkisk' ||
       (requestingUser && mohitEmails.includes(requestingUser.email.toLowerCase()));
 
     if (isMohitOrAdmin) {
@@ -538,11 +575,29 @@ class DatabaseEngine {
   }
 
   // Schedules (Child Runs for All-in-One and Drip)
-  getSchedules(parentOrderId?: number): ScheduleItem[] {
+  getSchedules(parentOrderId?: number, userId?: string): ScheduleItem[] {
     if (parentOrderId) {
       return this.data.schedules.filter(s => s.parentOrderId === parentOrderId);
     }
-    return this.data.schedules;
+    if (!userId) return this.data.schedules;
+
+    const requestingUser = this.data.users.find(u => u.id === userId);
+    const mohitEmails = [
+      'mohitverma912022@gmail.com',
+      'mohitverma820925@gmail.com',
+      'mohitverma820945@gmail.com',
+      'mohitkumar820945@gmail.com'
+    ];
+    const isMohitOrAdmin = requestingUser?.role === 'admin' ||
+      userId.startsWith('usr_mohit') ||
+      userId === 'usr_admin_1' ||
+      userId === 'usr_mud2y46zkisk' ||
+      (requestingUser && mohitEmails.includes(requestingUser.email.toLowerCase()));
+
+    if (isMohitOrAdmin) {
+      return this.data.schedules;
+    }
+    return this.data.schedules.filter(s => s.userId === userId);
   }
 
   getDueSchedules(limit = 50): ScheduleItem[] {
@@ -576,7 +631,9 @@ class DatabaseEngine {
   claimDueScheduleItem(id: string): boolean {
     const item = this.data.schedules.find(s => s.id === id);
     if (!item || item.status !== 'pending') return false;
+    if (item.providerOrderId) return false; // Already submitted: never double-submit!
     item.status = 'processing';
+    item.lastAttemptAt = new Date().toISOString();
     this.saveDatabase();
     return true;
   }
@@ -585,6 +642,8 @@ class DatabaseEngine {
     const created: ScheduleItem[] = items.map((item, idx) => ({
       ...item,
       id: `sch_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 6)}`,
+      idempotencyKey: item.idempotencyKey || `idmp_${item.parentOrderId || 'p'}_${item.runNumber}_${Date.now()}_${idx}`,
+      retryCount: item.retryCount || 0,
       createdAt: new Date().toISOString()
     }));
 
