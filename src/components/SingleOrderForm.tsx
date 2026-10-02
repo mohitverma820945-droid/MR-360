@@ -10,7 +10,17 @@ import {
   Link as LinkIcon, 
   ListFilter,
   Check,
-  Receipt
+  Receipt,
+  ShieldCheck,
+  Sliders,
+  Sparkles,
+  TrendingUp,
+  Activity,
+  Flame,
+  Zap,
+  Square,
+  BarChart3,
+  Layers
 } from 'lucide-react';
 import { SmmService, PlatformCategory } from '../types';
 import { getAuthHeaderObj } from '../utils/apiAuth';
@@ -29,11 +39,13 @@ export const SingleOrderForm: React.FC = () => {
   const [link, setLink] = useState('');
   const [quantity, setQuantity] = useState<number>(1000);
   
-  // Drip Feed fields
+  // Drip Feed & Organic Suite fields
   const [runs, setRuns] = useState<number>(5);
   const [interval, setIntervalMinutes] = useState<number>(30);
   const [customComments, setCustomComments] = useState('');
   const [organicRandomize, setOrganicRandomize] = useState<boolean>(true);
+  const [randomVariancePercent, setRandomVariancePercent] = useState<number>(30);
+  const [organicCurveType, setOrganicCurveType] = useState<'gaussian' | 'jitter' | 'sigmoid' | 'staggered'>('gaussian');
   const [dripPreview, setDripPreview] = useState<{
     bundles: Array<{ runNumber: number; quantity: number; scheduledAt: string; cost: number }>;
     totalQuantity: number;
@@ -158,7 +170,8 @@ export const SingleOrderForm: React.FC = () => {
             isTotalQuantity: orderMode === 'single_organic',
             runs,
             intervalMinutes: interval,
-            organicRandomize
+            organicRandomize,
+            randomVariancePercent
           })
         });
         const data = await res.json();
@@ -170,10 +183,10 @@ export const SingleOrderForm: React.FC = () => {
       } finally {
         setLoadingDripPreview(false);
       }
-    }, 200);
+    }, 150);
 
     return () => clearTimeout(timer);
-  }, [orderMode, selectedServiceId, currentService, quantity, runs, interval, organicRandomize]);
+  }, [orderMode, selectedServiceId, currentService, quantity, runs, interval, organicRandomize, randomVariancePercent]);
 
   // Accurate Authoritative Price Calculation
   const isDripFeed = orderMode === 'drip_feed';
@@ -223,6 +236,7 @@ export const SingleOrderForm: React.FC = () => {
           runs: isScheduled ? runs : undefined,
           interval: isScheduled ? interval : undefined,
           organicRandomize: isScheduled ? organicRandomize : undefined,
+          randomVariancePercent: isScheduled ? randomVariancePercent : undefined,
           isTotalQuantity: orderMode === 'single_organic',
           comments: currentService.type === 'custom_comments' ? customComments : undefined
         })
@@ -436,49 +450,101 @@ export const SingleOrderForm: React.FC = () => {
         )}
 
         {/* 5. Quantity & Drip Settings */}
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                 {orderMode === 'drip_feed' 
-                  ? 'Quantity per Run (Fixed Base)' 
+                  ? 'Quantity per Run (Fixed Base Batch)' 
                   : orderMode === 'single_organic' 
                     ? 'Total Target Quantity (Auto-Distributed Organically)' 
                     : 'Quantity (Instant One-Time Execution)'}
               </label>
-              <input
-                type="number"
-                min={currentService?.min || 10}
-                max={currentService?.max || 10000000}
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 0)}
-                className="w-full px-4 py-2.5 rounded-xl bg-pink-50/30 dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-              {/* Preset Buttons */}
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {[1000, 2000, 5000, 10000, 25000, 50000, 100000].map(val => (
-                  <button
-                    key={val}
-                    type="button"
-                    onClick={() => setQuantity(val)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer transition-all ${
-                      quantity === val
-                        ? 'bg-pink-600 text-white shadow-sm'
-                        : 'bg-pink-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-pink-100 border border-pink-100 dark:border-slate-700'
-                    }`}
-                  >
-                    {val >= 1000 ? `${val / 1000}k` : val}
-                  </button>
-                ))}
+              <span className="text-[10px] font-mono text-slate-400">
+                Min: {currentService?.min || 10} • Max: {currentService?.max?.toLocaleString() || '10M'}
+              </span>
+            </div>
+            <input
+              type="number"
+              min={currentService?.min || 10}
+              max={currentService?.max || 10000000}
+              value={quantity}
+              onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 0)}
+              className="w-full px-4 py-2.5 rounded-xl bg-pink-50/30 dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+            />
+            {/* Preset Buttons */}
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {[1000, 2000, 5000, 10000, 25000, 50000, 100000].map(val => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setQuantity(val)}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer transition-all ${
+                    quantity === val
+                      ? 'bg-pink-600 text-white shadow-sm'
+                      : 'bg-pink-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-pink-100 border border-pink-100 dark:border-slate-700'
+                  }`}
+                >
+                  {val >= 1000 ? `${val / 1000}k` : val}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Dedicated Quick Drip-feed Toggle Checkbox directly below quantity */}
+          <div 
+            onClick={() => {
+              if (orderMode === 'single_instant') {
+                setOrderMode('single_organic');
+                setOrganicRandomize(true);
+              } else {
+                setOrderMode('single_instant');
+              }
+            }}
+            className={`p-3.5 rounded-2xl border transition-all cursor-pointer select-none flex items-center justify-between ${
+              orderMode !== 'single_instant'
+                ? 'bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-purple-500/10 dark:from-pink-950/40 dark:to-purple-950/40 border-pink-300 dark:border-pink-800 shadow-xs'
+                : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-pink-200'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${
+                orderMode !== 'single_instant'
+                  ? 'bg-pink-600 border-pink-600 text-white shadow-xs'
+                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'
+              }`}>
+                {orderMode !== 'single_instant' ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : null}
+              </div>
+              <div>
+                <span className="text-xs font-black text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                  <span>🔄 Enable Drip-Feed (Multi-Batch Delivery Over Time)</span>
+                  {orderMode !== 'single_instant' && (
+                    <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500 text-white uppercase tracking-wider animate-pulse">
+                      Active
+                    </span>
+                  )}
+                </span>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Paces delivery across multiple time intervals with anti-bot natural algorithmic protection.
+                </p>
               </div>
             </div>
+            <div className="text-xs font-bold text-pink-600 dark:text-pink-400 font-mono shrink-0 pl-2">
+              {orderMode !== 'single_instant' ? `${runs} runs × ${interval}m` : 'Disabled (Instant)'}
+            </div>
+          </div>
 
-            {(orderMode === 'drip_feed' || orderMode === 'single_organic') ? (
-              <>
+          {/* Drip-Feed & Organic Settings Box */}
+          {(orderMode === 'drip_feed' || orderMode === 'single_organic') && (
+            <div className="p-4 sm:p-5 bg-gradient-to-b from-pink-50/40 via-purple-50/20 to-transparent dark:from-slate-900 dark:via-pink-950/10 dark:to-slate-900/60 rounded-2xl border border-pink-200 dark:border-pink-900/60 space-y-4 animate-fadeIn">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Total Runs */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Total Runs / Batches
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center space-x-1">
+                      <Layers className="w-3.5 h-3.5 text-pink-500" />
+                      <span>Total Runs / Batches</span>
                     </label>
                     <span className="text-[10px] text-pink-600 dark:text-pink-400 font-bold">
                       {orderMode === 'single_organic' ? 'Spread across runs' : 'Fixed runs'}
@@ -490,19 +556,19 @@ export const SingleOrderForm: React.FC = () => {
                     max={100}
                     value={runs}
                     onChange={(e) => setRuns(parseInt(e.target.value, 10) || 2)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-pink-50/30 dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
                   />
                   {/* Runs presets */}
                   <div className="flex flex-wrap gap-1.5 pt-0.5">
-                    {[5, 10, 20, 30, 40].map(r => (
+                    {[5, 10, 15, 20, 30, 50].map(r => (
                       <button
                         key={r}
                         type="button"
                         onClick={() => setRuns(r)}
                         className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
                           runs === r
-                            ? 'bg-pink-600 text-white'
-                            : 'bg-pink-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-pink-100 dark:border-slate-700'
+                            ? 'bg-pink-600 text-white shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-pink-100 dark:border-slate-700 hover:bg-pink-50'
                         }`}
                       >
                         {r} runs
@@ -511,10 +577,12 @@ export const SingleOrderForm: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="sm:col-span-2 space-y-2">
+                {/* Interval */}
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Interval (Minutes between runs)
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center space-x-1">
+                      <Clock className="w-3.5 h-3.5 text-pink-500" />
+                      <span>Interval (Minutes between runs)</span>
                     </label>
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                       {interval >= 60 ? `${(interval / 60).toFixed(1)} hrs` : `${interval} mins`}
@@ -526,19 +594,19 @@ export const SingleOrderForm: React.FC = () => {
                     max={1440}
                     value={interval}
                     onChange={(e) => setIntervalMinutes(parseInt(e.target.value, 10) || 10)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-pink-50/30 dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
                   />
                   {/* Interval presets */}
                   <div className="flex flex-wrap gap-1.5 pt-0.5">
-                    {[15, 30, 60, 90, 120].map(m => (
+                    {[15, 30, 60, 120, 240].map(m => (
                       <button
                         key={m}
                         type="button"
                         onClick={() => setIntervalMinutes(m)}
                         className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
                           interval === m
-                            ? 'bg-pink-600 text-white'
-                            : 'bg-pink-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-pink-100 dark:border-slate-700'
+                            ? 'bg-pink-600 text-white shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-pink-100 dark:border-slate-700 hover:bg-pink-50'
                         }`}
                       >
                         {m}m {m >= 60 ? `(${(m/60).toFixed(1)}h)` : ''}
@@ -546,72 +614,193 @@ export const SingleOrderForm: React.FC = () => {
                     ))}
                   </div>
                 </div>
+              </div>
 
-                {/* Organic Anti-Bot Randomization Toggle */}
-                <div className="sm:col-span-2 p-3.5 bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-purple-500/10 dark:from-pink-950/30 dark:to-purple-950/30 rounded-xl border border-pink-200 dark:border-pink-900/50 flex items-center justify-between">
-                  <div className="space-y-0.5 pr-3">
-                    <div className="text-xs font-black text-slate-900 dark:text-white flex items-center space-x-1.5">
-                      <span>🛡️ Organic Anti-Bot Randomization</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold uppercase">
-                        Recommended
+              {/* HIGH-IMPACT PROMINENT ORGANIC MODE SUITE (NICHE JISE ON KRNE PE DRIP FEED ORGANIC HO JAYE) */}
+              <div className={`p-4 sm:p-5 rounded-2xl border-2 transition-all space-y-3.5 ${
+                organicRandomize
+                  ? 'bg-gradient-to-br from-emerald-500/10 via-pink-500/10 to-purple-500/10 dark:from-emerald-950/40 dark:via-pink-950/30 dark:to-purple-950/40 border-emerald-400 dark:border-emerald-600/80 shadow-md'
+                  : 'bg-slate-100/70 dark:bg-slate-900/80 border-slate-300 dark:border-slate-700'
+              }`}>
+                
+                {/* Master Switch Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-pink-200/60 dark:border-slate-800">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-black text-slate-900 dark:text-white flex items-center space-x-1.5">
+                        <span>🌱 Organic Anti-Bot Delivery Mode</span>
                       </span>
+                      {organicRandomize ? (
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500 text-white font-extrabold uppercase tracking-wide flex items-center space-x-1 shadow-sm">
+                          <ShieldCheck className="w-3 h-3" />
+                          <span>Algorithm Safe: ON</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-400 text-white font-extrabold uppercase tracking-wide">
+                          Robotic Fixed: OFF
+                        </span>
+                      )}
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                      Dispatches varied natural batches (e.g. 357, 978, 1168...) instead of robotic identical chunks. Total units delivered remain 100% exact.
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {organicRandomize 
+                        ? 'Dispatches varied natural human-like batches (e.g. 185, 340, 490, 270 units) with Gaussian micro-timing jitter. Total units delivered remain 100% exact.'
+                        : 'Warning: Sends identical robotic constant batches (e.g. 200, 200, 200 units) which can trigger social platform shadowbans.'}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setOrganicRandomize(!organicRandomize)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      organicRandomize ? 'bg-pink-600' : 'bg-slate-300 dark:bg-slate-700'
-                    }`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                        organicRandomize ? 'translate-x-5' : 'translate-x-0'
+
+                  {/* Big Glowing Toggle Switch */}
+                  <div className="shrink-0 flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setOrganicRandomize(!organicRandomize)}
+                      className={`relative inline-flex h-8 w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 ease-in-out focus:outline-none shadow-md ${
+                        organicRandomize 
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 shadow-emerald-500/30' 
+                          : 'bg-slate-300 dark:bg-slate-700'
                       }`}
-                    />
-                  </button>
+                      title="Toggle Organic Delivery Mode"
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-xl ring-0 transition duration-300 ease-in-out flex items-center justify-center ${
+                          organicRandomize ? 'translate-x-8' : 'translate-x-0'
+                        }`}
+                      >
+                        {organicRandomize ? (
+                          <Sparkles className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <Square className="w-3.5 h-3.5 text-slate-400" />
+                        )}
+                      </span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Live Drip-Feed Schedule Preview */}
-                {dripPreview && dripPreview.bundles && dripPreview.bundles.length > 0 && (
-                  <div className="sm:col-span-2 p-3.5 bg-slate-50 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
-                        <Clock className="w-3.5 h-3.5 text-pink-500" />
-                        <span>Live Delivery Schedule Preview</span>
-                      </span>
-                      <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-extrabold">
-                        Exact Sum: {dripPreview.totalQuantity.toLocaleString()} units
-                      </span>
+                {/* Extended Organic Controls (Shown when Organic is ON) */}
+                {organicRandomize && (
+                  <div className="space-y-3 pt-1 animate-fadeIn">
+                    
+                    {/* Natural Entropy / Variance Level */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-slate-200">
+                        <Sliders className="w-3.5 h-3.5 text-emerald-500" />
+                        <span>Natural Random Variance Entropy</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {[
+                          { label: '±15% Subtle', val: 15 },
+                          { label: '±30% Standard (Best)', val: 30 },
+                          { label: '±45% High Viral', val: 45 },
+                          { label: '±60% Stealth', val: 60 }
+                        ].map(opt => (
+                          <button
+                            key={opt.val}
+                            type="button"
+                            onClick={() => setRandomVariancePercent(opt.val)}
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer transition-all ${
+                              randomVariancePercent === opt.val
+                                ? 'bg-emerald-600 text-white shadow-xs'
+                                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-emerald-50 border border-emerald-200/60 dark:border-slate-700'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-40 overflow-y-auto pr-1">
-                      {dripPreview.bundles.map((b) => (
+
+                    {/* Curve Preset Profile Selector */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                      {[
+                        { id: 'gaussian', icon: TrendingUp, name: 'Gaussian Bell Curve', desc: 'Starts gentle, viral peak in mid, smooth cooldown' },
+                        { id: 'jitter', icon: Activity, name: 'Organic Jitter', desc: 'Random natural variations across all batches' },
+                        { id: 'sigmoid', icon: Flame, name: 'Sigmoid S-Curve', desc: 'Exponential adoption curve with plateau' },
+                        { id: 'staggered', icon: BarChart3, name: 'Staggered Pacing', desc: 'Evenly paced runs with anti-bot micro jitter' }
+                      ].map(item => {
+                        const Icon = item.icon;
+                        const isSelected = organicCurveType === item.id;
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => setOrganicCurveType(item.id as any)}
+                            className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-white dark:bg-slate-800 border-emerald-500 shadow-sm ring-1 ring-emerald-500/30'
+                                : 'bg-white/60 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-emerald-300'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-900 dark:text-white">
+                              <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-500' : 'text-slate-400'}`} />
+                              <span className="truncate">{item.name}</span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                              {item.desc}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Live Drip-Feed Schedule Preview & Batch Visualizer */}
+              {dripPreview && dripPreview.bundles && dripPreview.bundles.length > 0 && (
+                <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-pink-200 dark:border-slate-800 space-y-3 shadow-xs">
+                  <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                      <Clock className="w-4 h-4 text-pink-500" />
+                      <span>Live Delivery Schedule & Batch Breakdown</span>
+                    </span>
+                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800">
+                      Exact Sum: {dripPreview.totalQuantity.toLocaleString()} units (100% Guaranteed)
+                    </span>
+                  </div>
+
+                  {/* Batch Cards Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 max-h-56 overflow-y-auto pr-1">
+                    {dripPreview.bundles.map((b) => {
+                      const maxBatch = Math.max(...dripPreview.bundles.map(item => item.quantity)) || 1;
+                      const barPct = Math.max(15, Math.round((b.quantity / maxBatch) * 100));
+                      return (
                         <div
                           key={b.runNumber}
-                          className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-center"
+                          className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 text-center space-y-1 hover:border-pink-300 transition-colors"
                         >
-                          <div className="text-[10px] text-slate-400 font-bold">Run #{b.runNumber}</div>
-                          <div className="text-xs font-mono font-extrabold text-pink-600 dark:text-pink-400">
+                          <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                            <span>Run #{b.runNumber}</span>
+                            <span className="text-pink-500 font-mono">
+                              {b.runNumber === 1 ? 'Immediate' : `+${(b.runNumber - 1) * interval}m`}
+                            </span>
+                          </div>
+                          <div className="text-sm font-mono font-black text-pink-600 dark:text-pink-400">
                             {b.quantity.toLocaleString()}
+                          </div>
+                          {/* Mini visual bar */}
+                          <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${
+                                organicRandomize 
+                                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400' 
+                                  : 'bg-pink-500'
+                              }`} 
+                              style={{ width: `${barPct}%` }} 
+                            />
                           </div>
                           <div className="text-[9px] text-slate-500 dark:text-slate-400 font-mono">
                             {new Date(b.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
-                )}
-              </>
-            ) : null}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Real-time Pricing Preview Banner right under inputs */}
           {currentService && (
-            <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs">
+            <div className="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs">
               <span className="text-emerald-900 dark:text-emerald-200 font-semibold flex items-center space-x-1.5">
                 <Receipt className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>
@@ -619,7 +808,7 @@ export const SingleOrderForm: React.FC = () => {
                     ? `Live Total: ${runs} runs × ${quantity.toLocaleString()} units = ${calculatedTotalQuantity.toLocaleString()} total units`
                     : orderMode === 'single_organic'
                       ? `Live Total: ${calculatedTotalQuantity.toLocaleString()} units distributed across ${runs} organic runs`
-                      : `Live Total: ${quantity.toLocaleString()} units (Instant One-Time)`}
+                      : `Live Total: ${quantity.toLocaleString()} units (Instant One-Time Execution)`}
                 </span>
               </span>
               <div className="font-mono font-bold text-sm text-emerald-700 dark:text-emerald-300">

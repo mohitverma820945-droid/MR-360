@@ -68,13 +68,13 @@
       "apiUrl": "https://instantsmmboost.com/api/v2",
       "apiKey": "cf867dbf9464816e08a89abaab13a873",
       "status": "active",
-      "balance": 48.65,
+      "balance": 48.32,
       "balanceCurrency": "INR",
-      "lastBalanceCheck": "2026-10-02T09:48:24.208Z",
+      "lastBalanceCheck": "2026-10-02T17:20:45.765Z",
       "userId": "usr_mud2y46zkisk",
       "id": "prov_muqrckex",
       "createdAt": "2026-10-02T09:25:36.729Z",
-      "balanceInr": 48.65,
+      "balanceInr": 48.32,
       "balanceUsd": 0.56
     }
   ],
@@ -9332,6 +9332,20 @@
       "level": "info",
       "source": "Orders",
       "message": "Deleted Order #10002 and all related bundle records"
+    },
+    {
+      "id": "log_1790961363548_l3lj",
+      "createdAt": "2026-10-02T17:16:03.548Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790961642137_ub5c",
+      "createdAt": "2026-10-02T17:20:42.138Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
     }
   ],
   "nextOrderId": 10003
