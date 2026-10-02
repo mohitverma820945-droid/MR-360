@@ -30,12 +30,12 @@ export class SchedulerWorker {
     // Initial immediate check
     setTimeout(() => this.processDueSchedules(), 1000);
 
-    // 2. Sync Provider Order Statuses every 2 minutes
+    // 2. Sync Provider Order Statuses every 15 seconds
     this.statusSyncInterval = setInterval(() => {
       this.syncActiveOrderStatus().catch(err => {
         console.error('[Scheduler] Error syncing order status:', err);
       });
-    }, 2 * 60 * 1000);
+    }, 15 * 1000);
 
     // 3. Auto-Refresh Provider Balances every 30 minutes
     const balanceMins = db.getSettings().providerBalanceAutoRefreshMinutes || 30;
@@ -266,23 +266,25 @@ export class SchedulerWorker {
       try {
         const res = await ProviderClient.getOrderStatus(provider, order.providerOrderId);
         if (res.success && res.status) {
-          const rawStatus = res.status.toLowerCase();
+          const rawStatus = res.status.toLowerCase().trim();
 
           let normalizedStatus: OrderStatus = order.status;
 
-          if (rawStatus.includes('completed') || rawStatus.includes('finish')) {
+          if (rawStatus === 'completed' || rawStatus.includes('finish') || rawStatus.includes('success')) {
             normalizedStatus = 'Completed';
-          } else if (rawStatus.includes('processing') || rawStatus.includes('in progress') || rawStatus.includes('pending')) {
+          } else if (rawStatus === 'pending') {
+            normalizedStatus = 'Pending';
+          } else if (rawStatus.includes('processing') || rawStatus.includes('in progress') || rawStatus.includes('inprogress')) {
             normalizedStatus = 'Processing';
           } else if (rawStatus.includes('partial')) {
             normalizedStatus = 'Partial';
-          } else if (rawStatus.includes('cancel')) {
+          } else if (rawStatus.includes('cancel') || rawStatus.includes('refund')) {
             normalizedStatus = 'Canceled';
-          } else if (rawStatus.includes('fail')) {
+          } else if (rawStatus.includes('fail') || rawStatus.includes('error') || rawStatus.includes('reject')) {
             normalizedStatus = 'Failed';
           }
 
-          if (normalizedStatus !== order.status || rawStatus !== order.providerStatus) {
+          if (normalizedStatus !== order.status || res.status !== order.providerStatus) {
             db.updateOrder(order.id, {
               status: normalizedStatus,
               providerStatus: res.status

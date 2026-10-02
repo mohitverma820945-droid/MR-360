@@ -3,7 +3,7 @@ import { db } from './server/db';
 import { ProviderClient, processProviderBalance } from './server/providerClient';
 import { BundleGenerator } from './server/bundleGenerator';
 import { SchedulerWorker } from './server/scheduler';
-import { Order, ScheduleItem, SmmService, SmmProvider, AllInOneOrderRequest, OrderType, BundlePreview } from './src/types';
+import { Order, OrderStatus, ScheduleItem, SmmService, SmmProvider, AllInOneOrderRequest, OrderType, BundlePreview } from './src/types';
 
 const app = express();
 
@@ -638,6 +638,66 @@ app.post('/api/orders/:id/cancel', (req, res) => {
     res.json({ success: true, order, message: `Order #${orderId} canceled! All upcoming scheduled runs halted.` });
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/orders/:id/sync-status', async (req, res) => {
+  try {
+    const orderId = parseInt(req.params.id, 10);
+    const order = db.getOrderById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    if (!order.providerOrderId) {
+      return res.json({ success: true, order, message: 'Order has no external provider ID.' });
+    }
+
+    const provider = db.getProviderById(order.providerId);
+    if (!provider) {
+      return res.status(400).json({ success: false, error: 'Provider for this order is inactive or deleted.' });
+    }
+
+    const statusRes = await ProviderClient.getOrderStatus(provider, order.providerOrderId);
+    if (statusRes.success && statusRes.status) {
+      const rawStatus = statusRes.status.toLowerCase().trim();
+      let normalizedStatus: OrderStatus = order.status;
+
+      if (rawStatus === 'completed' || rawStatus.includes('finish') || rawStatus.includes('success')) {
+        normalizedStatus = 'Completed';
+      } else if (rawStatus === 'pending') {
+        normalizedStatus = 'Pending';
+      } else if (rawStatus.includes('processing') || rawStatus.includes('in progress') || rawStatus.includes('inprogress')) {
+        normalizedStatus = 'Processing';
+      } else if (rawStatus.includes('partial')) {
+        normalizedStatus = 'Partial';
+      } else if (rawStatus.includes('cancel') || rawStatus.includes('refund')) {
+        normalizedStatus = 'Canceled';
+      } else if (rawStatus.includes('fail') || rawStatus.includes('error') || rawStatus.includes('reject')) {
+        normalizedStatus = 'Failed';
+      }
+
+      const updated = db.updateOrder(orderId, {
+        status: normalizedStatus,
+        providerStatus: statusRes.status
+      });
+
+      return res.json({
+        success: true,
+        order: updated,
+        providerStatus: statusRes.status,
+        status: normalizedStatus,
+        remains: statusRes.remains,
+        message: `Order #${orderId} status synced with provider: ${statusRes.status}`
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: statusRes.error || 'Failed to query status from provider'
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

@@ -70,7 +70,7 @@
       "status": "active",
       "balance": 48.65,
       "balanceCurrency": "INR",
-      "lastBalanceCheck": "2026-10-02T09:37:15.116Z",
+      "lastBalanceCheck": "2026-10-02T09:48:24.208Z",
       "userId": "usr_mud2y46zkisk",
       "id": "prov_muqrckex",
       "createdAt": "2026-10-02T09:25:36.729Z",
@@ -9298,20 +9298,41 @@
       "message": "Background Scheduler Worker started"
     },
     {
-      "id": "log_1790934091314_2ww2",
-      "createdAt": "2026-10-02T09:41:31.314Z",
+      "id": "log_1790934115750_9kol",
+      "createdAt": "2026-10-02T09:41:55.750Z",
       "level": "info",
-      "source": "Providers",
-      "message": "Added new SMM Provider: Test Dynamic SMM",
-      "details": "{\"apiUrl\":\"https://testprovider999.com/api/v2\"}"
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
     },
     {
-      "id": "log_1790934091327_gzha",
-      "createdAt": "2026-10-02T09:41:31.327Z",
+      "id": "log_1790934125333_r8tx",
+      "createdAt": "2026-10-02T09:42:05.333Z",
       "level": "info",
-      "source": "Providers",
-      "message": "Permanently deleted provider Test Dynamic SMM (prov_muqrx0z2) and associated services"
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790934500518_67ss",
+      "createdAt": "2026-10-02T09:48:20.518Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1790934651534_auso",
+      "createdAt": "2026-10-02T09:50:51.534Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10002 (single)",
+      "details": "{\"serviceId\":1001,\"quantity\":1000,\"price\":1}"
+    },
+    {
+      "id": "log_1790934651541_1avo",
+      "createdAt": "2026-10-02T09:50:51.541Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Deleted Order #10002 and all related bundle records"
     }
   ],
-  "nextOrderId": 10002
+  "nextOrderId": 10003
 }

@@ -52,6 +52,36 @@ export const OrderHistoryView: React.FC = () => {
   const [actionNotice, setActionNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [editingQuantityId, setEditingQuantityId] = useState<number | null>(null);
   const [editingQtyVal, setEditingQtyVal] = useState<string>('');
+  const [syncingStatusId, setSyncingStatusId] = useState<number | null>(null);
+
+  const handleSyncOrderStatus = async (orderId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSyncingStatusId(orderId);
+    try {
+      const res = await fetch(`/api/orders/${orderId}/sync-status`, {
+        method: 'POST',
+        headers: getAuthHeaderObj()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders(prev => {
+          const updated = prev.map(o => o.id === orderId ? { ...o, status: data.status, providerStatus: data.providerStatus } : o);
+          try { localStorage.setItem(getCacheKey(), JSON.stringify(updated)); } catch {}
+          return updated;
+        });
+        setActionNotice({
+          type: 'success',
+          message: `Order #${orderId} synced directly with Provider API! Status: ${data.status}${data.providerStatus ? ` (${data.providerStatus})` : ''}`
+        });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to sync status with provider' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err.message || 'Error syncing status' });
+    } finally {
+      setSyncingStatusId(null);
+    }
+  };
 
   const handleSaveQuantity = async (orderId: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -730,8 +760,21 @@ export const OrderHistoryView: React.FC = () => {
                         </td>
 
                         {/* Status */}
-                        <td className="py-3.5 px-4">
-                          {getStatusBadge(order.status)}
+                        <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center space-x-2">
+                            {getStatusBadge(order.status)}
+                            {order.providerOrderId ? (
+                              <button
+                                type="button"
+                                disabled={syncingStatusId === order.id}
+                                onClick={(e) => handleSyncOrderStatus(order.id, e)}
+                                className="p-1 rounded-md bg-slate-100 hover:bg-pink-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-400 hover:text-pink-600 transition-colors cursor-pointer"
+                                title="Check real-time live status directly from provider API"
+                              >
+                                <RefreshCw className={`w-3.5 h-3.5 ${syncingStatusId === order.id ? 'animate-spin text-pink-600' : ''}`} />
+                              </button>
+                            ) : null}
+                          </div>
                         </td>
 
                         {/* Action Buttons: Cancel and Delete */}
