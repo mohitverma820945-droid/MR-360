@@ -28,6 +28,7 @@ const getCacheKey = () => `mr360_cached_orders_${getStoredUserId()}`;
 
 export const OrderHistoryView: React.FC = () => {
   const { user } = useAuth();
+  const [orderScope, setOrderScope] = useState<'all' | 'mine'>('all');
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
       const stored = localStorage.getItem(getCacheKey());
@@ -132,15 +133,21 @@ export const OrderHistoryView: React.FC = () => {
       setLoading(true);
     }
     setIsRefreshing(true);
-    fetch('/api/orders', {
+    fetch(`/api/orders?scope=${orderScope}&_t=${Date.now()}`, {
       headers: getAuthHeaderObj()
     })
       .then(res => res.json())
       .then((data: Order[]) => {
         if (Array.isArray(data)) {
-          setOrders(data);
+          const sorted = data.sort((a, b) => {
+            const timeA = new Date(a.createdAt || 0).getTime();
+            const timeB = new Date(b.createdAt || 0).getTime();
+            if (timeB !== timeA) return timeB - timeA;
+            return (b.id || 0) - (a.id || 0);
+          });
+          setOrders(sorted);
           try {
-            localStorage.setItem(getCacheKey(), JSON.stringify(data));
+            localStorage.setItem(getCacheKey(), JSON.stringify(sorted));
           } catch {}
         }
         setLoading(false);
@@ -153,19 +160,10 @@ export const OrderHistoryView: React.FC = () => {
   };
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(getCacheKey());
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) setOrders(parsed);
-      } else {
-        setOrders([]);
-      }
-    } catch {}
     fetchOrders(true);
-    const interval = setInterval(() => fetchOrders(false), 8000); // Poll history every 8s
+    const interval = setInterval(() => fetchOrders(false), 5000); // Live poll history every 5s
     return () => clearInterval(interval);
-  }, [user?.id]);
+  }, [user?.id, orderScope]);
 
   // Clear notice after 5 seconds
   useEffect(() => {
@@ -466,16 +464,43 @@ export const OrderHistoryView: React.FC = () => {
       {/* Filters Bar */}
       <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
         
-        {/* Search Input */}
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Search Order ID, Link, Service..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-          />
+        {/* Scope Selector + Search Input */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shrink-0">
+            <button
+              type="button"
+              onClick={() => setOrderScope('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                orderScope === 'all'
+                  ? 'bg-white dark:bg-slate-800 text-pink-600 dark:text-pink-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              🌐 All Orders
+            </button>
+            <button
+              type="button"
+              onClick={() => setOrderScope('mine')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                orderScope === 'mine'
+                  ? 'bg-white dark:bg-slate-800 text-pink-600 dark:text-pink-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              👤 My Account
+            </button>
+          </div>
+
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              placeholder="Search Order ID, Link, Service..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+            />
+          </div>
         </div>
 
         {/* Filters */}
@@ -518,7 +543,7 @@ export const OrderHistoryView: React.FC = () => {
               onChange={(e) => setHideChildOrders(e.target.checked)}
               className="rounded text-pink-600 focus:ring-pink-500 border-slate-300 dark:border-slate-700"
             />
-            <span>Group child runs into parent</span>
+            <span>Group child runs</span>
           </label>
         </div>
 
@@ -604,6 +629,11 @@ export const OrderHistoryView: React.FC = () => {
                               {order.orderType === 'all_in_one_parent' ? 'Managed Schedule' : 'Pending Provider'}
                             </div>
                           )}
+                          {order.username || order.userEmail ? (
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 truncate max-w-[120px]" title={order.userEmail || order.username}>
+                              👤 {order.username || order.userEmail?.split('@')[0]}
+                            </div>
+                          ) : null}
                         </td>
 
                         {/* Service / Campaign */}

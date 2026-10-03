@@ -45,7 +45,7 @@
       "name": "Mohit Verma",
       "email": "mohitverma912022@gmail.com",
       "role": "admin",
-      "balance": 99999.9561,
+      "balance": 99994.5658,
       "apiKey": "smm_ak_mohitverma912022",
       "passwordHash": "d71b3d731d16d27d8aa2f5844b3083858fe5d1cef625f5e1799cf8a6528ca623",
       "createdAt": "2026-09-26T17:18:37.592Z"
@@ -68,14 +68,14 @@
       "apiUrl": "https://instantsmmboost.com/api/v2",
       "apiKey": "cf867dbf9464816e08a89abaab13a873",
       "status": "active",
-      "balance": 48.32,
+      "balance": 48.03,
       "balanceCurrency": "INR",
-      "lastBalanceCheck": "2026-10-02T17:20:45.765Z",
+      "lastBalanceCheck": "2026-10-03T16:17:52.752Z",
       "userId": "usr_mud2y46zkisk",
       "id": "prov_muqrckex",
       "createdAt": "2026-10-02T09:25:36.729Z",
-      "balanceInr": 48.32,
-      "balanceUsd": 0.56
+      "balanceInr": 48.03,
+      "balanceUsd": 0.55
     }
   ],
   "services": [
@@ -7888,8 +7888,86 @@
       "refill": true
     }
   ],
-  "orders": [],
-  "schedules": [],
+  "orders": [
+    {
+      "userId": "usr_mohit_owner",
+      "userEmail": "mohitverma912022@gmail.com",
+      "username": "mohitverma912022",
+      "orderType": "all_in_one_parent",
+      "platform": "Instagram",
+      "category": "Organic Campaign",
+      "serviceId": 0,
+      "serviceName": "All-In-One Campaign (3 Bundles)",
+      "link": "https://instagram.com/p/test12345",
+      "quantity": 50,
+      "price": 5.3903,
+      "status": "Processing",
+      "totalBundles": 3,
+      "completedBundles": 0,
+      "durationHours": 6,
+      "providerId": "multi",
+      "providerOrderId": "aio_1791044274263",
+      "id": 10003,
+      "createdAt": "2026-10-03T16:17:54.263Z",
+      "updatedAt": "2026-10-03T16:17:54.263Z"
+    }
+  ],
+  "schedules": [
+    {
+      "parentOrderId": 10003,
+      "userId": "usr_mohit_owner",
+      "metric": "Likes",
+      "serviceId": 6085,
+      "serviceName": "Instagram Followers [ Max 1M ] | Old Accounts | Cancel Enable | No Refill ⚠️ | Instant Start | Day 500K 🚀",
+      "providerId": "prov_muqrckex",
+      "link": "https://instagram.com/p/test12345",
+      "quantity": 17,
+      "scheduledAt": "2026-10-03T16:17:54.260Z",
+      "status": "pending",
+      "runNumber": 1,
+      "totalRuns": 3,
+      "id": "sch_1791044274268_0_qupz",
+      "idempotencyKey": "idmp_10003_1_1791044274268_0",
+      "retryCount": 0,
+      "createdAt": "2026-10-03T16:17:54.268Z"
+    },
+    {
+      "parentOrderId": 10003,
+      "userId": "usr_mohit_owner",
+      "metric": "Likes",
+      "serviceId": 6085,
+      "serviceName": "Instagram Followers [ Max 1M ] | Old Accounts | Cancel Enable | No Refill ⚠️ | Instant Start | Day 500K 🚀",
+      "providerId": "prov_muqrckex",
+      "link": "https://instagram.com/p/test12345",
+      "quantity": 19,
+      "scheduledAt": "2026-10-03T19:22:50.328Z",
+      "status": "pending",
+      "runNumber": 2,
+      "totalRuns": 3,
+      "id": "sch_1791044274268_1_g089",
+      "idempotencyKey": "idmp_10003_2_1791044274268_1",
+      "retryCount": 0,
+      "createdAt": "2026-10-03T16:17:54.268Z"
+    },
+    {
+      "parentOrderId": 10003,
+      "userId": "usr_mohit_owner",
+      "metric": "Likes",
+      "serviceId": 6085,
+      "serviceName": "Instagram Followers [ Max 1M ] | Old Accounts | Cancel Enable | No Refill ⚠️ | Instant Start | Day 500K 🚀",
+      "providerId": "prov_muqrckex",
+      "link": "https://instagram.com/p/test12345",
+      "quantity": 14,
+      "scheduledAt": "2026-10-03T22:17:54.260Z",
+      "status": "pending",
+      "runNumber": 3,
+      "totalRuns": 3,
+      "id": "sch_1791044274268_2_ybr6",
+      "idempotencyKey": "idmp_10003_3_1791044274268_2",
+      "retryCount": 0,
+      "createdAt": "2026-10-03T16:17:54.268Z"
+    }
+  ],
   "settings": {
     "markupPercentage": 20,
     "providerBalanceAutoRefreshMinutes": 30,
@@ -9346,7 +9424,29 @@
       "level": "info",
       "source": "Scheduler",
       "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1791043691686_76pb",
+      "createdAt": "2026-10-03T16:08:11.686Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1791044269056_cmuv",
+      "createdAt": "2026-10-03T16:17:49.056Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1791044274266_d0es",
+      "createdAt": "2026-10-03T16:17:54.266Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10003 (all_in_one_parent)",
+      "details": "{\"serviceId\":0,\"quantity\":50,\"price\":5.3903}"
     }
   ],
-  "nextOrderId": 10003
+  "nextOrderId": 10004
 }

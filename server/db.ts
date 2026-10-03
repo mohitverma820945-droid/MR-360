@@ -146,16 +146,23 @@ class DatabaseEngine {
       }
     }
 
-    // Unify all orders under primary Mohit owner account
+    // Ensure all orders have valid user references and email details attached
     for (const o of this.data.orders) {
-      if (!o.userId || o.userId.startsWith('usr_mohit') || o.userId === 'usr_mud2y46zkisk' || o.userId === 'usr_admin_1') {
+      if (!o.userId) {
         o.userId = primaryMohit.id;
+      }
+      if (!o.userEmail) {
+        const u = this.data.users.find(usr => usr.id === o.userId);
+        if (u) {
+          o.userEmail = u.email;
+          o.username = u.username;
+        }
       }
     }
 
-    // Unify all schedules under primary Mohit owner account
+    // Ensure all schedules have valid user references
     for (const s of this.data.schedules) {
-      if (!s.userId || s.userId.startsWith('usr_mohit') || s.userId === 'usr_mud2y46zkisk' || s.userId === 'usr_admin_1') {
+      if (!s.userId) {
         s.userId = primaryMohit.id;
       }
     }
@@ -459,8 +466,16 @@ class DatabaseEngine {
 
   getOrders(userId?: string): Order[] {
     const list = [...this.data.orders];
-    if (!userId) {
-      return list.reverse(); // Return all orders if no userId specified
+    // Always sort descending by createdAt / id so newest orders are ALWAYS at the top!
+    const sorted = list.sort((a, b) => {
+      const timeA = new Date(a.createdAt || 0).getTime();
+      const timeB = new Date(b.createdAt || 0).getTime();
+      if (timeB !== timeA) return timeB - timeA;
+      return (b.id || 0) - (a.id || 0);
+    });
+
+    if (!userId || userId === 'all' || userId === 'undefined') {
+      return sorted; // Return all orders in the entire system
     }
 
     const requestingUser = this.data.users.find(u => u.id === userId);
@@ -471,19 +486,26 @@ class DatabaseEngine {
       'mohitkumar820945@gmail.com'
     ];
 
-    const isMohitOrAdmin = requestingUser?.role === 'admin' ||
+    const isMohitOrAdmin = !requestingUser ||
+      requestingUser.role === 'admin' ||
       userId.startsWith('usr_mohit') ||
       userId === 'usr_admin_1' ||
       userId === 'usr_mud2y46zkisk' ||
       (requestingUser && mohitEmails.includes(requestingUser.email.toLowerCase()));
 
     if (isMohitOrAdmin) {
-      // Admin / Mohit sees ALL orders in the system so no order is ever hidden or deleted!
-      return list.reverse();
+      // Admin / Mohit sees ALL orders in the system so no order is ever hidden or lost!
+      return sorted;
     }
 
-    // Regular user sees strictly their own orders
-    return list.filter(o => o.userId === userId).reverse();
+    // Regular user sees their own orders plus any orders on their device/guest session
+    return sorted.filter(o => 
+      o.userId === userId || 
+      !o.userId || 
+      o.userId === 'usr_guest' || 
+      o.userId.startsWith('usr_guest') ||
+      (requestingUser?.email && o.userEmail?.toLowerCase() === requestingUser.email.toLowerCase())
+    );
   }
 
   getOrderById(id: number): Order | undefined {

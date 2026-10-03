@@ -60,6 +60,8 @@ export interface Order {
   providerOrderId: string | null; // REAL provider order ID from SMM API
   parentOrderId?: number | null; // For linking child bundle orders to all-in-one parent
   userId: string;
+  userEmail?: string;
+  username?: string;
   orderType: OrderType;
   platform: PlatformCategory;
   category: string;

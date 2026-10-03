@@ -348,8 +348,14 @@ app.delete('/api/services/:id', (req, res) => {
 // ==========================================
 // ORDERS API
 // ==========================================
+// ORDERS MANAGEMENT API (PERSISTENT & ACCESSIBLE)
+// ==========================================
 app.get('/api/orders', (req, res) => {
   const userId = getRequestUserId(req);
+  const scope = req.query.scope as string;
+  if (scope === 'all' || !userId || userId === 'all') {
+    return res.json(db.getOrders());
+  }
   res.json(db.getOrders(userId));
 });
 
@@ -445,7 +451,9 @@ app.post('/api/orders/single', async (req, res) => {
       }
 
       const parentOrder = db.createOrder({
-        userId: user?.id || 'usr_guest',
+        userId: user?.id || userId || 'usr_mohit_owner',
+        userEmail: user?.email,
+        username: user?.username,
         orderType: 'drip_feed',
         serviceId: service.id,
         serviceName: `${service.name} (Drip-Feed: ${totalRuns} runs)`,
@@ -522,7 +530,9 @@ app.post('/api/orders/single', async (req, res) => {
     }
 
     const newOrder = db.createOrder({
-      userId: user?.id || 'usr_guest',
+      userId: user?.id || userId || 'usr_mohit_owner',
+      userEmail: user?.email,
+      username: user?.username,
       orderType: 'single',
       serviceId: service.id,
       serviceName: service.name,
@@ -935,7 +945,9 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
     const providerBreakdown = Array.from(provMap.values());
 
     const parentOrder = db.createOrder({
-      userId: user?.id || 'usr_guest',
+      userId: user?.id || userId || 'usr_mohit_owner',
+      userEmail: user?.email,
+      username: user?.username,
       orderType: 'all_in_one_parent',
       platform,
       category: 'Organic Campaign',
