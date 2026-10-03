@@ -25,6 +25,35 @@ function getRequestUserId(req: express.Request): string {
   return 'usr_mohit_owner';
 }
 
+app.get('/api/admin/system/status', (req, res) => {
+  const userId = getRequestUserId(req);
+  const user = db.getUserById(userId);
+  
+  if (user?.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Admin only' });
+  }
+
+  const stats = db.getAdminStats();
+  res.json({
+    success: true,
+    env: process.env.NODE_ENV,
+    isCloud: process.env.VERCEL === '1' || process.env.RENDER === 'true',
+    db: {
+      loaded: (db as any).isLoaded,
+      totalUsers: db.getUsers().length,
+      totalOrders: stats.totalOrders,
+      totalProviders: db.getProviders().length,
+      nextOrderId: (db as any).data.nextOrderId
+    },
+    serverTime: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+app.get('/api/ping', (req, res) => {
+  res.json({ success: true, timestamp: new Date().toISOString() });
+});
+
 // ==========================================
 // AUTHENTICATION & USER MANAGEMENT API
 // ==========================================
@@ -641,11 +670,41 @@ app.patch('/api/orders/:id', (req, res) => {
   }
 });
 
-app.post('/api/orders/:id/cancel', (req, res) => {
+app.post('/api/orders/:id/cancel', async (req, res) => {
   try {
     const orderId = parseInt(req.params.id, 10);
-    const order = db.cancelOrder(orderId);
-    res.json({ success: true, order, message: `Order #${orderId} canceled! All upcoming scheduled runs halted.` });
+    const order = db.getOrderById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    // 1. Cancel locally in database and halt schedules
+    db.cancelOrder(orderId);
+
+    // 2. If it was already submitted to a provider, attempt API cancellation
+    let providerMessage = '';
+    if (order.providerOrderId && order.providerId) {
+      const provider = db.getProviderById(order.providerId);
+      if (provider && provider.apiUrl && provider.apiKey) {
+        try {
+          const pRes = await ProviderClient.cancelOrder(provider, order.providerOrderId);
+          if (pRes.success) {
+            providerMessage = ' and successfully canceled with SMM provider API.';
+          } else {
+            providerMessage = ` but provider API rejected cancellation: ${pRes.error || 'Unknown'}`;
+          }
+        } catch (pErr: any) {
+          providerMessage = ` but failed to reach provider API for cancellation: ${pErr.message}`;
+        }
+      }
+    }
+
+    const updated = db.getOrderById(orderId);
+    res.json({ 
+      success: true, 
+      order: updated, 
+      message: `Order #${orderId} canceled locally${providerMessage}` 
+    });
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
   }
@@ -1098,6 +1157,13 @@ app.post('/api/settings', (req, res) => {
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
+});
+
+// Global Error Handler Middleware (MUST be at end)
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('[Global Error]', err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ success: false, error: 'Internal Server Error', details: err.message });
 });
 
 export { app };

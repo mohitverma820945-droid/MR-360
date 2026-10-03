@@ -28,31 +28,46 @@ interface DatabaseSchema {
   nextOrderId: number;
 }
 
-const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
+const isCloudEnv = process.env.VERCEL === '1' || process.env.RENDER === 'true' || process.env.NODE_ENV === 'production';
 const SEED_FILE_PATH = path.join(process.cwd(), 'data_store.json');
-const DB_FILE_PATH = isVercel
+const BACKUP_FILE_PATH = path.join(process.cwd(), 'data_store.backup.json');
+const DB_FILE_PATH = isCloudEnv && fs.existsSync('/tmp')
   ? path.join('/tmp', 'data_store.json')
   : SEED_FILE_PATH;
 
 class DatabaseEngine {
   private data: DatabaseSchema;
+  private isLoaded: boolean = false;
 
   constructor() {
     this.data = this.loadDatabase();
-    this.ensureDefaultData();
+    if (this.isLoaded) {
+      this.ensureDefaultData();
+    } else {
+      console.error('[DB] Database failed to load correctly. Entering Emergency Recovery Mode.');
+      this.data = this.emergencyRecover();
+    }
   }
 
   private loadDatabase(): DatabaseSchema {
-    try {
-      if (fs.existsSync(DB_FILE_PATH)) {
-        const raw = fs.readFileSync(DB_FILE_PATH, 'utf-8');
-        return JSON.parse(raw);
-      } else if (isVercel && fs.existsSync(SEED_FILE_PATH)) {
-        const raw = fs.readFileSync(SEED_FILE_PATH, 'utf-8');
-        return JSON.parse(raw);
+    const pathsToTry = [DB_FILE_PATH, SEED_FILE_PATH, BACKUP_FILE_PATH];
+    
+    for (const p of pathsToTry) {
+      try {
+        if (fs.existsSync(p)) {
+          const raw = fs.readFileSync(p, 'utf-8');
+          if (raw && raw.trim().length > 0) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.users)) {
+              console.log(`[DB] Successfully loaded database from: ${p}`);
+              this.isLoaded = true;
+              return parsed;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`[DB] Failed to read database from ${p}:`, err);
       }
-    } catch (err) {
-      console.error('[DB] Failed to read database file, initializing new database:', err);
     }
 
     return {
@@ -71,16 +86,55 @@ class DatabaseEngine {
     };
   }
 
+  private emergencyRecover(): DatabaseSchema {
+    // If everything failed, we at least try to read the seed again without error suppression
+    try {
+      const raw = fs.readFileSync(SEED_FILE_PATH, 'utf-8');
+      const parsed = JSON.parse(raw);
+      this.isLoaded = true;
+      return parsed;
+    } catch {
+      return {
+        users: [],
+        providers: [],
+        services: [],
+        orders: [],
+        schedules: [],
+        settings: { markupPercentage: 0, providerBalanceAutoRefreshMinutes: 30, cronExecutionIntervalSeconds: 10 },
+        logs: [],
+        nextOrderId: 10001
+      };
+    }
+  }
+
   private saveDatabase(): void {
+    if (!this.isLoaded && this.data.users.length === 0) {
+      console.error('[DB] Refusing to save potentially empty database over existing data.');
+      return;
+    }
+
     try {
       const serialized = JSON.stringify(this.data, null, 2);
-      fs.writeFileSync(DB_FILE_PATH, serialized, 'utf-8');
-      if (DB_FILE_PATH !== SEED_FILE_PATH) {
+      const tempPath = DB_FILE_PATH + '.tmp';
+      
+      // 1. Atomic Write to Temp
+      fs.writeFileSync(tempPath, serialized, 'utf-8');
+      
+      // 2. Rename Temp to Main (Atomic on most OS)
+      fs.renameSync(tempPath, DB_FILE_PATH);
+
+      // 3. Periodic Backup to CWD (if in /tmp)
+      if (DB_FILE_PATH.startsWith('/tmp')) {
         try {
-          fs.writeFileSync(SEED_FILE_PATH, serialized, 'utf-8');
+          fs.writeFileSync(BACKUP_FILE_PATH, serialized, 'utf-8');
         } catch {
-          // ignore seed file write fallback error
+          // ignore backup write errors in restricted envs
         }
+      } else {
+        // Also keep a backup in current directory
+        try {
+          fs.writeFileSync(BACKUP_FILE_PATH, serialized, 'utf-8');
+        } catch {}
       }
     } catch (err) {
       console.warn('[DB] Failed to persist database to disk:', err);
@@ -289,6 +343,9 @@ class DatabaseEngine {
 
   // Providers - Return connected providers (Shared across platform so services and providers never vanish)
   getProviders(userId?: string): SmmProvider[] {
+    if (!this.isLoaded) {
+      console.warn('[DB] getProviders called before database fully loaded.');
+    }
     return this.data.providers;
   }
 
@@ -445,6 +502,9 @@ class DatabaseEngine {
   }
 
   getOrders(userId?: string): Order[] {
+    if (!this.isLoaded) {
+      console.warn('[DB] getOrders called before database fully loaded. Data might be incomplete.');
+    }
     const list = [...this.data.orders];
     // Always sort descending by createdAt / id so newest orders are ALWAYS at the top!
     const sorted = list.sort((a, b) => {

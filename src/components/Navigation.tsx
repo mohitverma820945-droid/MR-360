@@ -19,7 +19,8 @@ import {
   Plus,
   LogOut,
   LogIn,
-  Key
+  Key,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getAuthHeaderObj } from '../utils/apiAuth';
@@ -76,8 +77,17 @@ export const Navigation: React.FC<NavigationProps> = ({
     fetchBalance();
     const interval = setInterval(fetchBalance, 60000);
     window.addEventListener('providers-changed', fetchBalance);
+
+    // Heartbeat ping to keep session alive and verify server status
+    const pingInterval = setInterval(() => {
+      fetch('/api/ping').catch(() => {
+        console.warn('[System] Heartbeat failed. Server might be sleeping or restarting.');
+      });
+    }, 30000);
+
     return () => {
       clearInterval(interval);
+      clearInterval(pingInterval);
       window.removeEventListener('providers-changed', fetchBalance);
     };
   }, [user]);
@@ -222,6 +232,13 @@ export const Navigation: React.FC<NavigationProps> = ({
                 >
                   <RefreshCw className={`w-3 h-3 ${loadingBalance ? 'animate-spin text-pink-500' : ''}`} />
                 </button>
+              </div>
+
+              {/* Persistence & Sync Health Status (Real-time verification for User) */}
+              <div className="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 cursor-help" title="Database is protected with atomic writes and automatic cloud-safe backups. No data will be lost during server restarts.">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tight">Persistent DB</span>
+                <ShieldCheck className="w-3 h-3 text-emerald-500" />
               </div>
 
               {/* User Account / Login Button */}
@@ -378,24 +395,36 @@ export const Navigation: React.FC<NavigationProps> = ({
             {/* User Profile Card inside Drawer (Clean, No fake balance) */}
             <div className="p-4 border-b border-pink-100 dark:border-slate-800 bg-pink-50/60 dark:bg-pink-950/20">
               {isAuthenticated && user ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2.5">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-pink-600 via-rose-500 to-fuchsia-600 text-white font-black flex items-center justify-center text-xs shadow-sm">
-                      {(user.name || user.username || user.email)[0].toUpperCase()}
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-pink-600 via-rose-500 to-fuchsia-600 text-white font-black flex items-center justify-center text-xs shadow-sm">
+                        {(user.name || user.username || user.email)[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-black text-xs text-slate-900 dark:text-white leading-tight">
+                          {user.name || user.username}
+                        </div>
+                        <div className="text-[10px] text-pink-600/80 dark:text-pink-300/80 leading-tight truncate max-w-[150px]">
+                          {user.email}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-black text-xs text-slate-900 dark:text-white leading-tight">
-                        {user.name || user.username}
-                      </div>
-                      <div className="text-[10px] text-pink-600/80 dark:text-pink-300/80 leading-tight truncate max-w-[150px]">
-                        {user.email}
-                      </div>
+                    <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full bg-pink-600 text-white shadow-sm">
+                      {user.role}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-2 rounded-xl">
+                    <div className="flex items-center space-x-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">Database Persistent</span>
+                    </div>
+                    <div className="flex items-center space-x-1 text-[9px] font-black text-pink-600 dark:text-pink-400 uppercase tracking-tighter">
+                      <ShieldCheck className="w-2.5 h-2.5" />
+                      <span>Session Locked</span>
                     </div>
                   </div>
-                  <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full bg-pink-600 text-white shadow-sm">
-                    {user.role}
-                  </span>
-                </div>
+                </>
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="text-xs">

@@ -30,6 +30,12 @@ export class SchedulerWorker {
     // Initial immediate check
     setTimeout(() => this.processDueSchedules(), 1000);
 
+    // Heartbeat log every 5 minutes to verify server is alive
+    setInterval(() => {
+      const stats = db.getAdminStats();
+      console.log(`[Scheduler] Heartbeat: ${new Date().toISOString()} | Orders: ${stats.totalOrders} | Pending Bundles: ${db.getPendingSchedules(9999).length}`);
+    }, 5 * 60 * 1000);
+
     // 2. Sync Provider Order Statuses every 15 seconds
     this.statusSyncInterval = setInterval(() => {
       this.syncActiveOrderStatus().catch(err => {
@@ -59,6 +65,8 @@ export class SchedulerWorker {
     try {
       const dueItems = db.getDueSchedules(50);
       if (dueItems.length === 0) return;
+
+      console.log(`[Scheduler] Processing ${dueItems.length} due scheduled batches...`);
 
       // Process in controlled parallel worker pool (5 concurrent workers for high efficiency & low latency)
       const CONCURRENCY_CHUNK = 5;

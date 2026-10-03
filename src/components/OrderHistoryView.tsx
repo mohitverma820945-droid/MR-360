@@ -195,23 +195,27 @@ export const OrderHistoryView: React.FC = () => {
           message: res.message || `Order #${orderId} canceled! All upcoming scheduled runs have been halted.`
         });
         // Optimistically update order status in state
-        setOrders(prev => prev.map(o => {
-          if (o.id === orderId) {
-            const updatedSchedules = (o.schedules || []).map(s => 
-              s.status === 'pending' || s.status === 'processing' 
-                ? { ...s, status: 'canceled' as const, errorMessage: 'Canceled by user' }
-                : s
-            );
-            return {
-              ...o,
-              status: 'Canceled' as OrderStatus,
-              remainingBundles: 0,
-              canceledBundles: (o.canceledBundles || 0) + (o.remainingBundles || 0),
-              schedules: updatedSchedules
-            };
-          }
-          return o;
-        }));
+        setOrders(prev => {
+          const updated = prev.map(o => {
+            if (o.id === orderId) {
+              const updatedSchedules = (o.schedules || []).map(s => 
+                s.status === 'pending' || s.status === 'processing' 
+                  ? { ...s, status: 'canceled' as const, errorMessage: 'Canceled by user' }
+                  : s
+              );
+              return {
+                ...o,
+                status: 'Canceled' as OrderStatus,
+                remainingBundles: 0,
+                canceledBundles: (o.canceledBundles || 0) + (o.remainingBundles || 0),
+                schedules: updatedSchedules
+              };
+            }
+            return o;
+          });
+          try { localStorage.setItem(getCacheKey(), JSON.stringify(updated)); } catch {}
+          return updated;
+        });
       } else {
         setActionNotice({
           type: 'error',
@@ -248,7 +252,11 @@ export const OrderHistoryView: React.FC = () => {
           message: res.message || `Order #${orderId} and all bundle scheduling records deleted.`
         });
         // Remove order and its children from local state
-        setOrders(prev => prev.filter(o => o.id !== orderId && o.parentOrderId !== orderId));
+        setOrders(prev => {
+          const updated = prev.filter(o => o.id !== orderId && o.parentOrderId !== orderId);
+          try { localStorage.setItem(getCacheKey(), JSON.stringify(updated)); } catch {}
+          return updated;
+        });
         if (expandedOrderId === orderId) {
           setExpandedOrderId(null);
         }
@@ -266,6 +274,33 @@ export const OrderHistoryView: React.FC = () => {
     } finally {
       setActionLoadingId(null);
     }
+  };
+
+  const handleDeleteAllCanceled = async () => {
+    const toDelete = orders.filter(o => o.status === 'Canceled' || o.status === 'Failed');
+    if (toDelete.length === 0) {
+      setActionNotice({ type: 'error', message: 'No Canceled or Failed orders found to clear.' });
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to permanently delete all ${toDelete.length} Canceled and Failed orders from your history?`)) {
+      return;
+    }
+
+    setLoading(true);
+    let successCount = 0;
+    for (const order of toDelete) {
+      try {
+        const res = await fetch(`/api/orders/${order.id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaderObj()
+        });
+        if (res.ok) successCount++;
+      } catch {}
+    }
+
+    setActionNotice({ type: 'success', message: `Successfully cleared ${successCount} orders from your history.` });
+    fetchOrders(true);
   };
 
   // Filter orders
@@ -404,6 +439,15 @@ export const OrderHistoryView: React.FC = () => {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
+          </button>
+
+          <button
+            onClick={handleDeleteAllCanceled}
+            className="px-4 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center space-x-2 border border-rose-200 dark:border-rose-900/40 transition-colors cursor-pointer"
+            title="Clean up all canceled and failed orders"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Clear Failed/Canceled</span>
           </button>
         </div>
       </div>

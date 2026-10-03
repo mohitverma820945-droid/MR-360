@@ -7,6 +7,14 @@ import { SchedulerWorker } from './server/scheduler';
 async function startServer() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+  process.on('uncaughtException', (err) => {
+    console.error('[CRITICAL] Uncaught Exception:', err);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('[CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
+  });
+
   // Start Server-Side Background Scheduler Worker
   SchedulerWorker.start();
 
