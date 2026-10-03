@@ -70,7 +70,7 @@
       "status": "active",
       "balance": 48.03,
       "balanceCurrency": "INR",
-      "lastBalanceCheck": "2026-10-03T16:17:52.752Z",
+      "lastBalanceCheck": "2026-10-03T16:24:36.152Z",
       "userId": "usr_mud2y46zkisk",
       "id": "prov_muqrckex",
       "createdAt": "2026-10-02T09:25:36.729Z",
@@ -7923,13 +7923,15 @@
       "link": "https://instagram.com/p/test12345",
       "quantity": 17,
       "scheduledAt": "2026-10-03T16:17:54.260Z",
-      "status": "pending",
+      "status": "failed",
       "runNumber": 1,
       "totalRuns": 3,
       "id": "sch_1791044274268_0_qupz",
       "idempotencyKey": "idmp_10003_1_1791044274268_0",
-      "retryCount": 0,
-      "createdAt": "2026-10-03T16:17:54.268Z"
+      "retryCount": 1,
+      "createdAt": "2026-10-03T16:17:54.268Z",
+      "lastAttemptAt": "2026-10-03T16:17:59.061Z",
+      "errorMessage": "Service not found or inactive"
     },
     {
       "parentOrderId": 10003,
@@ -9446,6 +9448,41 @@
       "source": "Orders",
       "message": "Created Order #10003 (all_in_one_parent)",
       "details": "{\"serviceId\":0,\"quantity\":50,\"price\":5.3903}"
+    },
+    {
+      "id": "log_1791044279760_02t1",
+      "createdAt": "2026-10-03T16:17:59.760Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791044274268_0_qupz to Provider Smm : Service not found or inactive"
+    },
+    {
+      "id": "log_1791044289434_asjk",
+      "createdAt": "2026-10-03T16:18:09.434Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1791044672497_4hsu",
+      "createdAt": "2026-10-03T16:24:32.497Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1791044678429_i3z0",
+      "createdAt": "2026-10-03T16:24:38.429Z",
+      "level": "info",
+      "source": "Auth",
+      "message": "User logged in successfully: mohitverma912022@gmail.com"
+    },
+    {
+      "id": "log_1791044678448_gx9o",
+      "createdAt": "2026-10-03T16:24:38.448Z",
+      "level": "info",
+      "source": "Auth",
+      "message": "User logged in successfully: mohitverma912022@gmail.com"
     }
   ],
   "nextOrderId": 10004

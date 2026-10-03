@@ -287,29 +287,9 @@ class DatabaseEngine {
     return sanitized as UserProfile;
   }
 
-  // Providers - Return connected providers scoped to requested user (Admins/Owner see ALL)
+  // Providers - Return connected providers (Shared across platform so services and providers never vanish)
   getProviders(userId?: string): SmmProvider[] {
-    if (!userId) return this.data.providers;
-
-    const user = this.data.users.find(u => u.id === userId);
-    const mohitEmails = [
-      'mohitverma912022@gmail.com',
-      'mohitverma820925@gmail.com',
-      'mohitverma820945@gmail.com',
-      'mohitkumar820945@gmail.com'
-    ];
-    const isOwnerOrAdmin = user?.role === 'admin' ||
-      userId.startsWith('usr_mohit') ||
-      userId === 'usr_admin_1' ||
-      userId === 'usr_mud2y46zkisk' ||
-      (user && mohitEmails.includes(user.email.toLowerCase()));
-
-    // Admin / Owner sees ALL providers in the system so no provider is ever lost!
-    if (isOwnerOrAdmin) {
-      return this.data.providers;
-    }
-
-    return this.data.providers.filter(p => p.userId === userId || !p.userId || p.userId === 'usr_mohit_owner');
+    return this.data.providers;
   }
 
   migrateUserProviders(fromUserId: string, toUserId: string): void {
