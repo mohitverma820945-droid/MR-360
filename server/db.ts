@@ -686,18 +686,31 @@ class DatabaseEngine {
       .slice(0, limit);
   }
 
+  private activeClaimsSet = new Set<string>();
+
   getPendingSchedules(limit = 50): ScheduleItem[] {
     return this.getDueSchedules(limit);
   }
 
   claimDueScheduleItem(id: string): boolean {
+    if (this.activeClaimsSet.has(id)) {
+      return false; // Already claimed by an active worker thread in flight!
+    }
+
     const item = this.data.schedules.find(s => s.id === id);
-    if (!item || item.status !== 'pending') return false;
+    if (!item) return false;
+    if (item.status !== 'pending') return false;
     if (item.providerOrderId) return false; // Already submitted: never double-submit!
+
+    this.activeClaimsSet.add(id);
     item.status = 'processing';
     item.lastAttemptAt = new Date().toISOString();
     this.saveDatabase();
     return true;
+  }
+
+  releaseScheduleClaim(id: string): void {
+    this.activeClaimsSet.delete(id);
   }
 
   addSchedules(items: Omit<ScheduleItem, 'id' | 'createdAt'>[]): ScheduleItem[] {

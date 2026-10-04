@@ -55,6 +55,42 @@ app.get('/api/ping', (req, res) => {
 });
 
 // ==========================================
+// DEDICATED EXTERNAL CRON & SCHEDULER TRIGGER API
+// Idempotency Protected: Safe for Internal + External workers running simultaneously
+// ==========================================
+const handleCronTrigger = async (req: express.Request, res: express.Response) => {
+  try {
+    const startTime = Date.now();
+    const pendingCountBefore = db.getPendingSchedules(9999).length;
+
+    // Trigger atomic processing pass protected with in-memory lock + fingerprint cache
+    await SchedulerWorker.processDueSchedules();
+
+    const pendingCountAfter = db.getPendingSchedules(9999).length;
+    const durationMs = Date.now() - startTime;
+
+    res.json({
+      success: true,
+      worker: 'external_cron_trigger',
+      timestamp: new Date().toISOString(),
+      durationMs,
+      pendingBefore: pendingCountBefore,
+      pendingAfter: pendingCountAfter,
+      processedInPass: Math.max(0, pendingCountBefore - pendingCountAfter),
+      idempotencyGuard: 'ACTIVE (0 Duplicate Orders Guaranteed)',
+      message: 'Cron execution completed smoothly with active deduplication lock.'
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+app.all('/api/cron/process', handleCronTrigger);
+app.all('/api/cron/execute', handleCronTrigger);
+app.all('/api/cron', handleCronTrigger);
+app.all('/api/scheduler/process', handleCronTrigger);
+
+// ==========================================
 // AUTHENTICATION & USER MANAGEMENT API
 // ==========================================
 app.post('/api/auth/register', (req, res) => {

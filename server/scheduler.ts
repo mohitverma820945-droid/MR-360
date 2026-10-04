@@ -9,6 +9,9 @@ export class SchedulerWorker {
   private static statusSyncInterval: NodeJS.Timeout | null = null;
   private static balanceRefreshInterval: NodeJS.Timeout | null = null;
 
+  // Process-wide Deduplication Cache (Fingerprint -> { orderId, timestamp })
+  private static recentSubmissions = new Map<string, { orderId: string; timestamp: number }>();
+
   /**
    * Start Background Scheduler & Background Services
    */
@@ -90,7 +93,31 @@ export class SchedulerWorker {
     const claimed = db.claimDueScheduleItem(item.id);
     if (!claimed) return; // Already claimed by another worker pass
 
+    const dedupKey = `p_${item.parentOrderId || 'p'}_run${item.runNumber}_svc${item.serviceId}_qty${item.quantity}_${(item.link || '').trim().toLowerCase()}`;
+
     try {
+      // 1. DEDUPLICATION GUARD: Check if this run was already submitted to the provider in the last 15 minutes
+      const cached = this.recentSubmissions.get(dedupKey);
+      if (cached && (Date.now() - cached.timestamp < 15 * 60 * 1000)) {
+        console.log(`[Scheduler] DEDUPLICATION GUARD ACTIVATED for Schedule #${item.id}! Reusing existing Provider Order #${cached.orderId}.`);
+        db.updateScheduleItem(item.id, {
+          status: 'submitted',
+          providerOrderId: cached.orderId,
+          errorMessage: undefined
+        });
+
+        const parentOrder = item.parentOrderId ? db.getOrderById(item.parentOrderId) : undefined;
+        if (parentOrder && parentOrder.status !== 'Canceled' && parentOrder.status !== 'Failed') {
+          const completedBundles = (parentOrder.completedBundles || 0) + 1;
+          const isFullyDone = completedBundles >= (parentOrder.totalBundles || 1);
+          db.updateOrder(parentOrder.id, {
+            completedBundles,
+            status: isFullyDone ? 'Completed' : 'Processing'
+          });
+        }
+        return;
+      }
+
       const service = db.getServiceById(item.serviceId);
       if (!service) {
         db.updateScheduleItem(item.id, {
@@ -128,7 +155,7 @@ export class SchedulerWorker {
 
       console.log(`[Scheduler] Submitting provider order for Schedule #${item.id} (Run ${item.runNumber}/${item.totalRuns}, Qty ${item.quantity})...`);
 
-      // Execute Real Provider API Order (Pure single run without external drip params)
+      // Execute Real Provider API Order
       const result = await ProviderClient.addOrder(provider, {
         service: service.providerServiceId,
         link: item.link,
@@ -136,6 +163,12 @@ export class SchedulerWorker {
       });
 
       if (result.success && result.orderId) {
+        // Record in Deduplication Fingerprint Cache
+        this.recentSubmissions.set(dedupKey, {
+          orderId: String(result.orderId),
+          timestamp: Date.now()
+        });
+
         db.updateScheduleItem(item.id, {
           status: 'submitted',
           providerOrderId: String(result.orderId),
@@ -213,7 +246,7 @@ export class SchedulerWorker {
 
         if (isTransient && currentRetries < 3) {
           const nextRetry = currentRetries + 1;
-          const retryDelaySecs = nextRetry * 30; // 30s, 60s, 90s
+          const retryDelaySecs = Math.max(60, nextRetry * 45); // Safe delay: 60s, 90s, 135s
           db.updateScheduleItem(item.id, {
             status: 'pending',
             retryCount: nextRetry,
@@ -252,6 +285,8 @@ export class SchedulerWorker {
         'Scheduler',
         `Exception processing schedule #${item.id}: ${err.message}`
       );
+    } finally {
+      db.releaseScheduleClaim(item.id);
     }
   }
 

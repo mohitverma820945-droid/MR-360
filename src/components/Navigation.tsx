@@ -78,11 +78,9 @@ export const Navigation: React.FC<NavigationProps> = ({
     const interval = setInterval(fetchBalance, 60000);
     window.addEventListener('providers-changed', fetchBalance);
 
-    // Heartbeat ping to keep session alive and verify server status
+    // Silent heartbeat ping to keep server connection alive and active
     const pingInterval = setInterval(() => {
-      fetch('/api/ping').catch(() => {
-        console.warn('[System] Heartbeat failed. Server might be sleeping or restarting.');
-      });
+      fetch('/api/ping').catch(() => {});
     }, 30000);
 
     return () => {
