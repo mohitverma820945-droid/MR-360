@@ -118,12 +118,29 @@ export const SingleOrderForm: React.FC = () => {
     );
 
     if (categoryServices.length > 0) {
-      setSelectedServiceId(categoryServices[0].id);
-      setQuantity(categoryServices[0].min || 1000);
+      const savedKey = `mr360_single_svc_${selectedPlatform.toLowerCase()}_${selectedCategory.toLowerCase()}`;
+      const savedSvcId = localStorage.getItem(savedKey);
+      const validSaved = savedSvcId ? categoryServices.find(s => s.id === Number(savedSvcId)) : null;
+
+      if (validSaved) {
+        setSelectedServiceId(validSaved.id);
+        setQuantity(validSaved.min || 1000);
+      } else {
+        setSelectedServiceId(categoryServices[0].id);
+        setQuantity(categoryServices[0].min || 1000);
+      }
     } else {
       setSelectedServiceId(null);
     }
   }, [selectedCategory, selectedPlatform, services]);
+
+  // Save selected service choice on user selection
+  useEffect(() => {
+    if (selectedServiceId && selectedPlatform && selectedCategory) {
+      const savedKey = `mr360_single_svc_${selectedPlatform.toLowerCase()}_${selectedCategory.toLowerCase()}`;
+      localStorage.setItem(savedKey, String(selectedServiceId));
+    }
+  }, [selectedServiceId, selectedPlatform, selectedCategory]);
 
   // Current Selected Service Object
   const currentService = services.find(s => s.id === selectedServiceId);

@@ -54,6 +54,29 @@ export const OrderHistoryView: React.FC = () => {
   const [editingQuantityId, setEditingQuantityId] = useState<number | null>(null);
   const [editingQtyVal, setEditingQtyVal] = useState<string>('');
   const [syncingStatusId, setSyncingStatusId] = useState<number | null>(null);
+  const [retryingScheduleId, setRetryingScheduleId] = useState<string | null>(null);
+
+  const handleRetryScheduleRun = async (scheduleId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRetryingScheduleId(scheduleId);
+    try {
+      const res = await fetch(`/api/schedules/${scheduleId}/retry`, {
+        method: 'POST',
+        headers: getAuthHeaderObj()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActionNotice({ type: 'success', message: 'Schedule run re-queued for immediate execution!' });
+        fetchOrders(false);
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to retry schedule run' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err.message || 'Error retrying schedule run' });
+    } finally {
+      setRetryingScheduleId(null);
+    }
+  };
 
   const handleSyncOrderStatus = async (orderId: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -954,13 +977,63 @@ export const OrderHistoryView: React.FC = () => {
                                 </div>
                               </div>
 
-                              {/* Bundles Timeline List */}
+                              {/* Bundles Timeline List & Visual Chart */}
                               {schedules.length === 0 ? (
                                 <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-500">
                                   This order was placed as an immediate single delivery with Provider Order ID #{order.providerOrderId || 'N/A'}. No multi-bundle schedule was queued.
                                 </div>
                               ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-4">
+
+                                  {/* Live Visual Campaign Progress & Schedule Clock Bar */}
+                                  <div className="p-4 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-inner space-y-3">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                                      <div className="flex items-center space-x-2 font-bold">
+                                        <Timer className="w-4 h-4 text-amber-400 animate-pulse" />
+                                        <span>Campaign Execution Progress Chart</span>
+                                      </div>
+                                      <div className="text-[11px] font-mono text-slate-300">
+                                        {completed} / {total} Bundles Executed ({progressPct}%)
+                                      </div>
+                                    </div>
+
+                                    {/* Horizontal Visual Step Timeline Nodes */}
+                                    <div className="flex items-center space-x-1 overflow-x-auto py-1.5 scrollbar-thin">
+                                      {schedules.map((b, idx) => {
+                                        const isDone = b.status === 'submitted';
+                                        const isProc = b.status === 'processing';
+                                        const isErr = b.status === 'failed';
+                                        const isHalt = b.status === 'canceled';
+
+                                        return (
+                                          <div key={b.id || idx} className="flex items-center shrink-0">
+                                            <div 
+                                              className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center space-x-1 border ${
+                                                isDone 
+                                                  ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300'
+                                                  : isProc
+                                                    ? 'bg-blue-950/80 border-blue-400 text-blue-300 animate-pulse'
+                                                    : isErr
+                                                      ? 'bg-red-950/80 border-red-500 text-red-300'
+                                                      : isHalt
+                                                        ? 'bg-slate-800 border-slate-700 text-slate-400'
+                                                        : 'bg-slate-800/90 border-slate-600 text-slate-200'
+                                              }`}
+                                              title={`Run #${b.runNumber}: ${b.quantity} ${b.metric} at ${new Date(b.scheduledAt).toLocaleTimeString()}`}
+                                            >
+                                              <span>#{b.runNumber}</span>
+                                              <span>{isDone ? '✓' : isProc ? '⚙️' : isErr ? '✕' : '⏳'}</span>
+                                            </div>
+                                            {idx < schedules.length - 1 && (
+                                              <div className={`w-3 h-0.5 ${isDone ? 'bg-emerald-500' : 'bg-slate-700'}`} />
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+
+                                  {/* Grid of detailed schedule run cards */}
                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-96 overflow-y-auto pr-1">
                                     {schedules.map((bundle, idx) => {
                                       const isSubmitted = bundle.status === 'submitted';
@@ -971,7 +1044,7 @@ export const OrderHistoryView: React.FC = () => {
                                       return (
                                         <div 
                                           key={bundle.id || idx}
-                                          className={`p-3 rounded-xl border text-xs space-y-1.5 transition-all ${
+                                          className={`p-3 rounded-xl border text-xs space-y-2 transition-all ${
                                             isSubmitted 
                                               ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800'
                                               : isCanceled
@@ -1034,15 +1107,27 @@ export const OrderHistoryView: React.FC = () => {
                                             </span>
                                           </div>
 
-                                          {/* Provider Order ID or Error message */}
+                                          {/* Provider Order ID or Error message with Retry Button */}
                                           {bundle.providerOrderId && (
-                                            <div className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400">
-                                              Provider Order: <strong>#{bundle.providerOrderId}</strong>
+                                            <div className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 flex items-center justify-between">
+                                              <span>Provider Order: <strong>#{bundle.providerOrderId}</strong></span>
+                                              {bundle.providerName && <span className="text-[9px] text-slate-400">({bundle.providerName})</span>}
                                             </div>
                                           )}
                                           {bundle.errorMessage && (
-                                            <div className="text-[10px] text-red-600 dark:text-red-400 truncate" title={bundle.errorMessage}>
-                                              Error: {bundle.errorMessage}
+                                            <div className="space-y-1 pt-1 border-t border-red-100 dark:border-red-900/40">
+                                              <div className="text-[10px] text-red-600 dark:text-red-400 truncate" title={bundle.errorMessage}>
+                                                Error: {bundle.errorMessage}
+                                              </div>
+                                              <button
+                                                type="button"
+                                                disabled={retryingScheduleId === bundle.id}
+                                                onClick={(e) => handleRetryScheduleRun(bundle.id, e)}
+                                                className="px-2 py-0.5 rounded bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] flex items-center space-x-1 cursor-pointer disabled:opacity-50"
+                                              >
+                                                <RefreshCw className={`w-2.5 h-2.5 ${retryingScheduleId === bundle.id ? 'animate-spin' : ''}`} />
+                                                <span>Retry Run Now</span>
+                                              </button>
                                             </div>
                                           )}
                                         </div>

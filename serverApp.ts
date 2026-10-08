@@ -329,12 +329,21 @@ app.post('/api/providers/:id/sync-services', async (req, res) => {
     const markupPct = db.getSettings().markupPercentage || 0;
     const syncedServices: SmmService[] = [];
 
-    for (const item of rawItems) {
-      const pRate = typeof item.rate === 'string' ? parseFloat(item.rate) : item.rate;
-      const pMin = typeof item.min === 'string' ? parseInt(item.min, 10) : item.min;
-      const pMax = typeof item.max === 'string' ? parseInt(item.max, 10) : item.max;
+    const parseCleanNum = (val: any, defaultVal = 0): number => {
+      if (val === undefined || val === null) return defaultVal;
+      if (typeof val === 'number') return isNaN(val) ? defaultVal : val;
+      if (typeof val === 'string') {
+        const cleaned = val.replace(/[^0-9.-]/g, '');
+        const num = parseFloat(cleaned);
+        return isNaN(num) ? defaultVal : num;
+      }
+      return defaultVal;
+    };
 
-      if (isNaN(pRate)) continue;
+    for (const item of rawItems) {
+      const pRate = parseCleanNum(item.rate, 0);
+      const pMin = parseCleanNum(item.min, 10);
+      const pMax = parseCleanNum(item.max, 1000000);
 
       const pCatStr = item.category || 'General';
       let platform: any = 'Instagram';
@@ -348,12 +357,16 @@ app.post('/api/providers/:id/sync-services', async (req, res) => {
       else if (catLower.includes('facebook') || catLower.includes('fb')) platform = 'Facebook';
 
       const sellingRate = parseFloat((pRate * (1 + markupPct / 100)).toFixed(4));
-      const svcId = typeof item.service === 'number' ? item.service : parseInt(item.service as string, 10) || Math.floor(1000 + Math.random() * 9000);
+      const rawSvcId = parseCleanNum(item.service, Math.floor(1000 + Math.random() * 9000));
+      
+      // Hash provider.id + rawSvcId to guarantee unique local service ID across multiple providers
+      const pHash = Math.abs(provider.id.split('').reduce((acc, c) => (acc << 5) - acc + c.charCodeAt(0), 0)) % 10000;
+      const uniqueLocalId = Number(`${pHash}${rawSvcId}`);
 
       syncedServices.push({
-        id: svcId,
+        id: uniqueLocalId,
         providerId: provider.id,
-        providerServiceId: typeof item.service === 'number' ? item.service : parseInt(item.service as string, 10),
+        providerServiceId: rawSvcId,
         providerName: provider.name,
         platform,
         category: pCatStr,
@@ -570,10 +583,10 @@ app.post('/api/orders/single', async (req, res) => {
 
     // STANDARD SINGLE IMMEDIATE RUN
     let providerOrderId: string | null = null;
-    let status: any = 'Pending';
+    let status: OrderStatus = 'Pending';
     let errorMessage: string | undefined;
 
-    if (provider && provider.apiUrl && provider.apiKey) {
+    if (provider && provider.apiUrl && provider.apiKey && provider.status === 'active') {
       const pRes = await ProviderClient.addOrder(provider, {
         service: service.providerServiceId,
         link,
@@ -585,12 +598,15 @@ app.post('/api/orders/single', async (req, res) => {
         providerOrderId = String(pRes.orderId);
         status = 'Processing';
       } else {
-        status = 'Error';
-        errorMessage = pRes.error || 'Provider execution failed';
+        status = 'Failed';
+        errorMessage = pRes.error || `Provider (${provider.name}) execution failed`;
       }
+    } else {
+      status = 'Failed';
+      errorMessage = `Selected provider (${provider?.name || service.providerId}) is inactive or missing API URL/Key`;
     }
 
-    if (user && status !== 'Error') {
+    if (user && status !== 'Failed') {
       db.updateUserBalance(user.id, -price);
     }
 
@@ -743,6 +759,32 @@ app.post('/api/orders/:id/cancel', async (req, res) => {
     });
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/schedules/:id/retry', async (req, res) => {
+  try {
+    const scheduleId = req.params.id;
+    const item = db.getSchedules().find(s => s.id === scheduleId);
+    if (!item) {
+      return res.status(404).json({ success: false, error: 'Schedule run not found' });
+    }
+
+    db.updateScheduleItem(scheduleId, {
+      status: 'pending',
+      retryCount: 0,
+      scheduledAt: new Date().toISOString(),
+      errorMessage: undefined
+    });
+
+    // Immediately trigger scheduler pass
+    setTimeout(() => {
+      SchedulerWorker.processDueSchedules().catch(() => {});
+    }, 200);
+
+    res.json({ success: true, message: `Schedule run re-queued for immediate execution!` });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
@@ -1180,7 +1222,7 @@ app.get('/api/balance', async (req, res) => {
 });
 
 // ==========================================
-// SYSTEM SETTINGS API
+// SYSTEM SETTINGS API & SERVICE CONFIG PERSISTENCE
 // ==========================================
 app.get('/api/settings', (req, res) => {
   res.json(db.getSettings());
@@ -1190,6 +1232,36 @@ app.post('/api/settings', (req, res) => {
   try {
     const settings = db.updateSettings(req.body);
     res.json({ success: true, settings });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/settings/saved-services', (req, res) => {
+  try {
+    const settings = db.getSettings();
+    res.json({ success: true, savedServiceConfigs: (settings as any).savedServiceConfigs || {} });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/settings/saved-services', (req, res) => {
+  try {
+    const { platform, config } = req.body;
+    if (!platform || !config) {
+      return res.status(400).json({ success: false, error: 'Platform and config required' });
+    }
+
+    const settings = db.getSettings();
+    const existing = (settings as any).savedServiceConfigs || {};
+    const updated = {
+      ...existing,
+      [platform.toLowerCase()]: config
+    };
+
+    db.updateSettings({ savedServiceConfigs: updated } as any);
+    res.json({ success: true, savedServiceConfigs: updated });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }

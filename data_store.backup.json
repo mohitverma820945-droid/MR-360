@@ -68,14 +68,14 @@
       "apiUrl": "https://instantsmmboost.com/api/v2",
       "apiKey": "cf867dbf9464816e08a89abaab13a873",
       "status": "active",
-      "balance": 46.95,
+      "balance": 41.45,
       "balanceCurrency": "INR",
-      "lastBalanceCheck": "2026-10-04T08:54:19.846Z",
+      "lastBalanceCheck": "2026-10-08T09:02:12.660Z",
       "userId": "usr_mud2y46zkisk",
       "id": "prov_muqrckex",
       "createdAt": "2026-10-02T09:25:36.729Z",
-      "balanceInr": 46.95,
-      "balanceUsd": 0.54
+      "balanceInr": 41.45,
+      "balanceUsd": 0.48
     }
   ],
   "services": [
@@ -7893,6 +7893,26 @@
       "userId": "usr_mohit_owner",
       "userEmail": "mohitverma912022@gmail.com",
       "username": "mohitverma912022",
+      "orderType": "single",
+      "serviceId": 6085,
+      "serviceName": "Instagram Followers [ Max 1M ] | Old Accounts | Cancel Enable | No Refill ⚠️ | Instant Start | Day 500K 🚀",
+      "platform": "Instagram",
+      "category": "Instagram Followers [ 100% Real Accounts ] ᴺᴱᵂ",
+      "link": "https://instagram.com/p/multiprovider_test_2",
+      "quantity": 10,
+      "price": 1.0781,
+      "status": "Failed",
+      "providerId": "prov_muqrckex",
+      "providerOrderId": null,
+      "errorMessage": "Service not found or inactive",
+      "id": 10005,
+      "createdAt": "2026-10-08T09:02:16.519Z",
+      "updatedAt": "2026-10-08T09:02:16.519Z"
+    },
+    {
+      "userId": "usr_mohit_owner",
+      "userEmail": "mohitverma912022@gmail.com",
+      "username": "mohitverma912022",
       "orderType": "drip_feed",
       "serviceId": 6085,
       "serviceName": "Instagram Followers [ Max 1M ] | Old Accounts | Cancel Enable | No Refill ⚠️ | Instant Start | Day 500K 🚀 (Drip-Feed: 3 runs)",
@@ -7910,7 +7930,8 @@
       "providerOrderId": "drip_1791104090604",
       "id": 10004,
       "createdAt": "2026-10-04T08:54:50.604Z",
-      "updatedAt": "2026-10-04T08:54:50.604Z"
+      "updatedAt": "2026-10-08T08:55:54.941Z",
+      "providerStatus": "104"
     },
     {
       "userId": "usr_mohit_owner",
@@ -8026,13 +8047,15 @@
       "link": "https://instagram.com/p/dedup_test_999",
       "quantity": 10,
       "scheduledAt": "2026-10-04T08:55:50.601Z",
-      "status": "pending",
+      "status": "failed",
       "runNumber": 2,
       "totalRuns": 3,
       "id": "sch_1791104090610_1_u4cs",
       "idempotencyKey": "idmp_10004_2_1791104090610_1",
-      "retryCount": 0,
-      "createdAt": "2026-10-04T08:54:50.610Z"
+      "retryCount": 1,
+      "createdAt": "2026-10-04T08:54:50.610Z",
+      "lastAttemptAt": "2026-10-08T08:55:40.603Z",
+      "errorMessage": "Service not found or inactive"
     },
     {
       "parentOrderId": 10004,
@@ -8044,13 +8067,15 @@
       "link": "https://instagram.com/p/dedup_test_999",
       "quantity": 10,
       "scheduledAt": "2026-10-04T08:56:50.601Z",
-      "status": "pending",
+      "status": "failed",
       "runNumber": 3,
       "totalRuns": 3,
       "id": "sch_1791104090610_2_dsks",
       "idempotencyKey": "idmp_10004_3_1791104090610_2",
-      "retryCount": 0,
-      "createdAt": "2026-10-04T08:54:50.610Z"
+      "retryCount": 1,
+      "createdAt": "2026-10-04T08:54:50.610Z",
+      "lastAttemptAt": "2026-10-08T08:55:40.618Z",
+      "errorMessage": "Service not found or inactive"
     }
   ],
   "settings": {
@@ -9609,7 +9634,43 @@
       "level": "error",
       "source": "Scheduler",
       "message": "Permanent failure submitting Schedule #sch_1791104090610_0_8t42 to Provider Smm : Service not found or inactive"
+    },
+    {
+      "id": "log_1791449739598_jbs0",
+      "createdAt": "2026-10-08T08:55:39.598Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1791449741593_hffs",
+      "createdAt": "2026-10-08T08:55:41.594Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791104090610_1_u4cs to Provider Smm : Service not found or inactive"
+    },
+    {
+      "id": "log_1791449741778_wup9",
+      "createdAt": "2026-10-08T08:55:41.778Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791104090610_2_dsks to Provider Smm : Service not found or inactive"
+    },
+    {
+      "id": "log_1791450128439_xt0j",
+      "createdAt": "2026-10-08T09:02:08.439Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1791450136523_6w5x",
+      "createdAt": "2026-10-08T09:02:16.523Z",
+      "level": "info",
+      "source": "Orders",
+      "message": "Created Order #10005 (single)",
+      "details": "{\"serviceId\":6085,\"quantity\":10,\"price\":1.0781}"
     }
   ],
-  "nextOrderId": 10005
+  "nextOrderId": 10006
 }

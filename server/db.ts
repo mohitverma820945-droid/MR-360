@@ -225,16 +225,6 @@ class DatabaseEngine {
     const existingProvIds = new Set(this.data.providers.map(p => p.id));
     this.data.services = this.data.services.filter(s => s.providerId && existingProvIds.has(s.providerId));
 
-    // Ensure all services strictly preserve 1:1 matching providerServiceId and exact rates
-    for (const s of this.data.services) {
-      if (s.providerServiceId && s.id !== s.providerServiceId) {
-        s.id = s.providerServiceId;
-      }
-      if (s.providerRate !== undefined) {
-        s.rate = s.providerRate;
-      }
-    }
-
     this.saveDatabase();
   }
 
@@ -445,7 +435,11 @@ class DatabaseEngine {
   }
 
   getServiceById(id: number): SmmService | undefined {
-    return this.data.services.find(s => s.id === id || s.providerServiceId === id);
+    // 1. Exact match on local unique service ID
+    const localMatch = this.data.services.find(s => s.id === id);
+    if (localMatch) return localMatch;
+    // 2. Fallback match on providerServiceId
+    return this.data.services.find(s => s.providerServiceId === id);
   }
 
   saveServices(services: SmmService[]): void {
@@ -461,7 +455,10 @@ class DatabaseEngine {
   }
 
   updateService(id: number, updates: Partial<SmmService>): SmmService {
-    const index = this.data.services.findIndex(s => s.id === id || s.providerServiceId === id);
+    let index = this.data.services.findIndex(s => s.id === id);
+    if (index === -1) {
+      index = this.data.services.findIndex(s => s.providerServiceId === id);
+    }
     if (index === -1) throw new Error(`Service ${id} not found`);
 
     this.data.services[index] = { ...this.data.services[index], ...updates };

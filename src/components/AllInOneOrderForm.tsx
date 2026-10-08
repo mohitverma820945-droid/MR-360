@@ -149,6 +149,28 @@ export const getServicesForMetric = (metricKey: string, platformServices: SmmSer
   });
 };
 
+const loadSavedPlatformConfig = (plat: string) => {
+  try {
+    const raw = localStorage.getItem(`mr360_aio_saved_${plat.toLowerCase()}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch {}
+  return null;
+};
+
+const savePlatformConfig = (plat: string, configData: any) => {
+  try {
+    localStorage.setItem(`mr360_aio_saved_${plat.toLowerCase()}`, JSON.stringify(configData));
+    fetch('/api/settings/saved-services', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaderObj() },
+      body: JSON.stringify({ platform: plat, config: configData })
+    }).catch(() => {});
+  } catch {}
+};
+
 export const AllInOneOrderForm: React.FC = () => {
   const [services, setServices] = useState<SmmService[]>([]);
   const [platform, setPlatform] = useState<PlatformCategory>('Instagram');
@@ -361,33 +383,48 @@ export const AllInOneOrderForm: React.FC = () => {
         const sharesSvcs = getServicesForMetric('shares', platformSvcs);
         const savesSvcs = getServicesForMetric('saves', platformSvcs);
 
-        setMetricConfigs(prev => ({
-          views: { 
-            ...prev.views, 
-            serviceId: viewsSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: prev.views.providerId || 'all'
-          },
-          likes: { 
-            ...prev.likes, 
-            serviceId: likesSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: prev.likes.providerId || 'all'
-          },
-          comments: { 
-            ...prev.comments, 
-            serviceId: commentsSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: prev.comments.providerId || 'all'
-          },
-          shares: { 
-            ...prev.shares, 
-            serviceId: sharesSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: prev.shares.providerId || 'all'
-          },
-          saves: { 
-            ...prev.saves, 
-            serviceId: savesSvcs[0]?.id || platformSvcs[0]?.id || null,
-            providerId: prev.saves.providerId || 'all'
-          }
-        }));
+        const savedPlatformConfig = loadSavedPlatformConfig(platform);
+
+        setMetricConfigs(prev => {
+          const resolveService = (mKey: string, defaultSvcs: SmmService[]) => {
+            const savedSvcId = savedPlatformConfig?.metricConfigs?.[mKey]?.serviceId;
+            if (savedSvcId && data.some(s => s.id === savedSvcId)) return savedSvcId;
+            if (prev[mKey as keyof typeof prev]?.serviceId && data.some(s => s.id === prev[mKey as keyof typeof prev].serviceId)) {
+              return prev[mKey as keyof typeof prev].serviceId;
+            }
+            return defaultSvcs[0]?.id || platformSvcs[0]?.id || null;
+          };
+
+          const newConfigs = {
+            views: { 
+              ...prev.views, 
+              ...(savedPlatformConfig?.metricConfigs?.views || {}),
+              serviceId: resolveService('views', viewsSvcs)
+            },
+            likes: { 
+              ...prev.likes, 
+              ...(savedPlatformConfig?.metricConfigs?.likes || {}),
+              serviceId: resolveService('likes', likesSvcs)
+            },
+            comments: { 
+              ...prev.comments, 
+              ...(savedPlatformConfig?.metricConfigs?.comments || {}),
+              serviceId: resolveService('comments', commentsSvcs)
+            },
+            shares: { 
+              ...prev.shares, 
+              ...(savedPlatformConfig?.metricConfigs?.shares || {}),
+              serviceId: resolveService('shares', sharesSvcs)
+            },
+            saves: { 
+              ...prev.saves, 
+              ...(savedPlatformConfig?.metricConfigs?.saves || {}),
+              serviceId: resolveService('saves', savesSvcs)
+            }
+          };
+
+          return newConfigs;
+        });
       })
       .catch(() => {
         setLoadingServices(false);
@@ -399,6 +436,17 @@ export const AllInOneOrderForm: React.FC = () => {
     window.addEventListener('providers-changed', fetchServicesCatalog);
     return () => window.removeEventListener('providers-changed', fetchServicesCatalog);
   }, [platform]);
+
+  // Auto-Save User Service Configurations per Platform so panel closing/reopening never resets choices
+  useEffect(() => {
+    if (metricConfigs.views.serviceId || metricConfigs.likes.serviceId) {
+      savePlatformConfig(platform, {
+        metricConfigs,
+        enabledMetrics,
+        autoRunsMode
+      });
+    }
+  }, [metricConfigs, enabledMetrics, autoRunsMode, platform]);
 
   // Active pattern details
   const activePattern = getGrowthPattern(selectedPatternId);
