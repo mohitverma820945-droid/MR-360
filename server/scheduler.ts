@@ -155,10 +155,15 @@ export class SchedulerWorker {
 
       console.log(`[Scheduler] Submitting provider order for Schedule #${item.id} (Run ${item.runNumber}/${item.totalRuns}, Qty ${item.quantity})...`);
 
-      // Execute Real Provider API Order
+      // Execute Real Provider API Order with unique tracking run parameter to prevent SMM provider duplicate link rejection
+      const runSuffix = (item.runNumber && item.runNumber > 1) || (item.retryCount && item.retryCount > 0)
+        ? `${item.link.includes('?') ? '&' : '?'}_run=${item.runNumber || 1}&_retry=${item.retryCount || 0}&_ts=${Date.now()}`
+        : '';
+      const submitLink = item.link + runSuffix;
+
       const result = await ProviderClient.addOrder(provider, {
         service: service.providerServiceId,
-        link: item.link,
+        link: submitLink,
         quantity: item.quantity
       });
 
@@ -232,15 +237,42 @@ export class SchedulerWorker {
         );
 
       } else {
-        // Provider API error with Smart Retry Resilience
+        // Provider API error with Smart Retry Resilience & Instant Duplicate Bypass
         const errMsg = result.error || 'Provider returned unsuccessful response';
-        const isTransient = errMsg.toLowerCase().includes('timeout') ||
-          errMsg.toLowerCase().includes('network') ||
-          errMsg.toLowerCase().includes('rate limit') ||
-          errMsg.toLowerCase().includes('502') ||
-          errMsg.toLowerCase().includes('503') ||
-          errMsg.toLowerCase().includes('429') ||
-          errMsg.toLowerCase().includes('busy');
+        const errLower = errMsg.toLowerCase();
+
+        const isDuplicateLinkWait = 
+          errLower.includes('duplicate') ||
+          errLower.includes('wait for existing order') ||
+          errLower.includes('same link') ||
+          errLower.includes('active order') ||
+          errLower.includes('already in progress') ||
+          errLower.includes('processing order');
+
+        if (isDuplicateLinkWait) {
+          // Instant Duplicate Bypass: Retry immediately with a unique distinct query timestamp and retry count increment
+          const nextRetry = (item.retryCount || 0) + 1;
+          if (nextRetry <= 5) {
+            db.updateScheduleItem(item.id, {
+              retryCount: nextRetry,
+              scheduledAt: new Date(Date.now() + 2000 * nextRetry).toISOString(), // Retry in 2-10 seconds
+              errorMessage: `Duplicate bypassed - retrying with unique tag (Attempt ${nextRetry})`
+            });
+            // Re-trigger execution pass instantly
+            setTimeout(() => {
+              SchedulerWorker.processDueSchedules().catch(() => {});
+            }, 500);
+            return;
+          }
+        }
+
+        const isTransient = errLower.includes('timeout') ||
+          errLower.includes('network') ||
+          errLower.includes('rate limit') ||
+          errLower.includes('502') ||
+          errLower.includes('503') ||
+          errLower.includes('429') ||
+          errLower.includes('busy');
 
         const currentRetries = item.retryCount || 0;
 

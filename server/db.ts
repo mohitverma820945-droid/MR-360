@@ -50,8 +50,14 @@ class DatabaseEngine {
   }
 
   private loadDatabase(): DatabaseSchema {
-    const pathsToTry = [DB_FILE_PATH, SEED_FILE_PATH, BACKUP_FILE_PATH];
-    
+    const pathsToTry = Array.from(new Set([DB_FILE_PATH, SEED_FILE_PATH, BACKUP_FILE_PATH]));
+    let bestCandidate: DatabaseSchema | null = null;
+    let allProvidersMap = new Map<string, SmmProvider>();
+    let allServicesMap = new Map<number, SmmService>();
+    let allOrdersMap = new Map<number, Order>();
+    let allSchedulesMap = new Map<string, ScheduleItem>();
+    let maxOrderId = 10001;
+
     for (const p of pathsToTry) {
       try {
         if (fs.existsSync(p)) {
@@ -59,15 +65,62 @@ class DatabaseEngine {
           if (raw && raw.trim().length > 0) {
             const parsed = JSON.parse(raw);
             if (parsed && Array.isArray(parsed.users)) {
-              console.log(`[DB] Successfully loaded database from: ${p}`);
-              this.isLoaded = true;
-              return parsed;
+              if (!bestCandidate) bestCandidate = parsed;
+              
+              if (Array.isArray(parsed.providers)) {
+                parsed.providers.forEach((prov: SmmProvider) => {
+                  if (prov && prov.id) {
+                    if (!allProvidersMap.has(prov.id) || (prov.apiUrl && !allProvidersMap.get(prov.id)?.apiUrl)) {
+                      allProvidersMap.set(prov.id, prov);
+                    }
+                  }
+                });
+              }
+
+              if (Array.isArray(parsed.services)) {
+                parsed.services.forEach((svc: SmmService) => {
+                  if (svc && svc.id) {
+                    allServicesMap.set(svc.id, svc);
+                  }
+                });
+              }
+
+              if (Array.isArray(parsed.orders)) {
+                parsed.orders.forEach((ord: Order) => {
+                  if (ord && ord.id) {
+                    allOrdersMap.set(ord.id, ord);
+                    if (ord.id >= maxOrderId) maxOrderId = ord.id + 1;
+                  }
+                });
+              }
+
+              if (Array.isArray(parsed.schedules)) {
+                parsed.schedules.forEach((sch: ScheduleItem) => {
+                  if (sch && sch.id) {
+                    allSchedulesMap.set(sch.id, sch);
+                  }
+                });
+              }
+
+              if (parsed.nextOrderId && parsed.nextOrderId > maxOrderId) {
+                maxOrderId = parsed.nextOrderId;
+              }
             }
           }
         }
       } catch (err) {
         console.warn(`[DB] Failed to read database from ${p}:`, err);
       }
+    }
+
+    if (bestCandidate) {
+      this.isLoaded = true;
+      bestCandidate.providers = Array.from(allProvidersMap.values());
+      bestCandidate.services = Array.from(allServicesMap.values());
+      bestCandidate.orders = Array.from(allOrdersMap.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
+      bestCandidate.schedules = Array.from(allSchedulesMap.values());
+      bestCandidate.nextOrderId = Math.max(bestCandidate.nextOrderId || 10001, maxOrderId);
+      return bestCandidate;
     }
 
     return {
@@ -115,27 +168,28 @@ class DatabaseEngine {
 
     try {
       const serialized = JSON.stringify(this.data, null, 2);
-      const tempPath = DB_FILE_PATH + '.tmp';
       
-      // 1. Atomic Write to Temp
-      fs.writeFileSync(tempPath, serialized, 'utf-8');
-      
-      // 2. Rename Temp to Main (Atomic on most OS)
-      fs.renameSync(tempPath, DB_FILE_PATH);
+      // 1. Write to DB_FILE_PATH
+      try {
+        const tempPath = DB_FILE_PATH + '.tmp';
+        fs.writeFileSync(tempPath, serialized, 'utf-8');
+        fs.renameSync(tempPath, DB_FILE_PATH);
+      } catch (err) {
+        console.warn('[DB] Failed writing to DB_FILE_PATH:', err);
+      }
 
-      // 3. Periodic Backup to CWD (if in /tmp)
-      if (DB_FILE_PATH.startsWith('/tmp')) {
+      // 2. ALWAYS also write to SEED_FILE_PATH (data_store.json in project root) so providers and orders are never lost
+      if (SEED_FILE_PATH !== DB_FILE_PATH) {
         try {
-          fs.writeFileSync(BACKUP_FILE_PATH, serialized, 'utf-8');
-        } catch {
-          // ignore backup write errors in restricted envs
-        }
-      } else {
-        // Also keep a backup in current directory
-        try {
-          fs.writeFileSync(BACKUP_FILE_PATH, serialized, 'utf-8');
+          fs.writeFileSync(SEED_FILE_PATH, serialized, 'utf-8');
         } catch {}
       }
+
+      // 3. ALWAYS also write to BACKUP_FILE_PATH (data_store.backup.json in project root)
+      try {
+        fs.writeFileSync(BACKUP_FILE_PATH, serialized, 'utf-8');
+      } catch {}
+
     } catch (err) {
       console.warn('[DB] Failed to persist database to disk:', err);
     }
