@@ -933,13 +933,39 @@ app.post('/api/orders/all-in-one/preview', (req, res) => {
     const mConfigs = reqBody.metricConfigs || reqBody.metricsConfig || {};
     const autoRunsMode = reqBody.autoRunsMode || {};
 
+    // Anti-Bot Organic Ratio Harmonization: Ensure views are accompanied by balanced likes, shares, saves, and comments
+    const viewsQty = Number(mConfigs.views?.totalQuantity || 0);
+    if (viewsQty > 0) {
+      const likesPct = Math.max(4.0, 7.5 - Math.log10(Math.max(100, viewsQty)) * 0.9) / 100;
+      const commentsPct = Math.max(0.6, 1.8 - Math.log10(Math.max(100, viewsQty)) * 0.3) / 100;
+      const sharesPct = Math.max(3.5, 6.5 - Math.log10(Math.max(100, viewsQty)) * 0.7) / 100;
+      const savesPct = Math.max(4.0, 7.0 - Math.log10(Math.max(100, viewsQty)) * 0.7) / 100;
+
+      if (!mConfigs.likes || !mConfigs.likes.totalQuantity || mConfigs.likes.totalQuantity <= 0) {
+        if (!mConfigs.likes) mConfigs.likes = { serviceId: mConfigs.views.serviceId };
+        mConfigs.likes.totalQuantity = Math.max(10, Math.round(viewsQty * likesPct));
+      }
+      if (!mConfigs.comments || !mConfigs.comments.totalQuantity || mConfigs.comments.totalQuantity <= 0) {
+        if (!mConfigs.comments) mConfigs.comments = { serviceId: mConfigs.views.serviceId };
+        mConfigs.comments.totalQuantity = Math.max(5, Math.round(viewsQty * commentsPct));
+      }
+      if (!mConfigs.shares || !mConfigs.shares.totalQuantity || mConfigs.shares.totalQuantity <= 0) {
+        if (!mConfigs.shares) mConfigs.shares = { serviceId: mConfigs.views.serviceId };
+        mConfigs.shares.totalQuantity = Math.max(10, Math.round(viewsQty * sharesPct));
+      }
+      if (!mConfigs.saves || !mConfigs.saves.totalQuantity || mConfigs.saves.totalQuantity <= 0) {
+        if (!mConfigs.saves) mConfigs.saves = { serviceId: mConfigs.views.serviceId };
+        mConfigs.saves.totalQuantity = Math.max(10, Math.round(viewsQty * savesPct));
+      }
+    }
+
     const metricPlans: any[] = [];
     let grandTotalCost = 0;
     const timelinePreview: BundlePreview[] = [];
 
     for (const [metricKey, configAny] of Object.entries(mConfigs)) {
       const config = configAny as any;
-      if (!config.serviceId || config.totalQuantity <= 0) continue;
+      if (!config || !config.serviceId || config.totalQuantity <= 0) continue;
 
       const service = db.getServiceById(config.serviceId);
       if (!service) continue;
@@ -1048,13 +1074,39 @@ app.post('/api/orders/all-in-one/submit', (req, res) => {
     const mConfigs = reqBody.metricConfigs || reqBody.metricsConfig || {};
     const autoRunsMode = reqBody.autoRunsMode || {};
 
+    // Anti-Bot Organic Ratio Harmonization: Ensure views are accompanied by balanced likes, shares, saves, and comments
+    const viewsQty = Number(mConfigs.views?.totalQuantity || 0);
+    if (viewsQty > 0) {
+      const likesPct = Math.max(4.0, 7.5 - Math.log10(Math.max(100, viewsQty)) * 0.9) / 100;
+      const commentsPct = Math.max(0.6, 1.8 - Math.log10(Math.max(100, viewsQty)) * 0.3) / 100;
+      const sharesPct = Math.max(3.5, 6.5 - Math.log10(Math.max(100, viewsQty)) * 0.7) / 100;
+      const savesPct = Math.max(4.0, 7.0 - Math.log10(Math.max(100, viewsQty)) * 0.7) / 100;
+
+      if (!mConfigs.likes || !mConfigs.likes.totalQuantity || mConfigs.likes.totalQuantity <= 0) {
+        if (!mConfigs.likes) mConfigs.likes = { serviceId: mConfigs.views.serviceId };
+        mConfigs.likes.totalQuantity = Math.max(10, Math.round(viewsQty * likesPct));
+      }
+      if (!mConfigs.comments || !mConfigs.comments.totalQuantity || mConfigs.comments.totalQuantity <= 0) {
+        if (!mConfigs.comments) mConfigs.comments = { serviceId: mConfigs.views.serviceId };
+        mConfigs.comments.totalQuantity = Math.max(5, Math.round(viewsQty * commentsPct));
+      }
+      if (!mConfigs.shares || !mConfigs.shares.totalQuantity || mConfigs.shares.totalQuantity <= 0) {
+        if (!mConfigs.shares) mConfigs.shares = { serviceId: mConfigs.views.serviceId };
+        mConfigs.shares.totalQuantity = Math.max(10, Math.round(viewsQty * sharesPct));
+      }
+      if (!mConfigs.saves || !mConfigs.saves.totalQuantity || mConfigs.saves.totalQuantity <= 0) {
+        if (!mConfigs.saves) mConfigs.saves = { serviceId: mConfigs.views.serviceId };
+        mConfigs.saves.totalQuantity = Math.max(10, Math.round(viewsQty * savesPct));
+      }
+    }
+
     const metricPlans: any[] = [];
     let grandTotalCost = 0;
     const timelinePreview: BundlePreview[] = [];
 
     for (const [metricKey, configAny] of Object.entries(mConfigs)) {
       const config = configAny as any;
-      if (!config.serviceId || config.totalQuantity <= 0) continue;
+      if (!config || !config.serviceId || config.totalQuantity <= 0) continue;
 
       const service = db.getServiceById(config.serviceId);
       if (!service) continue;
