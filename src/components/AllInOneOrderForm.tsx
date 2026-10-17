@@ -330,11 +330,21 @@ export const AllInOneOrderForm: React.FC = () => {
     return Math.max(1, Math.min(maxPossible, calculated));
   };
 
-  // Sync Base Views Quantity into metricConfigs
+  // Sync Base Views Quantity & Scale Organic Ratios for Likes, Comments, Shares, Saves across any order size (1k, 5k, etc.)
   useEffect(() => {
+    const v = baseViewsQty || 0;
+    const likesPct = Math.max(4.0, 7.5 - Math.log10(Math.max(100, v)) * 0.9) / 100;
+    const commentsPct = Math.max(0.6, 1.8 - Math.log10(Math.max(100, v)) * 0.3) / 100;
+    const sharesPct = Math.max(3.5, 6.5 - Math.log10(Math.max(100, v)) * 0.7) / 100;
+    const savesPct = Math.max(4.0, 7.0 - Math.log10(Math.max(100, v)) * 0.7) / 100;
+
     setMetricConfigs(prev => ({
       ...prev,
-      views: { ...prev.views, totalQuantity: baseViewsQty }
+      views: { ...prev.views, totalQuantity: v },
+      likes: { ...prev.likes, totalQuantity: Math.max(10, Math.round(v * likesPct)) },
+      comments: { ...prev.comments, totalQuantity: Math.max(5, Math.round(v * commentsPct)) },
+      shares: { ...prev.shares, totalQuantity: Math.max(10, Math.round(v * sharesPct)) },
+      saves: { ...prev.saves, totalQuantity: Math.max(10, Math.round(v * savesPct)) }
     }));
   }, [baseViewsQty]);
 
