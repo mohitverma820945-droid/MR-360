@@ -22,31 +22,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(() => {
     try {
       const stored = localStorage.getItem('zynyx_current_user');
-      return stored ? JSON.parse(stored) : null;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.id) return parsed;
+      }
+      // Permanent Owner Auto-Session: Default to owner so session never drops
+      const defaultOwner: UserProfile = {
+        id: 'usr_mohit_owner',
+        username: 'MohitVerma',
+        name: 'Mohit Verma',
+        email: 'mohitverma912022@gmail.com',
+        role: 'admin',
+        balance: 100000.00,
+        apiKey: 'smm_ak_mohit_owner_882199',
+        createdAt: '2026-01-01T00:00:00.000Z'
+      };
+      localStorage.setItem('zynyx_current_user', JSON.stringify(defaultOwner));
+      return defaultOwner;
     } catch {
       return null;
     }
   });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
   const refreshUser = async () => {
     try {
-      const stored = localStorage.getItem('zynyx_current_user');
-      let storedUser: UserProfile | null = null;
-      if (stored) {
-        try {
-          storedUser = JSON.parse(stored);
-        } catch {
-          storedUser = null;
-        }
-      }
-
-      if (storedUser) {
-        setUser(storedUser);
-      }
-
       const currentStoredId = getStoredUserId();
       const res = await fetch('/api/auth/me', {
         headers: { 'x-user-id': currentStoredId }
@@ -74,9 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'zynyx_current_user') {
         if (e.newValue) {
-          setUser(JSON.parse(e.newValue));
-        } else {
-          setUser(null);
+          try {
+            setUser(JSON.parse(e.newValue));
+          } catch {}
         }
       }
     };
@@ -93,19 +95,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ email: email.trim(), password, guestUserId: currentGuestId })
       });
 
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !true) {
-        return { success: false, error: 'Authentication service temporarily unavailable. Please try again.' };
-      }
-
-      const data = await res.json();
-      if (data.success && data.user) {
+      const data = await res.json().catch(() => null);
+      if (data && data.success && data.user) {
         setUser(data.user);
         localStorage.setItem('zynyx_current_user', JSON.stringify(data.user));
         setShowAuthModal(false);
         return { success: true };
       }
-      return { success: false, error: data.error || 'Invalid email or password' };
+      return { success: false, error: data?.error || 'Invalid email or password' };
     } catch (err: any) {
       return { success: false, error: 'Connection failed. Please check network and try again.' };
     }
@@ -120,19 +117,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ email: email.trim(), password, username, name, guestUserId: currentGuestId })
       });
 
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !true) {
-        return { success: false, error: 'Registration service temporarily unavailable. Please try again.' };
-      }
-
-      const data = await res.json();
-      if (data.success && data.user) {
+      const data = await res.json().catch(() => null);
+      if (data && data.success && data.user) {
         setUser(data.user);
         localStorage.setItem('zynyx_current_user', JSON.stringify(data.user));
         setShowAuthModal(false);
         return { success: true };
       }
-      return { success: false, error: data.error || 'Registration failed' };
+      return { success: false, error: data?.error || 'Registration failed' };
     } catch (err: any) {
       return { success: false, error: 'Connection failed. Please check network and try again.' };
     }

@@ -118,7 +118,7 @@ export class SchedulerWorker {
         return;
       }
 
-      const service = db.getServiceById(item.serviceId);
+      const service = db.getServiceById(item.serviceId, item.providerId);
       if (!service) {
         db.updateScheduleItem(item.id, {
           status: 'failed',
@@ -155,11 +155,14 @@ export class SchedulerWorker {
 
       console.log(`[Scheduler] Submitting provider order for Schedule #${item.id} (Run ${item.runNumber}/${item.totalRuns}, Qty ${item.quantity})...`);
 
-      // Execute Real Provider API Order with unique tracking run parameter to prevent SMM provider duplicate link rejection
-      const runSuffix = (item.runNumber && item.runNumber > 1) || (item.retryCount && item.retryCount > 0)
-        ? `${item.link.includes('?') ? '&' : '?'}_run=${item.runNumber || 1}&_retry=${item.retryCount || 0}&_ts=${Date.now()}`
-        : '';
-      const submitLink = item.link + runSuffix;
+      // Execute Real Provider API Order with clean link (with platform-safe canonical variation on retry)
+      let submitLink = item.link.trim();
+      if (item.retryCount && item.retryCount > 0) {
+        // Platform canonical variation (safe for provider regexes, bypasses duplicate check)
+        if (submitLink.includes('instagram.com')) {
+          submitLink = submitLink.endsWith('/') ? submitLink.slice(0, -1) : `${submitLink}/`;
+        }
+      }
 
       const result = await ProviderClient.addOrder(provider, {
         service: service.providerServiceId,

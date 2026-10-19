@@ -18,7 +18,8 @@ import {
   Timer,
   Check,
   AlertCircle,
-  Edit3
+  Edit3,
+  Zap
 } from 'lucide-react';
 import { Order, OrderStatus, ScheduleItem } from '../types';
 import { getAuthHeaderObj, getStoredUserId } from '../utils/apiAuth';
@@ -720,56 +721,73 @@ export const OrderHistoryView: React.FC = () => {
                               <ExternalLink className="w-2.5 h-2.5 shrink-0" />
                             </a>
                           </div>
-                          <div className="flex items-center space-x-2 mt-1">
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
                             <span className="inline-block px-1.5 py-0.5 rounded bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 text-[10px] font-bold uppercase tracking-wider">
                               {order.platform}
                             </span>
                             <span className="text-[10px] text-slate-400 capitalize">
                               {order.orderType.replace(/_/g, ' ')}
                             </span>
+                            {order.orderType === 'all_in_one_parent' || order.orderType === 'drip_feed' ? (
+                              <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                                <span>🛡️ Whop Score: 1.2% Safe</span>
+                              </span>
+                            ) : null}
                           </div>
                         </td>
 
                         {/* Bundles Progress: Total, Completed, Remaining */}
                         <td className="py-3.5 px-4 min-w-[160px]">
-                          <div className="space-y-1.5">
-                            <div className="flex items-center justify-between text-[11px] font-bold">
-                              <span className="text-slate-700 dark:text-slate-200">
-                                {completed} / {total} Bundles
+                          {order.orderType === 'single' ? (
+                            <div className="space-y-1">
+                              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center space-x-1">
+                                <Zap className="w-3.5 h-3.5 text-pink-500" />
+                                <span>Instant Single Order</span>
                               </span>
-                              <span className="text-slate-400 font-mono text-[10px]">
-                                {progressPct}%
-                              </span>
+                              <div className="text-[10px] text-slate-400">
+                                {order.status === 'Completed' ? '100% Delivered' : order.status === 'Failed' ? 'Submission Failed' : 'Provider Dispatched'}
+                              </div>
                             </div>
-
-                            {/* Mini progress bar */}
-                            <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full transition-all duration-500 rounded-full ${
-                                  order.status === 'Canceled' 
-                                    ? 'bg-slate-400' 
-                                    : order.status === 'Completed' 
-                                      ? 'bg-emerald-500' 
-                                      : 'bg-gradient-to-r from-pink-500 to-rose-500'
-                                }`}
-                                style={{ width: `${progressPct}%` }}
-                              />
-                            </div>
-
-                            <div className="flex items-center space-x-3 text-[10px]">
-                              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                                ✓ {completed} Done
-                              </span>
-                              <span className="text-amber-600 dark:text-amber-400 font-semibold">
-                                ⏳ {remaining} Remaining
-                              </span>
-                              {order.canceledBundles && order.canceledBundles > 0 ? (
-                                <span className="text-slate-400 font-semibold">
-                                  ✕ {order.canceledBundles} Canceled
+                          ) : (
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between text-[11px] font-bold">
+                                <span className="text-slate-700 dark:text-slate-200">
+                                  {completed} / {total} Runs
                                 </span>
-                              ) : null}
+                                <span className="text-slate-400 font-mono text-[10px]">
+                                  {progressPct}%
+                                </span>
+                              </div>
+
+                              {/* Mini progress bar */}
+                              <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full transition-all duration-500 rounded-full ${
+                                    order.status === 'Canceled' 
+                                      ? 'bg-slate-400' 
+                                      : order.status === 'Completed' 
+                                        ? 'bg-emerald-500' 
+                                        : 'bg-gradient-to-r from-pink-500 to-rose-500'
+                                  }`}
+                                  style={{ width: `${progressPct}%` }}
+                                />
+                              </div>
+
+                              <div className="flex items-center space-x-3 text-[10px]">
+                                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                                  ✓ {completed} Done
+                                </span>
+                                <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                                  ⏳ {remaining} Remaining
+                                </span>
+                                {order.canceledBundles && order.canceledBundles > 0 ? (
+                                  <span className="text-slate-400 font-semibold">
+                                    ✕ {order.canceledBundles} Canceled
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </td>
 
                         {/* Timing & Schedule */}

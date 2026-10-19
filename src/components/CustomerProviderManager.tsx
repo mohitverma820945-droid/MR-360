@@ -41,9 +41,45 @@ export const CustomerProviderManager: React.FC = () => {
         headers: getAuthHeaderObj()
       });
       const data = await res.json();
-      setProviders(Array.isArray(data) ? data : []);
+      if (Array.isArray(data) && data.length > 0) {
+        setProviders(data);
+        localStorage.setItem('mr360_active_providers', JSON.stringify(data));
+      } else {
+        // If server returns empty list, check if client has cached providers to auto-restore
+        const cachedRaw = localStorage.getItem('mr360_active_providers');
+        if (cachedRaw) {
+          try {
+            const cachedList = JSON.parse(cachedRaw);
+            if (Array.isArray(cachedList) && cachedList.length > 0) {
+              setProviders(cachedList);
+              // Auto-restore to server
+              fetch('/api/providers/sync-from-client', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getAuthHeaderObj() },
+                body: JSON.stringify({ providers: cachedList })
+              }).catch(() => {});
+            } else {
+              setProviders([]);
+            }
+          } catch {
+            setProviders([]);
+          }
+        } else {
+          setProviders([]);
+        }
+      }
     } catch {
-      setStatusMessage({ type: 'error', text: 'Failed to load your connected providers.' });
+      // Offline / network fallback to cached providers
+      const cachedRaw = localStorage.getItem('mr360_active_providers');
+      if (cachedRaw) {
+        try {
+          setProviders(JSON.parse(cachedRaw));
+        } catch {
+          setProviders([]);
+        }
+      } else {
+        setStatusMessage({ type: 'error', text: 'Failed to load your connected providers.' });
+      }
     } finally {
       setLoading(false);
     }

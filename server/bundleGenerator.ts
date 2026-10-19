@@ -432,12 +432,17 @@ export class BundleGenerator {
         }
       }
 
-      // Anti-duplicate refinement for drip runs so no two consecutive runs are identical
-      for (let i = 1; i < runs; i++) {
-        if (rawQuantities[i] === rawQuantities[i - 1] && rawQuantities[i] > minBundleSize + 4) {
-          const delta = Math.min(5, Math.floor(rawQuantities[i] * 0.1) || 1);
-          rawQuantities[i - 1] += delta;
-          rawQuantities[i] -= delta;
+      // Whop Anti-Bot Entropy: break robotic identical batches and round numbers (multiples of 50/100)
+      if (runs > 1) {
+        for (let i = 0; i < runs - 1; i++) {
+          // If round number or identical to adjacent run, add micro-jitter
+          const isRound = rawQuantities[i] % 50 === 0 || rawQuantities[i] % 10 === 0;
+          const isDup = rawQuantities[i] === rawQuantities[i + 1];
+          if ((isRound || isDup) && rawQuantities[i] > minBundleSize + 8 && rawQuantities[i + 1] < maxBundleSize - 8) {
+            const jitterAmount = Math.max(1, Math.min(7, Math.floor(rawQuantities[i] * 0.03))) + (i % 2 === 0 ? 1 : 3);
+            rawQuantities[i] -= jitterAmount;
+            rawQuantities[i + 1] += jitterAmount;
+          }
         }
       }
 

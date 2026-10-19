@@ -23,7 +23,7 @@ const AppContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('all-in-one');
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(true);
-  const { user, isAuthenticated, setAuthMode, setShowAuthModal } = useAuth();
+  const { user, isAuthenticated, isLoading, setAuthMode, setShowAuthModal } = useAuth();
 
   // Auto set admin state if logged in as admin
   useEffect(() => {
@@ -52,6 +52,17 @@ const AppContent: React.FC = () => {
     setAuthMode(mode);
     setShowAuthModal(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-100">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="w-10 h-10 border-3 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-mono text-slate-400">Loading MR.360...</p>
+        </div>
+      </div>
+    );
+  }
 
   // IF NOT AUTHENTICATED -> SHOW PUBLIC LANDING PAGE
   if (!isAuthenticated || !user) {
