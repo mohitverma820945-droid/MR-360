@@ -68,14 +68,14 @@
       "apiUrl": "https://instantsmmboost.com/api/v2",
       "apiKey": "cf867dbf9464816e08a89abaab13a873",
       "status": "active",
-      "balance": 41.45,
+      "balance": 38.75,
       "balanceCurrency": "INR",
-      "lastBalanceCheck": "2026-10-08T09:02:12.660Z",
+      "lastBalanceCheck": "2026-10-19T11:50:17.600Z",
       "userId": "usr_mud2y46zkisk",
       "id": "prov_muqrckex",
       "createdAt": "2026-10-02T09:25:36.729Z",
-      "balanceInr": 41.45,
-      "balanceUsd": 0.48
+      "balanceInr": 38.75,
+      "balanceUsd": 0.45
     }
   ],
   "services": [
@@ -8081,7 +8081,57 @@
   "settings": {
     "markupPercentage": 20,
     "providerBalanceAutoRefreshMinutes": 30,
-    "cronExecutionIntervalSeconds": 10
+    "cronExecutionIntervalSeconds": 10,
+    "savedServiceConfigs": {
+      "instagram": {
+        "metricConfigs": {
+          "views": {
+            "serviceId": 5723,
+            "totalQuantity": 10000,
+            "runCount": 30,
+            "providerId": "all"
+          },
+          "likes": {
+            "serviceId": 5966,
+            "totalQuantity": 400,
+            "runCount": 15,
+            "providerId": "all"
+          },
+          "comments": {
+            "serviceId": 5910,
+            "totalQuantity": 60,
+            "runCount": 10,
+            "providerId": "all"
+          },
+          "shares": {
+            "serviceId": 5965,
+            "totalQuantity": 370,
+            "runCount": 12,
+            "providerId": "all"
+          },
+          "saves": {
+            "serviceId": 5723,
+            "totalQuantity": 420,
+            "runCount": 10,
+            "providerId": "all"
+          }
+        },
+        "enabledMetrics": {
+          "views": true,
+          "likes": true,
+          "comments": true,
+          "shares": true,
+          "saves": true
+        },
+        "autoRunsMode": {
+          "views": true,
+          "likes": true,
+          "comments": true,
+          "shares": true,
+          "saves": true
+        }
+      }
+    }
   },
   "logs": [
     {
@@ -9670,6 +9720,41 @@
       "source": "Orders",
       "message": "Created Order #10005 (single)",
       "details": "{\"serviceId\":6085,\"quantity\":10,\"price\":1.0781}"
+    },
+    {
+      "id": "log_1792410613581_4aet",
+      "createdAt": "2026-10-19T11:50:13.581Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1792410620639_h4u9",
+      "createdAt": "2026-10-19T11:50:20.639Z",
+      "level": "info",
+      "source": "Settings",
+      "message": "Updated system settings"
+    },
+    {
+      "id": "log_1792410620723_86dd",
+      "createdAt": "2026-10-19T11:50:20.723Z",
+      "level": "info",
+      "source": "Settings",
+      "message": "Updated system settings"
+    },
+    {
+      "id": "log_1792410715339_ho5f",
+      "createdAt": "2026-10-19T11:51:55.339Z",
+      "level": "info",
+      "source": "Auth",
+      "message": "User logged in successfully: mohitverma912022@gmail.com"
+    },
+    {
+      "id": "log_1792410765985_nh3k",
+      "createdAt": "2026-10-19T11:52:45.985Z",
+      "level": "info",
+      "source": "Auth",
+      "message": "User logged in successfully: mohitverma912022@gmail.com"
     }
   ],
   "nextOrderId": 10006
