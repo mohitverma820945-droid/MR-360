@@ -123,20 +123,17 @@ export class BundleGenerator {
 
     const minBundleSize = this.getMinimumBundleSize(metric, service.min);
     const maxBundleSize = service.max || 10000000;
-    const maxPossibleBundles = Math.max(1, Math.floor(totalQuantity / minBundleSize));
-
-    if (totalQuantity < minBundleSize) {
-      throw new Error(
-        `Total quantity of ${totalQuantity.toLocaleString()} for ${metric} is below the minimum required quantity of ${minBundleSize.toLocaleString()} units.`
-      );
-    }
+    
+    // Graceful auto-elevation to provider minimum so small orders never fail or crash
+    const safeTotalQuantity = Math.max(minBundleSize, totalQuantity);
+    const maxPossibleBundles = Math.max(1, Math.floor(safeTotalQuantity / minBundleSize));
 
     // 1. Determine Bundle Count N
     let actualRunCount: number;
     let explanationNote: string | undefined = undefined;
 
     if (!requestedRunCount || requestedRunCount <= 0 || (requestedRunCount as any) === 'auto') {
-      const autoCalculated = this.calculateOptimalAutoRuns(metric, totalQuantity, durationHours, minBundleSize);
+      const autoCalculated = this.calculateOptimalAutoRuns(metric, safeTotalQuantity, durationHours, minBundleSize);
       actualRunCount = Math.max(1, Math.min(maxPossibleBundles, autoCalculated));
       explanationNote = `✨ Smart Auto Mode: Generated ${actualRunCount} natural, non-equal bundles.`;
     } else {
@@ -173,15 +170,15 @@ export class BundleGenerator {
 
     // 4. Initial Proportional Allocation
     const wSum = runWeights.reduce((a, b) => a + b, 0);
-    const rawQuantities = runWeights.map(w => Math.floor((w / wSum) * totalQuantity));
+    const rawQuantities = runWeights.map(w => Math.floor((w / wSum) * safeTotalQuantity));
 
     // Distribute remaining residual units by largest remainder
     let currentSum = rawQuantities.reduce((a, b) => a + b, 0);
-    let rem = totalQuantity - currentSum;
+    let rem = safeTotalQuantity - currentSum;
 
     const remainders = runWeights.map((w, idx) => ({
       idx,
-      frac: ((w / wSum) * totalQuantity) - rawQuantities[idx]
+      frac: ((w / wSum) * safeTotalQuantity) - rawQuantities[idx]
     })).sort((a, b) => b.frac - a.frac);
 
     for (let i = 0; i < rem; i++) {
@@ -196,7 +193,7 @@ export class BundleGenerator {
 
     // High-performance Chunked Discrepancy Rebalance (Handles 100k, 500k, 1M smoothly)
     currentSum = rawQuantities.reduce((a, b) => a + b, 0);
-    let discrepancy = totalQuantity - currentSum;
+    let discrepancy = safeTotalQuantity - currentSum;
     let safeguardLoop = 0;
     while (discrepancy !== 0 && safeguardLoop < 100) {
       safeguardLoop++;
@@ -216,7 +213,7 @@ export class BundleGenerator {
 
     // Final exact single-unit balance if any fractional discrepancy remains
     currentSum = rawQuantities.reduce((a, b) => a + b, 0);
-    discrepancy = totalQuantity - currentSum;
+    discrepancy = safeTotalQuantity - currentSum;
     if (discrepancy > 0) {
       for (let i = 0; i < discrepancy; i++) {
         rawQuantities[i % actualRunCount]++;
@@ -275,7 +272,7 @@ export class BundleGenerator {
 
     // Final Exact Sum Safety Verification
     currentSum = rawQuantities.reduce((a, b) => a + b, 0);
-    discrepancy = totalQuantity - currentSum;
+    discrepancy = safeTotalQuantity - currentSum;
     if (discrepancy !== 0) {
       rawQuantities[rawQuantities.length - 1] += discrepancy;
     }

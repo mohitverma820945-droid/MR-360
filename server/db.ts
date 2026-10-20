@@ -411,6 +411,7 @@ class DatabaseEngine {
     if (!this.isLoaded) {
       console.warn('[DB] getProviders called before database fully loaded.');
     }
+    // Always return all configured providers so providers never vanish across reloads or sessions
     return this.data.providers;
   }
 
@@ -551,11 +552,12 @@ class DatabaseEngine {
       if (!existing) {
         this.data.providers.push({
           ...cp,
-          status: 'active'
+          status: cp.status || 'active'
         });
         addedCount++;
       } else {
-        existing.status = 'active';
+        // Only update status if explicitly passed from client, preserve existing status otherwise
+        if (cp.status) existing.status = cp.status;
         if (cp.apiUrl) existing.apiUrl = cp.apiUrl;
         if (cp.apiKey) existing.apiKey = cp.apiKey;
       }

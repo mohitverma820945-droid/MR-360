@@ -95,14 +95,20 @@ export const SingleOrderForm: React.FC = () => {
     return () => window.removeEventListener('providers-changed', loadServices);
   }, []);
 
-  // 2. Filter Categories when Platform Changes
+  // 2. Filter Categories when Platform Changes & Restore User Selected Category
   useEffect(() => {
     const platformServices = services.filter(s => s.platform.toLowerCase() === selectedPlatform.toLowerCase());
     const uniqueCats = Array.from(new Set(platformServices.map(s => s.category)));
     setCategories(uniqueCats);
 
     if (uniqueCats.length > 0) {
-      setSelectedCategory(uniqueCats[0]);
+      const savedCatKey = `mr360_single_cat_${selectedPlatform.toLowerCase()}`;
+      const savedCat = localStorage.getItem(savedCatKey);
+      if (savedCat && uniqueCats.includes(savedCat)) {
+        setSelectedCategory(savedCat);
+      } else {
+        setSelectedCategory(uniqueCats[0]);
+      }
     } else {
       setSelectedCategory('');
       setSelectedServiceId(null);
@@ -110,8 +116,11 @@ export const SingleOrderForm: React.FC = () => {
     setServiceSearch('');
   }, [selectedPlatform, services]);
 
-  // 3. Filter Services when Category Changes
+  // 3. Filter Services when Category Changes & Restore User's Exact Chosen Service ID
   useEffect(() => {
+    if (!selectedCategory) return;
+    localStorage.setItem(`mr360_single_cat_${selectedPlatform.toLowerCase()}`, selectedCategory);
+
     const categoryServices = services.filter(s => 
       s.platform.toLowerCase() === selectedPlatform.toLowerCase() &&
       s.category.toLowerCase() === selectedCategory.toLowerCase()
@@ -124,17 +133,15 @@ export const SingleOrderForm: React.FC = () => {
 
       if (validSaved) {
         setSelectedServiceId(validSaved.id);
-        setQuantity(validSaved.min || 1000);
       } else {
         setSelectedServiceId(categoryServices[0].id);
-        setQuantity(categoryServices[0].min || 1000);
       }
     } else {
       setSelectedServiceId(null);
     }
   }, [selectedCategory, selectedPlatform, services]);
 
-  // Save selected service choice on user selection
+  // Save selected service choice on user selection so it NEVER resets
   useEffect(() => {
     if (selectedServiceId && selectedPlatform && selectedCategory) {
       const savedKey = `mr360_single_svc_${selectedPlatform.toLowerCase()}_${selectedCategory.toLowerCase()}`;

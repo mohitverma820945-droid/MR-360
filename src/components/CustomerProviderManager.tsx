@@ -41,32 +41,9 @@ export const CustomerProviderManager: React.FC = () => {
         headers: getAuthHeaderObj()
       });
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setProviders(data);
         localStorage.setItem('mr360_active_providers', JSON.stringify(data));
-      } else {
-        // If server returns empty list, check if client has cached providers to auto-restore
-        const cachedRaw = localStorage.getItem('mr360_active_providers');
-        if (cachedRaw) {
-          try {
-            const cachedList = JSON.parse(cachedRaw);
-            if (Array.isArray(cachedList) && cachedList.length > 0) {
-              setProviders(cachedList);
-              // Auto-restore to server
-              fetch('/api/providers/sync-from-client', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...getAuthHeaderObj() },
-                body: JSON.stringify({ providers: cachedList })
-              }).catch(() => {});
-            } else {
-              setProviders([]);
-            }
-          } catch {
-            setProviders([]);
-          }
-        } else {
-          setProviders([]);
-        }
       }
     } catch {
       // Offline / network fallback to cached providers
@@ -159,6 +136,7 @@ export const CustomerProviderManager: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setStatusMessage({ type: 'success', text: `Synced ${data.count} services 1:1 with exact provider IDs & pricing!` });
+        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setStatusMessage({ type: 'error', text: data.error || 'Failed to sync services.' });
       }
@@ -170,7 +148,12 @@ export const CustomerProviderManager: React.FC = () => {
   };
 
   const handleDeleteProvider = async (id: string) => {
-    if (!window.confirm('Are you sure you want to disconnect & permanently delete this SMM provider node?')) return;
+    // Immediate optimistic local update so UI responds instantly
+    const updatedList = providers.filter(p => p.id !== id);
+    setProviders(updatedList);
+    localStorage.setItem('mr360_active_providers', JSON.stringify(updatedList));
+    window.dispatchEvent(new Event('providers-changed'));
+
     try {
       const res = await fetch(`/api/providers/${id}`, {
         method: 'DELETE',
@@ -178,9 +161,9 @@ export const CustomerProviderManager: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setStatusMessage({ type: 'success', text: 'Provider removed.' });
-        fetchProviders();
-        window.dispatchEvent(new Event('providers-changed'));
+        setStatusMessage({ type: 'success', text: 'Provider removed permanently.' });
+      } else {
+        setStatusMessage({ type: 'error', text: data.error || 'Failed to delete provider on server' });
       }
     } catch (err: any) {
       setStatusMessage({ type: 'error', text: err.message });
@@ -189,8 +172,15 @@ export const CustomerProviderManager: React.FC = () => {
 
   const handleToggleProviderStatus = async (provider: SmmProvider) => {
     const isCurrentlyActive = provider.status !== 'inactive';
-    const nextStatus = isCurrentlyActive ? 'inactive' : 'active';
+    const nextStatus: 'active' | 'inactive' = isCurrentlyActive ? 'inactive' : 'active';
     setTogglingId(provider.id);
+
+    // Immediate optimistic local update
+    const updatedList = providers.map(p => p.id === provider.id ? { ...p, status: nextStatus } : p);
+    setProviders(updatedList);
+    localStorage.setItem('mr360_active_providers', JSON.stringify(updatedList));
+    window.dispatchEvent(new Event('providers-changed'));
+
     try {
       const res = await fetch(`/api/providers/${provider.id}`, {
         method: 'PUT',
@@ -204,9 +194,8 @@ export const CustomerProviderManager: React.FC = () => {
       if (data.success) {
         setStatusMessage({ 
           type: 'success', 
-          text: `Provider "${provider.name}" turned ${nextStatus === 'active' ? 'ON (Services active)' : 'OFF (Services hidden)'}.` 
+          text: `Provider "${provider.name}" turned ${nextStatus === 'active' ? 'ON (Services active & visible)' : 'OFF (Services hidden & disabled)'}.` 
         });
-        fetchProviders();
       } else {
         setStatusMessage({ type: 'error', text: data.error || 'Failed to update provider status' });
       }

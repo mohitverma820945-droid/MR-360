@@ -118,7 +118,12 @@ export const AdminProviders: React.FC = () => {
   };
 
   const handleDeleteProvider = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this provider node?')) return;
+    // Immediate optimistic local update
+    const updatedList = providers.filter(p => p.id !== id);
+    setProviders(updatedList);
+    localStorage.setItem('mr360_active_providers', JSON.stringify(updatedList));
+    window.dispatchEvent(new Event('providers-changed'));
+
     try {
       const res = await fetch(`/api/providers/${id}`, { 
         method: 'DELETE',
@@ -127,8 +132,6 @@ export const AdminProviders: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setActionMessage({ type: 'success', text: 'Provider node deleted successfully!' });
-        fetchProviders();
-        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setActionMessage({ type: 'error', text: data.error || 'Failed to delete provider' });
       }
@@ -139,7 +142,14 @@ export const AdminProviders: React.FC = () => {
 
   const handleToggleProviderStatus = async (provider: SmmProvider) => {
     const isCurrentlyActive = provider.status !== 'inactive';
-    const nextStatus = isCurrentlyActive ? 'inactive' : 'active';
+    const nextStatus: 'active' | 'inactive' = isCurrentlyActive ? 'inactive' : 'active';
+
+    // Immediate optimistic local update
+    const updatedList = providers.map(p => p.id === provider.id ? { ...p, status: nextStatus } : p);
+    setProviders(updatedList);
+    localStorage.setItem('mr360_active_providers', JSON.stringify(updatedList));
+    window.dispatchEvent(new Event('providers-changed'));
+
     try {
       const res = await fetch(`/api/providers/${provider.id}`, {
         method: 'PUT',
@@ -155,8 +165,6 @@ export const AdminProviders: React.FC = () => {
           type: 'success', 
           text: `Provider "${provider.name}" turned ${nextStatus === 'active' ? 'ON (Active & Visible)' : 'OFF (Services Hidden)'}.` 
         });
-        fetchProviders();
-        window.dispatchEvent(new Event('providers-changed'));
       } else {
         setActionMessage({ type: 'error', text: data.error || 'Failed to toggle provider status' });
       }
