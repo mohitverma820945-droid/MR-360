@@ -70,12 +70,24 @@
       "status": "active",
       "balance": 38.75,
       "balanceCurrency": "INR",
-      "lastBalanceCheck": "2026-10-19T11:53:43.459Z",
+      "lastBalanceCheck": "2026-10-20T11:43:17.946Z",
       "userId": "usr_mud2y46zkisk",
       "id": "prov_muqrckex",
       "createdAt": "2026-10-02T09:25:36.729Z",
       "balanceInr": 38.75,
       "balanceUsd": 0.45
+    },
+    {
+      "name": "Test Provider",
+      "apiUrl": "https://favoritesmm.com/api/v2",
+      "apiKey": "testkey123",
+      "status": "active",
+      "balance": null,
+      "balanceCurrency": "USD",
+      "lastBalanceCheck": null,
+      "userId": "usr_mohit_owner",
+      "id": "prov_mvgm96ci",
+      "createdAt": "2026-10-20T11:45:01.026Z"
     }
   ],
   "services": [
@@ -7966,15 +7978,16 @@
       "providerId": "prov_muqrckex",
       "link": "https://instagram.com/p/test12345",
       "quantity": 17,
-      "scheduledAt": "2026-10-19T12:08:54.362Z",
-      "status": "pending",
+      "scheduledAt": "2026-10-19T12:08:54.390Z",
+      "status": "failed",
       "runNumber": 1,
       "totalRuns": 3,
       "id": "sch_1791044274268_0_qupz",
       "idempotencyKey": "idmp_10003_1_1791044274268_0",
-      "retryCount": 0,
+      "retryCount": 1,
       "createdAt": "2026-10-03T16:17:54.268Z",
-      "lastAttemptAt": "2026-10-03T16:17:59.061Z"
+      "lastAttemptAt": "2026-10-20T11:43:15.731Z",
+      "errorMessage": "Enter a value above the minimum number."
     },
     {
       "parentOrderId": 10003,
@@ -7985,15 +7998,16 @@
       "providerId": "prov_muqrckex",
       "link": "https://instagram.com/p/test12345",
       "quantity": 19,
-      "scheduledAt": "2026-10-19T12:08:54.363Z",
-      "status": "pending",
+      "scheduledAt": "2026-10-19T12:08:54.390Z",
+      "status": "failed",
       "runNumber": 2,
       "totalRuns": 3,
       "id": "sch_1791044274268_1_g089",
       "idempotencyKey": "idmp_10003_2_1791044274268_1",
-      "retryCount": 0,
+      "retryCount": 1,
       "createdAt": "2026-10-03T16:17:54.268Z",
-      "lastAttemptAt": "2026-10-04T08:47:22.744Z"
+      "lastAttemptAt": "2026-10-20T11:43:15.746Z",
+      "errorMessage": "Enter a value above the minimum number."
     },
     {
       "parentOrderId": 10003,
@@ -8004,15 +8018,16 @@
       "providerId": "prov_muqrckex",
       "link": "https://instagram.com/p/test12345",
       "quantity": 14,
-      "scheduledAt": "2026-10-19T12:08:54.363Z",
-      "status": "pending",
+      "scheduledAt": "2026-10-19T12:08:54.390Z",
+      "status": "failed",
       "runNumber": 3,
       "totalRuns": 3,
       "id": "sch_1791044274268_2_ybr6",
       "idempotencyKey": "idmp_10003_3_1791044274268_2",
-      "retryCount": 0,
+      "retryCount": 1,
       "createdAt": "2026-10-03T16:17:54.268Z",
-      "lastAttemptAt": "2026-10-04T08:47:22.753Z"
+      "lastAttemptAt": "2026-10-20T11:43:15.751Z",
+      "errorMessage": "Enter a value above the minimum number."
     },
     {
       "parentOrderId": 10004,
@@ -8023,15 +8038,16 @@
       "providerId": "prov_muqrckex",
       "link": "https://instagram.com/p/dedup_test_999",
       "quantity": 10,
-      "scheduledAt": "2026-10-19T12:08:54.363Z",
-      "status": "pending",
+      "scheduledAt": "2026-10-19T12:08:54.390Z",
+      "status": "failed",
       "runNumber": 1,
       "totalRuns": 3,
       "id": "sch_1791104090610_0_8t42",
       "idempotencyKey": "idmp_10004_1_1791104090610_0",
-      "retryCount": 0,
+      "retryCount": 1,
       "createdAt": "2026-10-04T08:54:50.610Z",
-      "lastAttemptAt": "2026-10-04T08:54:50.635Z"
+      "lastAttemptAt": "2026-10-20T11:43:15.756Z",
+      "errorMessage": "Enter a value above the minimum number."
     },
     {
       "parentOrderId": 10004,
@@ -8042,15 +8058,16 @@
       "providerId": "prov_muqrckex",
       "link": "https://instagram.com/p/dedup_test_999",
       "quantity": 10,
-      "scheduledAt": "2026-10-19T12:08:54.363Z",
-      "status": "pending",
+      "scheduledAt": "2026-10-19T12:08:54.390Z",
+      "status": "failed",
       "runNumber": 2,
       "totalRuns": 3,
       "id": "sch_1791104090610_1_u4cs",
       "idempotencyKey": "idmp_10004_2_1791104090610_1",
-      "retryCount": 0,
+      "retryCount": 1,
       "createdAt": "2026-10-04T08:54:50.610Z",
-      "lastAttemptAt": "2026-10-08T08:55:40.603Z"
+      "lastAttemptAt": "2026-10-20T11:43:15.760Z",
+      "errorMessage": "Enter a value above the minimum number."
     },
     {
       "parentOrderId": 10004,
@@ -8061,15 +8078,16 @@
       "providerId": "prov_muqrckex",
       "link": "https://instagram.com/p/dedup_test_999",
       "quantity": 10,
-      "scheduledAt": "2026-10-19T12:08:54.363Z",
-      "status": "pending",
+      "scheduledAt": "2026-10-19T12:08:54.390Z",
+      "status": "failed",
       "runNumber": 3,
       "totalRuns": 3,
       "id": "sch_1791104090610_2_dsks",
       "idempotencyKey": "idmp_10004_3_1791104090610_2",
-      "retryCount": 0,
+      "retryCount": 1,
       "createdAt": "2026-10-04T08:54:50.610Z",
-      "lastAttemptAt": "2026-10-08T08:55:40.618Z"
+      "lastAttemptAt": "2026-10-20T11:43:16.847Z",
+      "errorMessage": "Enter a value above the minimum number."
     }
   ],
   "settings": {
@@ -8081,31 +8099,31 @@
         "metricConfigs": {
           "views": {
             "serviceId": 5723,
-            "totalQuantity": 10000,
+            "totalQuantity": 2500,
             "runCount": 30,
-            "providerId": "all"
+            "providerId": "prov_mvghbheo"
           },
           "likes": {
             "serviceId": 5966,
-            "totalQuantity": 400,
+            "totalQuantity": 145,
             "runCount": 15,
-            "providerId": "all"
+            "providerId": "prov_mvghbheo"
           },
           "comments": {
             "serviceId": 5910,
-            "totalQuantity": 60,
+            "totalQuantity": 20,
             "runCount": 10,
             "providerId": "all"
           },
           "shares": {
             "serviceId": 5965,
-            "totalQuantity": 370,
+            "totalQuantity": 80,
             "runCount": 12,
-            "providerId": "all"
+            "providerId": "prov_mvghbheo"
           },
           "saves": {
             "serviceId": 5723,
-            "totalQuantity": 420,
+            "totalQuantity": 88,
             "runCount": 10,
             "providerId": "all"
           }
@@ -8118,7 +8136,7 @@
           "saves": true
         },
         "autoRunsMode": {
-          "views": true,
+          "views": false,
           "likes": true,
           "comments": true,
           "shares": true,
@@ -9840,6 +9858,77 @@
       "level": "info",
       "source": "Settings",
       "message": "Updated system settings"
+    },
+    {
+      "id": "log_1792496594723_jnyh",
+      "createdAt": "2026-10-20T11:43:14.723Z",
+      "level": "info",
+      "source": "Scheduler",
+      "message": "Background Scheduler Worker started"
+    },
+    {
+      "id": "log_1792496596420_hiy2",
+      "createdAt": "2026-10-20T11:43:16.420Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791044274268_0_qupz to Provider Smm : Enter a value above the minimum number."
+    },
+    {
+      "id": "log_1792496596466_zb7w",
+      "createdAt": "2026-10-20T11:43:16.466Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791044274268_2_ybr6 to Provider Smm : Enter a value above the minimum number."
+    },
+    {
+      "id": "log_1792496596671_ja1a",
+      "createdAt": "2026-10-20T11:43:16.671Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791104090610_1_u4cs to Provider Smm : Enter a value above the minimum number."
+    },
+    {
+      "id": "log_1792496596723_wrzt",
+      "createdAt": "2026-10-20T11:43:16.723Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791044274268_1_g089 to Provider Smm : Enter a value above the minimum number."
+    },
+    {
+      "id": "log_1792496596843_d8g2",
+      "createdAt": "2026-10-20T11:43:16.843Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791104090610_0_8t42 to Provider Smm : Enter a value above the minimum number."
+    },
+    {
+      "id": "log_1792496597095_rj0b",
+      "createdAt": "2026-10-20T11:43:17.095Z",
+      "level": "error",
+      "source": "Scheduler",
+      "message": "Permanent failure submitting Schedule #sch_1791104090610_2_dsks to Provider Smm : Enter a value above the minimum number."
+    },
+    {
+      "id": "log_1792496610842_fgm3",
+      "createdAt": "2026-10-20T11:43:30.842Z",
+      "level": "info",
+      "source": "Settings",
+      "message": "Updated system settings"
+    },
+    {
+      "id": "log_1792496615396_p9co",
+      "createdAt": "2026-10-20T11:43:35.396Z",
+      "level": "info",
+      "source": "Settings",
+      "message": "Updated system settings"
+    },
+    {
+      "id": "log_1792496701030_wjrc",
+      "createdAt": "2026-10-20T11:45:01.030Z",
+      "level": "info",
+      "source": "Providers",
+      "message": "Added new SMM Provider: Test Provider",
+      "details": "{\"apiUrl\":\"https://favoritesmm.com/api/v2\"}"
     }
   ],
   "nextOrderId": 10006

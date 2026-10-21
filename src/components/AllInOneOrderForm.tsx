@@ -2123,6 +2123,117 @@ export const AllInOneOrderForm: React.FC = () => {
                 <span className="text-emerald-400 font-bold">Exact Quantity Match: Guaranteed 100%</span>
               </div>
             </div>
+
+            {/* 6 Pro Organic Engagement Analytics Graphs Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3">
+              {/* Graph 1: Organic Velocity Trajectory */}
+              <div className="bg-slate-950 rounded-xl p-3 border border-pink-900/30 flex flex-col justify-between shadow-inner">
+                <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                  <span>1. Organic Velocity</span>
+                  <span className="text-pink-400 font-mono">99.4% AI Score</span>
+                </div>
+                <div className="h-14 w-full relative my-1">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path d="M 0,25 Q 35,5 70,18 T 100,2 L 100,30 L 0,30 Z" fill="rgba(236,72,153,0.2)" />
+                    <path d="M 0,25 Q 35,5 70,18 T 100,2" fill="none" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                  <span>Pacing: Optimal</span>
+                  <span className="text-emerald-400 font-bold">Natural Curve</span>
+                </div>
+              </div>
+
+              {/* Graph 2: Hourly Retention Curve */}
+              <div className="bg-slate-950 rounded-xl p-3 border border-purple-900/30 flex flex-col justify-between shadow-inner">
+                <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                  <span>2. Retention Index</span>
+                  <span className="text-purple-400 font-mono">94.8% Retain</span>
+                </div>
+                <div className="h-14 w-full relative my-1">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path d="M 0,10 Q 40,22 80,8 T 100,15 L 100,30 L 0,30 Z" fill="rgba(168,85,247,0.2)" />
+                    <path d="M 0,10 Q 40,22 80,8 T 100,15" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                  <span>Drop-off: 0%</span>
+                  <span className="text-emerald-400 font-bold">Stable</span>
+                </div>
+              </div>
+
+              {/* Graph 3: Harmonic Ratio Flow */}
+              <div className="bg-slate-950 rounded-xl p-3 border border-rose-900/30 flex flex-col justify-between shadow-inner">
+                <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                  <span>3. Ratio Harmonic</span>
+                  <span className="text-rose-400 font-mono">Balanced</span>
+                </div>
+                <div className="h-14 w-full relative my-1">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path d="M 0,20 Q 25,8 50,22 T 100,5 L 100,30 L 0,30 Z" fill="rgba(244,63,94,0.2)" />
+                    <path d="M 0,20 Q 25,8 50,22 T 100,5" fill="none" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                  <span>Sync: 1:1 Exact</span>
+                  <span className="text-emerald-400 font-bold">Verified</span>
+                </div>
+              </div>
+
+              {/* Graph 4: Algorithm Push Spike */}
+              <div className="bg-slate-950 rounded-xl p-3 border border-indigo-900/30 flex flex-col justify-between shadow-inner">
+                <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                  <span>4. Algo Exploration</span>
+                  <span className="text-indigo-400 font-mono">Viral Surge</span>
+                </div>
+                <div className="h-14 w-full relative my-1">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path d="M 0,28 Q 50,25 75,10 T 100,3 L 100,30 L 0,30 Z" fill="rgba(99,102,241,0.2)" />
+                    <path d="M 0,28 Q 50,25 75,10 T 100,3" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                  <span>Boost: Active</span>
+                  <span className="text-emerald-400 font-bold">Trending</span>
+                </div>
+              </div>
+
+              {/* Graph 5: Micro-Jitter Variance */}
+              <div className="bg-slate-950 rounded-xl p-3 border border-amber-900/30 flex flex-col justify-between shadow-inner">
+                <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                  <span>5. Human Jitter</span>
+                  <span className="text-amber-400 font-mono">&plusmn;{randomVariance}%</span>
+                </div>
+                <div className="h-14 w-full relative my-1">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path d="M 0,15 L 20,8 L 40,22 L 60,12 L 80,18 L 100,5 L 100,30 L 0,30 Z" fill="rgba(245,158,11,0.2)" />
+                    <path d="M 0,15 L 20,8 L 40,22 L 60,12 L 80,18 L 100,5" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                  <span>Entropy: Natural</span>
+                  <span className="text-emerald-400 font-bold">Anti-Bot Safe</span>
+                </div>
+              </div>
+
+              {/* Graph 6: Cumulative Progress */}
+              <div className="bg-slate-950 rounded-xl p-3 border border-emerald-950 flex flex-col justify-between shadow-inner">
+                <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                  <span>6. Delivery Probability</span>
+                  <span className="text-emerald-400 font-mono">100% Match</span>
+                </div>
+                <div className="h-14 w-full relative my-1">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path d="M 0,26 Q 40,20 70,8 T 100,1 L 100,30 L 0,30 Z" fill="rgba(16,185,129,0.2)" />
+                    <path d="M 0,26 Q 40,20 70,8 T 100,1" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                  <span>Fulfillment: Guaranteed</span>
+                  <span className="text-emerald-400 font-bold">Secure</span>
+                </div>
+              </div>
+            </div>
           </>
         ) : (
           <div className="p-4 bg-pink-50/40 dark:bg-slate-950 rounded-2xl border border-pink-200 dark:border-slate-800 text-center space-y-1">

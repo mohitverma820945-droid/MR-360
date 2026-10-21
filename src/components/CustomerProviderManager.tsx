@@ -34,13 +34,22 @@ export const CustomerProviderManager: React.FC = () => {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const parseJsonResponse = async (res: Response) => {
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { success: false, error: text.substring(0, 120) || 'Server returned invalid response' };
+    }
+  };
+
   const fetchProviders = async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/providers', {
         headers: getAuthHeaderObj()
       });
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       if (Array.isArray(data)) {
         setProviders(data);
         localStorage.setItem('mr360_active_providers', JSON.stringify(data));
@@ -83,7 +92,7 @@ export const CustomerProviderManager: React.FC = () => {
         },
         body: JSON.stringify({ name, apiUrl, apiKey, userId: user?.id })
       });
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       if (data.success) {
         setStatusMessage({ type: 'success', text: `Provider "${name}" connected successfully! Real services synced.` });
         setName('');
@@ -110,7 +119,7 @@ export const CustomerProviderManager: React.FC = () => {
         method: 'POST',
         headers: getAuthHeaderObj()
       });
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       if (data.success) {
         setStatusMessage({ type: 'success', text: data.message || 'Connection test successful!' });
         fetchProviders();
@@ -133,7 +142,7 @@ export const CustomerProviderManager: React.FC = () => {
         method: 'POST',
         headers: getAuthHeaderObj()
       });
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       if (data.success) {
         setStatusMessage({ type: 'success', text: `Synced ${data.count} services 1:1 with exact provider IDs & pricing!` });
         window.dispatchEvent(new Event('providers-changed'));
@@ -159,7 +168,7 @@ export const CustomerProviderManager: React.FC = () => {
         method: 'DELETE',
         headers: getAuthHeaderObj()
       });
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       if (data.success) {
         setStatusMessage({ type: 'success', text: 'Provider removed permanently.' });
       } else {
@@ -190,7 +199,7 @@ export const CustomerProviderManager: React.FC = () => {
         },
         body: JSON.stringify({ status: nextStatus })
       });
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       if (data.success) {
         setStatusMessage({ 
           type: 'success', 

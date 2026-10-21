@@ -50,6 +50,42 @@ app.get('/api/admin/system/status', (req, res) => {
   });
 });
 
+app.get('/api/admin/dashboard', (req, res) => {
+  try {
+    const orders = db.getOrders('all');
+    const users = db.getUsers();
+    const providers = db.getProviders();
+    const services = db.getServices();
+    const schedules = db.getSchedules();
+
+    const activeOrdersCount = orders.filter(o => o.status === 'Processing' || o.status === 'Pending').length;
+    const completedOrdersCount = orders.filter(o => o.status === 'Completed' || o.status === 'Success').length;
+    const revenue = orders.reduce((sum, o) => sum + (o.price || 0), 0);
+    const deliveredUnits = orders.reduce((sum, o) => sum + (o.quantity || 0), 0);
+    const activeProvidersCount = providers.filter(p => p.status === 'active').length;
+    const schedulesPending = schedules.filter(s => s.status === 'pending').length;
+    const schedulesSubmitted = schedules.filter(s => s.status === 'submitted').length;
+
+    res.json({
+      usersCount: users.length,
+      ordersCount: orders.length,
+      activeOrdersCount,
+      completedOrdersCount,
+      revenue,
+      deliveredUnits,
+      providersCount: providers.length,
+      activeProvidersCount,
+      servicesCount: services.length,
+      schedulesPending,
+      schedulesSubmitted,
+      schedulerLastRun: new Date().toISOString(),
+      schedulerActive: true
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get('/api/ping', (req, res) => {
   res.json({ success: true, timestamp: new Date().toISOString() });
 });
