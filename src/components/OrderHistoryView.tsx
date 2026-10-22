@@ -56,6 +56,12 @@ export const OrderHistoryView: React.FC = () => {
   const [editingQtyVal, setEditingQtyVal] = useState<string>('');
   const [syncingStatusId, setSyncingStatusId] = useState<number | null>(null);
   const [retryingScheduleId, setRetryingScheduleId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState<number>(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleRetryScheduleRun = async (scheduleId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1014,6 +1020,44 @@ export const OrderHistoryView: React.FC = () => {
                                         {completed} / {total} Bundles Executed ({progressPct}%)
                                       </div>
                                     </div>
+
+                                    {/* Next Scheduled Dispatch Live Countdown Banner */}
+                                    {(() => {
+                                      const nextBundle = schedules.find(s => s.status === 'pending');
+                                      if (!nextBundle) return null;
+                                      const diff = new Date(nextBundle.scheduledAt).getTime() - currentTime;
+                                      const formatCountdown = (d: number) => {
+                                        if (d <= 0) return 'Dispatching Now...';
+                                        const mins = Math.floor(d / 60000);
+                                        const secs = Math.floor((d % 60000) / 1000);
+                                        if (mins > 60) {
+                                          const hrs = Math.floor(mins / 60);
+                                          const remMins = mins % 60;
+                                          return `${hrs}h ${remMins}m remaining`;
+                                        }
+                                        return `${mins}m ${secs < 10 ? '0' : ''}${secs}s remaining`;
+                                      };
+
+                                      return (
+                                        <div className="p-3 bg-gradient-to-r from-pink-950/80 to-purple-950/80 border border-pink-500/40 rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs shadow-md">
+                                          <div className="flex items-center space-x-2">
+                                            <Clock className="w-4 h-4 text-pink-400 animate-spin" />
+                                            <div>
+                                              <span className="font-bold text-pink-200">Next Bundle Dispatch (#{nextBundle.runNumber} of {schedules.length}):</span>
+                                              <span className="ml-1.5 font-mono font-extrabold text-white">{nextBundle.quantity} {nextBundle.metric}</span>
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center space-x-2">
+                                            <span className="text-[10px] text-pink-300 font-mono">
+                                              {new Date(nextBundle.scheduledAt).toLocaleTimeString()}
+                                            </span>
+                                            <span className="font-mono text-xs font-black bg-pink-500/20 text-pink-300 px-2.5 py-1 rounded-lg border border-pink-400/30">
+                                              ⏱️ {formatCountdown(diff)}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      );
+                                    })()}
 
                                     {/* Horizontal Visual Step Timeline Nodes */}
                                     <div className="flex items-center space-x-1 overflow-x-auto py-1.5 scrollbar-thin">

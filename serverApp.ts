@@ -59,7 +59,7 @@ app.get('/api/admin/dashboard', (req, res) => {
     const schedules = db.getSchedules();
 
     const activeOrdersCount = orders.filter(o => o.status === 'Processing' || o.status === 'Pending').length;
-    const completedOrdersCount = orders.filter(o => o.status === 'Completed' || o.status === 'Success').length;
+    const completedOrdersCount = orders.filter(o => o.status === 'Completed' || (o.status as string) === 'Success').length;
     const revenue = orders.reduce((sum, o) => sum + (o.price || 0), 0);
     const deliveredUnits = orders.reduce((sum, o) => sum + (o.quantity || 0), 0);
     const activeProvidersCount = providers.filter(p => p.status === 'active').length;

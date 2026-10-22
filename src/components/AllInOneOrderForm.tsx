@@ -25,7 +25,10 @@ import {
   Activity,
   Check,
   BarChart3,
-  ShieldCheck
+  ShieldCheck,
+  Rocket,
+  Compass,
+  Repeat
 } from 'lucide-react';
 import { SmmService, PlatformCategory, BundlePreview, SmmProvider } from '../types';
 import { getAuthHeaderObj } from '../utils/apiAuth';
@@ -383,26 +386,9 @@ export const AllInOneOrderForm: React.FC = () => {
     })
       .then(res => res.json())
       .then((provs: SmmProvider[]) => {
-        if (Array.isArray(provs) && provs.length > 0) {
+        if (Array.isArray(provs)) {
           setProviders(provs);
           localStorage.setItem('mr360_active_providers', JSON.stringify(provs));
-        } else {
-          // If server container rebooted and has 0 providers, check client persistent cache
-          const cachedRaw = localStorage.getItem('mr360_active_providers');
-          if (cachedRaw) {
-            try {
-              const cachedList = JSON.parse(cachedRaw);
-              if (Array.isArray(cachedList) && cachedList.length > 0) {
-                setProviders(cachedList);
-                // Synchronize back to server
-                fetch('/api/providers/sync-from-client', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', ...getAuthHeaderObj() },
-                  body: JSON.stringify({ providers: cachedList })
-                }).catch(() => {});
-              }
-            } catch {}
-          }
         }
       })
       .catch(() => {
@@ -1002,40 +988,22 @@ export const AllInOneOrderForm: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-28">
       
-      {/* 1. TOP HEADER BANNER */}
-      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-black rounded-3xl p-6 text-white shadow-xl shadow-amber-500/10 border border-amber-500/20 relative overflow-hidden flex items-center justify-between">
-        <div className="relative z-10 space-y-2">
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[11px] font-extrabold uppercase tracking-wider backdrop-blur-md">
-              MR.360 ORGANIC BUILDER
-            </span>
-            <span className="px-2.5 py-1 rounded-full bg-white/10 text-slate-200 text-[11px] font-extrabold flex items-center space-x-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>100+ Viral Curves</span>
-            </span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-            Instagram All-in-One Organic Growth Package
-          </h2>
-          <p className="text-xs text-slate-300 max-w-lg leading-relaxed">
-            Multi-metric campaign with exact curve pacing. Views, Likes, Comments, Shares, and Saves distributed organically.
-          </p>
+      {/* 1. TOP HEADER BANNER (Video: dhansmm.site/engage) */}
+      <div className="bg-gradient-to-r from-[#072d54] via-[#095788] to-[#0194d3] rounded-3xl p-6 text-white shadow-xl shadow-cyan-950/20 border border-cyan-400/20 relative overflow-hidden flex flex-col items-center text-center">
+        <div className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-3 shadow-inner">
+          <Rocket className="w-5 h-5 text-cyan-200" />
         </div>
-        <div className="shrink-0 hidden sm:block relative ml-4">
-          <div className="w-16 h-16 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-400 to-amber-600 shadow-xl shadow-amber-500/30 overflow-hidden">
-            <img 
-              src="/mr360_logo.jpg" 
-              alt="MR.360 Logo" 
-              className="w-full h-full object-cover rounded-full"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-        </div>
+        <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+          Organic Full Engagement
+        </h1>
+        <p className="text-xs text-cyan-100 mt-1 max-w-md font-medium">
+          One link — All engagement types with organic settings
+        </p>
       </div>
 
-      {/* 1.1 ORDER PLACED SUCCESS RECEIPT CARD (PROMINENT TOTAL PRICE) */}
+      {/* 1.1 ORDER PLACED SUCCESS RECEIPT CARD */}
       {placedOrderSummary && (
-        <div className="p-6 bg-gradient-to-br from-emerald-50 via-pink-50 to-rose-50 dark:from-emerald-950/60 dark:via-slate-900 dark:to-pink-950/60 rounded-3xl border-2 border-emerald-400 dark:border-emerald-600 shadow-xl space-y-4 animate-fadeIn">
+        <div className="p-6 bg-gradient-to-br from-emerald-50 via-sky-50 to-blue-50 dark:from-emerald-950/60 dark:via-slate-900 dark:to-blue-950/60 rounded-3xl border-2 border-emerald-400 dark:border-emerald-600 shadow-xl space-y-4 animate-fadeIn">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
@@ -1060,13 +1028,13 @@ export const AllInOneOrderForm: React.FC = () => {
             </button>
           </div>
 
-          {/* Big Prominent Total Price Display */}
-          <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-pink-200 dark:border-slate-800 flex items-center justify-between shadow-xs">
+          {/* Prominent Total Price Display */}
+          <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-blue-200 dark:border-slate-800 flex items-center justify-between shadow-xs">
             <div>
               <span className="text-[11px] font-extrabold uppercase text-slate-400 block tracking-wider">
                 TOTAL AMOUNT CHARGED
               </span>
-              <div className="text-2xl sm:text-3xl font-black text-pink-600 dark:text-pink-400 font-mono flex items-baseline space-x-1 mt-0.5">
+              <div className="text-2xl sm:text-3xl font-black text-[#0088cc] dark:text-cyan-400 font-mono flex items-baseline space-x-1 mt-0.5">
                 <span>₹{formatCostPrecision(placedOrderSummary.totalPrice)}</span>
                 <span className="text-xs font-bold text-slate-400 uppercase">INR</span>
               </div>
@@ -1123,7 +1091,7 @@ export const AllInOneOrderForm: React.FC = () => {
                 setPlacedOrderSummary(null);
                 setTargetUrl('');
               }}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 text-white font-extrabold text-xs shadow-md shadow-pink-600/20 hover:from-pink-500 hover:to-rose-500 transition-all cursor-pointer flex items-center space-x-1.5"
+              className="px-4 py-2.5 rounded-xl bg-[#0088cc] hover:bg-[#0077b5] text-white font-extrabold text-xs shadow-md shadow-sky-600/20 transition-all cursor-pointer flex items-center space-x-1.5"
             >
               <Sparkles className="w-4 h-4" />
               <span>Create Another Campaign</span>
@@ -1136,15 +1104,15 @@ export const AllInOneOrderForm: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 text-xs">
         <div className="flex items-center space-x-2">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-extrabold text-slate-700 dark:text-slate-300">
+          <span className="font-bold text-slate-700 dark:text-slate-300">
             {loadingServices ? (
-              <span className="flex items-center space-x-1.5 text-pink-600 dark:text-pink-400">
+              <span className="flex items-center space-x-1.5 text-blue-600 dark:text-cyan-400">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>Loading real SMM Provider services...</span>
+                <span>Loading live provider services...</span>
               </span>
             ) : (
               <span>
-                <strong className="text-pink-600 dark:text-pink-400 font-black">{services.length.toLocaleString()}</strong> Live Services Connected &bull; <strong className="text-emerald-600 dark:text-emerald-400 font-black">{services.filter(s => s.platform.toLowerCase() === platform.toLowerCase()).length}</strong> available for {platform}
+                <strong className="text-blue-600 dark:text-cyan-400 font-black">{services.length.toLocaleString()}</strong> Live Services Connected &bull; <strong className="text-emerald-600 dark:text-emerald-400 font-black">{services.filter(s => s.platform.toLowerCase() === platform.toLowerCase()).length}</strong> available for {platform}
               </span>
             )}
           </span>
@@ -1154,7 +1122,7 @@ export const AllInOneOrderForm: React.FC = () => {
           type="button"
           onClick={fetchServicesCatalog}
           disabled={loadingServices}
-          className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-pink-50 dark:bg-pink-950/80 text-pink-600 dark:text-pink-400 hover:bg-pink-100 font-bold text-[11px] flex items-center space-x-1 cursor-pointer transition-colors border border-pink-200/60 dark:border-pink-900/60 disabled:opacity-50"
+          className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-cyan-400 hover:bg-blue-100 font-bold text-[11px] flex items-center space-x-1 cursor-pointer transition-colors border border-blue-200/60 dark:border-slate-700 disabled:opacity-50"
           title="Reload Live SMM Services"
         >
           <RefreshCw className={`w-3 h-3 ${loadingServices ? 'animate-spin' : ''}`} />
@@ -1162,214 +1130,106 @@ export const AllInOneOrderForm: React.FC = () => {
         </button>
       </div>
 
-      {/* 2. PLATFORM TABS */}
-      <div className="flex flex-wrap gap-1.5 p-1 bg-slate-200/70 dark:bg-slate-800 rounded-2xl">
-        {(['Instagram', 'TikTok', 'YouTube', 'Facebook', 'Twitter/X', 'Telegram'] as PlatformCategory[]).map(p => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => setPlatform(p)}
-            className={`flex-1 min-w-[90px] py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
-              platform.toLowerCase() === p.toLowerCase()
-                ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-white'
-            }`}
-          >
-            {p}
-          </button>
-        ))}
-      </div>
-
-      {/* WHOP ANTI-BOTTING BYPASS SHIELD (1-2% BOT RISK SCORE) */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950/40 p-5 rounded-3xl border-2 border-emerald-500/40 shadow-xl shadow-emerald-500/10 text-white space-y-4 relative overflow-hidden">
-        {/* Glow accent */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
-          <div className="flex items-center space-x-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
-              <ShieldCheck className="w-6 h-6 stroke-[2.5]" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  WHOP STEALTH ENGINE
-                </span>
-                <span className="text-[10px] font-bold text-slate-400">
-                  HypeAuditor & Modash Verification
-                </span>
-              </div>
-              <h3 className="text-sm sm:text-base font-black text-white mt-0.5">
-                Whop Botting Score: <span className="text-emerald-400 font-mono">{calculatedBotRisk}%</span> (Ultra-Organic Safe)
+      {/* 2. AI ORGANIC ALGORITHM CARD (Video: dhansmm.site/engage) */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/70 dark:border-blue-900/60 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+            <Sparkles className="w-5 h-5 stroke-[2.2]" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                AI Organic Algorithm
               </h3>
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-900/60">
+                1.2% Risk
+              </span>
             </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => applyWhopPreset()}
-              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shadow-md shadow-emerald-500/20 transition-all flex items-center space-x-1.5 cursor-pointer shrink-0"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-slate-950" />
-              <span>1-Click Auto-Tune for Whop 1.2% Score</span>
-            </button>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              AI generates unique organic patterns for each order automatically
+            </p>
           </div>
         </div>
 
-        {/* Anti-Bot Heuristics Pillars */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 border-t border-emerald-500/20 relative z-10 text-[11px]">
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-emerald-500/20 space-y-0.5">
-            <div className="text-emerald-400 font-extrabold flex items-center space-x-1">
-              <Check className="w-3 h-3 stroke-[3]" />
-              <span>Golden Ratio</span>
-            </div>
-            <p className="text-[10px] text-slate-400">Likes 5.8%, Comments 0.8%, Shares 3.2%</p>
-          </div>
-
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-emerald-500/20 space-y-0.5">
-            <div className="text-emerald-400 font-extrabold flex items-center space-x-1">
-              <Check className="w-3 h-3 stroke-[3]" />
-              <span>Velocity Smoothing</span>
-            </div>
-            <p className="text-[10px] text-slate-400">Sigmoid Viral Curve (No burst flags)</p>
-          </div>
-
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-emerald-500/20 space-y-0.5">
-            <div className="text-emerald-400 font-extrabold flex items-center space-x-1">
-              <Check className="w-3 h-3 stroke-[3]" />
-              <span>Circadian Sleep</span>
-            </div>
-            <p className="text-[10px] text-slate-400">Night dip (1AM-6AM human cycle)</p>
-          </div>
-
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-emerald-500/20 space-y-0.5">
-            <div className="text-emerald-400 font-extrabold flex items-center space-x-1">
-              <Check className="w-3 h-3 stroke-[3]" />
-              <span>Entropy Jitter</span>
-            </div>
-            <p className="text-[10px] text-slate-400">Irregular batches (Never round 500s)</p>
-          </div>
-        </div>
-
-        <div className="text-[11px] text-slate-300 bg-emerald-950/40 border border-emerald-500/20 p-2.5 rounded-xl flex items-center justify-between">
-          <span className="flex items-center space-x-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>Audit Status: <strong>Safe for Whop Creator Rewards & Payout Verification</strong></span>
-          </span>
-          <span className="font-mono text-emerald-400 font-extrabold">Grade A+ (1-2% Target Met)</span>
-        </div>
+        <button
+          type="button"
+          onClick={() => setPatternEnabled(!patternEnabled)}
+          className={`w-12 h-6 flex items-center rounded-full p-0.5 transition-colors duration-200 ease-in-out cursor-pointer shrink-0 ${
+            patternEnabled ? 'bg-[#0088cc]' : 'bg-slate-300 dark:bg-slate-700'
+          }`}
+        >
+          <div
+            className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
+              patternEnabled ? 'translate-x-6' : 'translate-x-0'
+            }`}
+          />
+        </button>
       </div>
 
-      {/* STEP 1: POST / VIDEO LINK INPUT */}
-      <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-pink-100 dark:border-slate-800 shadow-sm space-y-3">
-        <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
-          <LinkIcon className="w-4 h-4 text-pink-500" />
-          <span>Step 1: Video / Post Link</span>
-        </label>
-        <input
-          type="url"
-          required
-          placeholder="Paste your Instagram Reel / Post link (e.g. https://instagram.com/reel/...)"
-          value={targetUrl}
-          onChange={(e) => setTargetUrl(e.target.value)}
-          className="w-full px-4 py-3 bg-pink-50/40 dark:bg-slate-950 border border-pink-200 dark:border-slate-700 rounded-2xl text-xs font-mono text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
-        />
-      </div>
-
-      {/* STEP 2: CAMPAIGN TIME DURATION PRESETS (6h, 12h, 24h, 48h, 62h, Custom) */}
-      <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-pink-100 dark:border-slate-800 shadow-sm space-y-3">
+      {/* 3. SELECT PLATFORM CARD (Video: dhansmm.site/engage) */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-slate-800 dark:text-slate-200">
-            <Clock className="w-4 h-4 text-pink-500" />
-            <span className="text-xs font-extrabold uppercase tracking-wider">Step 2: Campaign Time Duration Window</span>
+            <Compass className="w-4 h-4 text-[#0088cc] dark:text-cyan-400" />
+            <span className="text-xs font-black uppercase tracking-wider">Select Platform</span>
           </div>
-          <span className="text-xs font-mono font-black text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-950 px-2.5 py-1 rounded-full border border-pink-200 dark:border-pink-900/60">
-            {durationHours} Hours Total
+          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0088cc] dark:text-cyan-400 border border-blue-200 dark:border-blue-900">
+            PICK ONE
           </span>
         </div>
 
-        {/* Duration Preset Buttons */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-          {[
-            { label: '6 Hours', hours: 6 },
-            { label: '12 Hours', hours: 12 },
-            { label: '24 Hours', hours: 24 },
-            { label: '48 Hours', hours: 48 },
-            { label: '62 Hours', hours: 62 },
-            { label: 'Custom', hours: -1 }
-          ].map(opt => {
-            const isSelected = opt.hours === -1 ? customDurationMode : (!customDurationMode && durationHours === opt.hours);
+          {(['Instagram', 'TikTok', 'YouTube', 'Facebook', 'Twitter/X', 'Telegram'] as PlatformCategory[]).map(p => {
+            const isSelected = platform.toLowerCase() === p.toLowerCase();
             return (
               <button
-                key={opt.label}
+                key={p}
                 type="button"
-                onClick={() => {
-                  if (opt.hours === -1) {
-                    setCustomDurationMode(true);
-                  } else {
-                    setCustomDurationMode(false);
-                    setDurationHours(opt.hours);
-                  }
-                }}
-                className={`py-2.5 px-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                onClick={() => setPlatform(p)}
+                className={`py-2.5 px-2 text-xs font-extrabold rounded-2xl transition-all cursor-pointer text-center ${
                   isSelected
-                    ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-md shadow-pink-500/25 ring-2 ring-pink-400'
-                    : 'bg-pink-50/50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-100 dark:border-slate-700'
+                    ? 'bg-[#0088cc] text-white shadow-md shadow-sky-500/20 ring-2 ring-sky-400'
+                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700'
                 }`}
               >
-                {opt.label}
+                {p}
               </button>
             );
           })}
         </div>
-
-        {/* Custom Duration Input Box */}
-        {customDurationMode && (
-          <div className="p-3 bg-pink-50/40 dark:bg-slate-950 rounded-2xl border border-pink-200 dark:border-slate-700 flex items-center space-x-3 text-xs">
-            <span className="text-slate-500 font-bold">Custom Duration:</span>
-            <input
-              type="number"
-              min={1}
-              value={customDurationValue}
-              onChange={(e) => {
-                const val = parseInt(e.target.value) || 1;
-                setCustomDurationValue(val);
-                setDurationHours(customDurationUnit === 'days' ? val * 24 : val);
-              }}
-              className="w-24 px-3 py-1.5 bg-white dark:bg-slate-800 border border-pink-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white"
-            />
-            <select
-              value={customDurationUnit}
-              onChange={(e) => {
-                const unit = e.target.value as 'hours' | 'days';
-                setCustomDurationUnit(unit);
-                setDurationHours(unit === 'days' ? customDurationValue * 24 : customDurationValue);
-              }}
-              className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-pink-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white cursor-pointer"
-            >
-              <option value="hours">Hours</option>
-              <option value="days">Days</option>
-            </select>
-          </div>
-        )}
       </div>
 
-      {/* STEP 3: BASE VIEWS QUANTITY PRESETS */}
-      <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-pink-100 dark:border-slate-800 shadow-sm space-y-3">
+      {/* 4. VIDEO/POST LINK CARD (Video: dhansmm.site/engage) */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div className="flex items-center space-x-2 text-slate-800 dark:text-slate-200">
+          <LinkIcon className="w-4 h-4 text-[#0088cc] dark:text-cyan-400" />
+          <span className="text-xs font-black uppercase tracking-wider">Video/Post Link</span>
+        </div>
+        <input
+          type="url"
+          required
+          placeholder="Paste your link..."
+          value={targetUrl}
+          onChange={(e) => setTargetUrl(e.target.value)}
+          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-mono text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0088cc]"
+        />
+      </div>
+
+      {/* 5. BASE VIEWS QUANTITY CARD (Video: dhansmm.site/engage [10K-600K]) */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-slate-800 dark:text-slate-200">
-            <Eye className="w-4 h-4 text-pink-500" />
-            <span className="text-xs font-extrabold uppercase tracking-wider">Step 3: Base Views Quantity</span>
+            <Eye className="w-4 h-4 text-[#0088cc] dark:text-cyan-400" />
+            <span className="text-xs font-black uppercase tracking-wider">Base Views Quantity</span>
           </div>
-          <span className="font-mono text-xs font-black text-pink-600 dark:text-pink-400">
-            {baseViewsQty.toLocaleString()} Views Total
+          <span className="font-mono text-xs font-black text-[#0088cc] dark:text-cyan-400">
+            {baseViewsQty.toLocaleString()} views
           </span>
         </div>
 
-        {/* Preset Pill Buttons */}
+        {/* Preset grid [10K, 50K, 100K] & [250K, 500K, 600K] */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-          {[1000, 2500, 5000, 10000, 25000, 50000].map(val => (
+          {[10000, 50000, 100000, 250000, 500000, 600000].map(val => (
             <button
               key={val}
               type="button"
@@ -1385,62 +1245,129 @@ export const AllInOneOrderForm: React.FC = () => {
                   }));
                 }
               }}
-              className={`py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+              className={`py-2.5 rounded-2xl text-xs font-extrabold transition-all cursor-pointer ${
                 !customViewsMode && baseViewsQty === val
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-md shadow-emerald-500/25 ring-2 ring-emerald-400'
-                  : 'bg-pink-50/50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-100 dark:border-slate-700'
+                  ? 'bg-[#0088cc] text-white shadow-md shadow-sky-500/20 ring-2 ring-sky-400'
+                  : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700'
               }`}
             >
-              {val >= 1000 ? `${val / 1000}k` : val}
+              {val >= 1000 ? `${val / 1000}K` : val}
             </button>
           ))}
-          <button
-            type="button"
-            onClick={() => setCustomViewsMode(true)}
-            className={`py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-              customViewsMode
-                ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-md shadow-pink-500/25 ring-2 ring-pink-400'
-                : 'bg-pink-50/50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-100 dark:border-slate-700'
-            }`}
-          >
-            Custom
-          </button>
         </div>
 
-        {/* Custom Views Option */}
-        <div className="pt-1 flex items-center space-x-2 text-xs">
-          <span className="text-slate-500 font-bold">or custom quantity:</span>
-          <input
-            type="number"
-            value={baseViewsQty}
-            onChange={(e) => {
-              const raw = e.target.value;
-              const val = raw === '' ? 0 : parseInt(raw, 10);
-              const sanitized = isNaN(val) ? 0 : Math.max(0, val);
-              setBaseViewsQty(sanitized);
-              setCustomViewsMode(true);
-              setMetricConfigs(prev => ({
-                ...prev,
-                views: { ...prev.views, totalQuantity: sanitized }
-              }));
-            }}
-            className="w-32 px-3 py-1.5 bg-pink-50/40 dark:bg-slate-950 border border-pink-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-          />
-          <span className="text-slate-400 font-medium">views</span>
+        {/* Custom views input */}
+        <div className="pt-2 flex items-center justify-between gap-3 text-xs">
+          <span className="text-slate-500 font-bold shrink-0">or custom:</span>
+          <div className="flex items-center space-x-2 w-full justify-end">
+            <input
+              type="number"
+              value={baseViewsQty}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const val = raw === '' ? 0 : parseInt(raw, 10);
+                const sanitized = isNaN(val) ? 0 : Math.max(0, val);
+                setBaseViewsQty(sanitized);
+                setCustomViewsMode(true);
+                setMetricConfigs(prev => ({
+                  ...prev,
+                  views: { ...prev.views, totalQuantity: sanitized }
+                }));
+              }}
+              className="w-32 px-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0088cc]"
+            />
+            <span className="text-slate-400 font-medium">views</span>
+          </div>
         </div>
       </div>
 
-      {/* STEP 4: ENGAGEMENT BREAKDOWN CARDS */}
+      {/* 6. CAMPAIGN TIME DURATION WINDOW */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 text-slate-800 dark:text-slate-200">
+            <Clock className="w-4 h-4 text-[#0088cc] dark:text-cyan-400" />
+            <span className="text-xs font-black uppercase tracking-wider">Campaign Time Duration Window</span>
+          </div>
+          <span className="text-xs font-mono font-black text-[#0088cc] dark:text-cyan-400 bg-blue-50 dark:bg-blue-950 px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-900">
+            {durationHours} Hours Total
+          </span>
+        </div>
+
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {[
+            { label: '6h', hours: 6 },
+            { label: '12h', hours: 12 },
+            { label: '24h', hours: 24 },
+            { label: '48h', hours: 48 },
+            { label: '62h', hours: 62 },
+            { label: 'Custom', hours: -1 }
+          ].map(opt => {
+            const isSelected = opt.hours === -1 ? customDurationMode : (!customDurationMode && durationHours === opt.hours);
+            return (
+              <button
+                key={opt.label}
+                type="button"
+                onClick={() => {
+                  if (opt.hours === -1) {
+                    setCustomDurationMode(true);
+                  } else {
+                    setCustomDurationMode(false);
+                    setDurationHours(opt.hours);
+                  }
+                }}
+                className={`py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#0088cc] text-white shadow-md shadow-sky-500/20 ring-2 ring-sky-400'
+                    : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700'
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {customDurationMode && (
+          <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center space-x-3 text-xs">
+            <span className="text-slate-500 font-bold">Custom Duration:</span>
+            <input
+              type="number"
+              min={1}
+              value={customDurationValue}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 1;
+                setCustomDurationValue(val);
+                setDurationHours(customDurationUnit === 'days' ? val * 24 : val);
+              }}
+              className="w-24 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white"
+            />
+            <select
+              value={customDurationUnit}
+              onChange={(e) => {
+                const unit = e.target.value as 'hours' | 'days';
+                setCustomDurationUnit(unit);
+                setDurationHours(unit === 'days' ? customDurationValue * 24 : customDurationValue);
+              }}
+              className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white cursor-pointer"
+            >
+              <option value="hours">Hours</option>
+              <option value="days">Days</option>
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* 7. SECTION 2: ENGAGEMENT BREAKDOWN (Video: dhansmm.site/engage) */}
       <div className="space-y-4">
         
-        {/* Section Header */}
+        {/* Section Header with blue 2 badge, Guide button, and active pill */}
         <div className="flex items-center justify-between px-1">
-          <div className="flex items-center space-x-2">
-            <span className="w-5 h-5 rounded-full bg-pink-600 text-white font-black text-[11px] flex items-center justify-center shadow-sm">
-              4
+          <div className="flex items-center space-x-2.5">
+            <span className="w-6 h-6 rounded-full bg-[#0088cc] text-white font-black text-xs flex items-center justify-center shadow-sm">
+              2
             </span>
-            <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
-              STEP 4: ENGAGEMENT BREAKDOWN & SMM SERVICES
+            <span className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
+              ENGAGEMENT BREAKDOWN
             </span>
           </div>
 
@@ -1448,12 +1375,12 @@ export const AllInOneOrderForm: React.FC = () => {
             <button 
               type="button" 
               onClick={handleGeneratePreview}
-              className="px-3 py-1 rounded-xl bg-pink-100/70 text-pink-700 dark:bg-pink-950/80 dark:text-pink-300 font-bold flex items-center space-x-1 cursor-pointer hover:bg-pink-200 transition-colors"
+              className="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold flex items-center space-x-1 cursor-pointer hover:bg-slate-200 transition-colors border border-slate-200/70 dark:border-slate-700"
             >
-              <HelpCircle className="w-3.5 h-3.5 text-pink-500" />
-              <span>Preview Timeline</span>
+              <HelpCircle className="w-3.5 h-3.5 text-[#0088cc]" />
+              <span>Guide / Preview</span>
             </button>
-            <span className="px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold text-[11px]">
+            <span className="px-3 py-1 rounded-full bg-blue-50 text-[#0088cc] dark:bg-blue-950 dark:text-cyan-400 font-extrabold text-[11px] border border-blue-200 dark:border-blue-900">
               {activeMetricsCount} active
             </span>
           </div>
@@ -2629,8 +2556,8 @@ export const AllInOneOrderForm: React.FC = () => {
         </div>
       )}
 
-      {/* 8. STICKY BOTTOM FLOATING TOTAL CHARGE BAR */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-pink-100 dark:border-slate-800 p-4 shadow-2xl">
+      {/* 8. STICKY BOTTOM FLOATING TOTAL CHARGE BAR (Video: dhansmm.site/engage) */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 shadow-2xl">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
           
           <div>
@@ -2649,7 +2576,7 @@ export const AllInOneOrderForm: React.FC = () => {
             type="button"
             onClick={handleConfirmAndSchedule}
             disabled={submittingOrder}
-            className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-pink-600 via-rose-600 to-fuchsia-600 hover:from-pink-500 hover:to-rose-500 text-white font-extrabold text-sm shadow-xl shadow-pink-600/30 flex items-center space-x-2 transition-all cursor-pointer disabled:opacity-50"
+            className="px-6 py-3.5 rounded-2xl bg-[#0088cc] hover:bg-[#0077b5] text-white font-extrabold text-sm shadow-xl shadow-sky-500/25 flex items-center space-x-2 transition-all cursor-pointer disabled:opacity-50"
           >
             {submittingOrder ? (
               <>
@@ -2659,13 +2586,24 @@ export const AllInOneOrderForm: React.FC = () => {
             ) : (
               <>
                 <span>Place Order Now</span>
-                <Send className="w-4 h-4" />
+                <Rocket className="w-4 h-4" />
               </>
             )}
           </button>
 
         </div>
       </div>
+
+      {/* Floating Telegram Support Button (Matching dhansmm.site) */}
+      <a
+        href="https://t.me"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-24 right-5 z-40 w-12 h-12 rounded-full bg-[#229ED9] hover:bg-[#1e8ec5] text-white flex items-center justify-center shadow-lg shadow-sky-500/30 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        title="Telegram Support"
+      >
+        <Send className="w-5 h-5 -rotate-12 translate-x-[-1px] translate-y-[-1px]" />
+      </a>
 
       {/* ========================================================================= */}
       {/* 9. 100+ VIRAL GROWTH CURVES EXPLORER MODAL                                */}
